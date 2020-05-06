@@ -18,6 +18,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
     private PermissionInterceptor permissionInterceptor;
     @Resource
     private CookieInterceptor cookieInterceptor;
+    @Resource
+    private SecurityInterceptor securityInterceptor;
 
     /**
      * addPathPatterns 添加拦截规则
@@ -25,6 +27,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
      */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+    	registry.addInterceptor(securityInterceptor).addPathPatterns("/**");
         registry.addInterceptor(permissionInterceptor).addPathPatterns("/**");
         registry.addInterceptor(cookieInterceptor).addPathPatterns("/**");
     }

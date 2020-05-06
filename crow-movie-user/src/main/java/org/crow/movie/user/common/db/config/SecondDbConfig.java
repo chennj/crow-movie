@@ -23,7 +23,7 @@ import java.util.Map;
 @EnableJpaRepositories(
         entityManagerFactoryRef="entityManagerFactorySecond",
         transactionManagerRef="transactionManagerSecond",
-        basePackages= { "net.crow.activiti.track.common.db.second.dao" }) //设置Repository所在位置
+        basePackages= { "org.crow.movie.user.common.db.second.dao" }) //设置Repository所在位置
 public class SecondDbConfig {
 
 	@Autowired 
@@ -40,7 +40,7 @@ public class SecondDbConfig {
         return builder
                 .dataSource(secondaryDataSource)
                 .properties(getVendorProperties())
-                .packages("net.crow.activiti.track.common.db.second.entity") //设置实体类所在位置
+                .packages("org.crow.movie.user.common.db.second.entity") //设置实体类所在位置
                 .build();
     }
 

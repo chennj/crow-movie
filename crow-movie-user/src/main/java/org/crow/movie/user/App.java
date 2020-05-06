@@ -23,7 +23,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @SpringBootApplication(exclude = {
       DataSourceAutoConfiguration.class
 })
-@ComponentScan(basePackages = {"net.crow.activiti.track"})
+@ComponentScan(basePackages = {"org.crow.movie.user"})
 @EnableJpaAuditing
 public class App 
 {

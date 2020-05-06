@@ -36,53 +36,26 @@ public class PermissionInterceptor extends HandlerInterceptorAdapter implements 
 	private String salt;
 	
 	private static String pwdSalt;
-	
-	/**
-	 * 地址白名单
-	 */
-	@Value("${acti.time.excludeUrl}")
-	private String excludeUrl;
-	
-	private static String[] excludeUrls;
-	
+			
 	private static MemberInfoService memberInfoService;
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		
-		if (	excludeUrl == null 
-				|| excludeUrl.trim().length() == 0
-				|| salt == null
-				|| salt.trim().length() == 0){
-			throw new RuntimeException("Address White List And Salt Cann't Be Empty! In Application Property File");
+		if (salt == null || salt.trim().length() == 0){
+			throw new RuntimeException("Salt Cann't Be Empty! In Application Property File");
 		}
 		
 		pwdSalt = salt;
-		
-		excludeUrls = excludeUrl.split(",");
 		
 	}
 	
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {
-		
-		HttpServletRequest req = (HttpServletRequest) request;
-		//HttpServletResponse resp = (HttpServletResponse) response;
-		//HttpSession session = req.getSession();
-		
-		String contextName = req.getContextPath();
-		String url = req.getRequestURI();
-		url = url.replace(contextName, "");
-				
-		// 在地址白名单中不进行拦截(例如isAlive)
-		for (int i = 0; i < excludeUrls.length; i++) {
-			String excludeUrl = excludeUrls[i];
-			if (url.startsWith(excludeUrl)) {
-				return true;
-			}
-		}
-		
+
+		boolean ajaxFlag 	= "XMLHttpRequest".equalsIgnoreCase(request.getHeader("x-requested-with"));
+								
 		if (!(handler instanceof HandlerMethod)) {
 			return super.preHandle(request, response, handler);
 		}
@@ -91,9 +64,15 @@ public class PermissionInterceptor extends HandlerInterceptorAdapter implements 
 			HandlerMethod method = (HandlerMethod)handler;
 			PermessionLimit permission = method.getMethodAnnotation(PermessionLimit.class);
 			if (permission == null || permission.limit()) {
-				response.sendRedirect(request.getContextPath() + "/toLogin");
-				//request.getRequestDispatcher("/toLogin").forward(request, response);
-				return false;
+				String username = request.getParameter("username");
+				String password = request.getParameter("password");
+				if (!login(response,request,username,password,false)){
+					if (ajaxFlag){
+						response.setContentType("application/json);charset=utf-8");
+					}
+					response.sendError(HttpServletResponse.SC_FORBIDDEN, "please login first");
+					return false;					
+				}
 			}
 		}
 
@@ -107,10 +86,10 @@ public class PermissionInterceptor extends HandlerInterceptorAdapter implements 
 	public static boolean login(
 			HttpServletResponse response, 
 			HttpServletRequest request,
-			String username, 
-			String password, 
+			String username,
+			String password,
 			boolean ifRemember){
-		
+				
 		if (null == memberInfoService){
 			WebApplicationContext applicationContext = WebApplicationContextUtils.getRequiredWebApplicationContext(request.getServletContext());
 			memberInfoService = applicationContext.getBean(MemberInfoService.class);
@@ -119,7 +98,7 @@ public class PermissionInterceptor extends HandlerInterceptorAdapter implements 
 			}
 		}
 		
-		MemberInfo userInfo = memberInfoService.getUnique("no", username);
+		MemberInfo userInfo = memberInfoService.getUnique("name", username);
 		if (null == userInfo){
 			return false;
 		}

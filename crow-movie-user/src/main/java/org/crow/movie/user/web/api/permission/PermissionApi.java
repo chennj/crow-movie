@@ -12,7 +12,6 @@ import org.crow.movie.user.web.controller.BaseController;
 import org.crow.movie.user.web.interceptor.PermissionInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -28,20 +27,35 @@ public class PermissionApi extends BaseController{
 	
 	@RequestMapping("demo")
     @ResponseBody
+    @PermessionLimit(limit=false)
     public String demo() {
 		
 		Page<MemberInfo> page = memberInfoService.page(1, 10, null);
 		return page.toJsonString();
     }
 	
-
-	@RequestMapping("/toLogin")
+	@RequestMapping(value="register", method=RequestMethod.POST)
+	@ResponseBody
 	@PermessionLimit(limit=false)
-	public String toLogin(Model model, HttpServletRequest request) {
+	public ReturnT<String> register(HttpServletRequest request, HttpServletResponse response, String userName, String password){
+		
+		// valid
 		if (PermissionInterceptor.ifLogin(request)) {
-			return "redirect:/";
+			return ReturnT.SUCCESS;
 		}
-		return "login";
+
+		// param
+		if (userName==null || userName.trim().length()==0 || password==null || password.trim().length()==0){
+			return new ReturnT<String>(500, "请输入账号密码");
+		}
+		boolean ifRem = false;
+
+		// do login
+		boolean loginRet = PermissionInterceptor.login(response, request, userName, password, ifRem);
+		if (!loginRet) {
+			return new ReturnT<String>(500, "账号密码错误");
+		}
+		return ReturnT.SUCCESS;
 	}
 	
 	@RequestMapping(value="login", method=RequestMethod.POST)
