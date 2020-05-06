@@ -12,6 +12,7 @@ import org.crow.movie.user.common.db.service.MemberInfoService;
 import org.crow.movie.user.common.util.CookieUtil;
 import org.crow.movie.user.common.util.DigestUtils;
 import org.crow.movie.user.common.util.SessionUtil;
+import org.crow.movie.user.common.util.StrUtil;
 import org.crow.movie.user.web.annotation.PermessionLimit;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +21,9 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 
 /**
  * 权限拦截，简易版
@@ -64,8 +68,17 @@ public class PermissionInterceptor extends HandlerInterceptorAdapter implements 
 			HandlerMethod method = (HandlerMethod)handler;
 			PermessionLimit permission = method.getMethodAnnotation(PermessionLimit.class);
 			if (permission == null || permission.limit()) {
-				String username = request.getParameter("username");
-				String password = request.getParameter("password");
+				String js = request.getParameter("data");
+				String username = null;
+				String password = null;
+				if (StrUtil.isNEmpty(js)){
+					JSONObject jdata = JSON.parseObject(js);
+					username = jdata.getString("account");
+					password = jdata.getString("password");
+				} else {
+					username = request.getParameter("account");
+					password = request.getParameter("password");
+				}
 				if (!login(response,request,username,password,false)){
 					if (ajaxFlag){
 						response.setContentType("application/json);charset=utf-8");
@@ -98,7 +111,7 @@ public class PermissionInterceptor extends HandlerInterceptorAdapter implements 
 			}
 		}
 		
-		MemberInfo userInfo = memberInfoService.getUnique("name", username);
+		MemberInfo userInfo = memberInfoService.getUnique("account", username);
 		if (null == userInfo){
 			return false;
 		}

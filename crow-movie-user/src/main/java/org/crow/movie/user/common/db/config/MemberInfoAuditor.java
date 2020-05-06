@@ -14,7 +14,7 @@ public class MemberInfoAuditor implements AuditorAware<Integer> {
 	@Override
 	public Optional<Integer> getCurrentAuditor() {
 		MemberInfo user = (MemberInfo)SessionUtil.getSession(Const.SESSION_USER_INFO_KEY);
-		if (null == user || user.getToken() == null || user.getToken().toString().trim().length()==0){
+		if (null == user || user.getAccount() == null || user.getAccount().toString().trim().length()==0){
 			return null;
 		} else {
 			return Optional.of(user.getId());
