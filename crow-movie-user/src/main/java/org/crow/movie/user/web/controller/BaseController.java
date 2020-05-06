@@ -7,8 +7,12 @@ import org.crow.movie.user.common.constant.Const;
 import org.crow.movie.user.common.db.entity.MemberInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 
 public abstract class BaseController {
+
+	@Value("${movie.user.salt}")
+	protected String salt;
 
 	protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 	

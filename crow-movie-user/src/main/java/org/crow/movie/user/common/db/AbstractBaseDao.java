@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
@@ -410,10 +411,13 @@ public abstract class AbstractBaseDao<T> implements BaseDao<T> {
 		String hql = "from " + clazz.getName() + " where 1 = 1";
 		
 		Query query = buildQuery(hql, "" ,eq,not,like,notlike,leftlike,rightlike,in,notin,between,notbetween,custCondition);
-
-		Object o = query.getSingleResult();
 		
-		return (T) o;
+		try {
+			Object o = query.getSingleResult();
+			return (T)o;
+		} catch (NoResultException e ){
+			return null;
+		}
 	}
 
 	public <V>Long findCount( 

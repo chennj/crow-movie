@@ -7,6 +7,8 @@ import org.crow.movie.user.common.db.Page;
 import org.crow.movie.user.common.db.entity.MemberInfo;
 import org.crow.movie.user.common.db.model.ReturnT;
 import org.crow.movie.user.common.db.service.MemberInfoService;
+import org.crow.movie.user.common.util.DigestUtils;
+import org.crow.movie.user.common.util.StrUtil;
 import org.crow.movie.user.web.annotation.PermessionLimit;
 import org.crow.movie.user.web.controller.BaseController;
 import org.crow.movie.user.web.interceptor.PermissionInterceptor;
@@ -16,6 +18,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 
 @Controller
 @RequestMapping("/")
@@ -37,24 +42,49 @@ public class PermissionApi extends BaseController{
 	@RequestMapping(value="register", method=RequestMethod.POST)
 	@ResponseBody
 	@PermessionLimit(limit=false)
-	public ReturnT<String> register(HttpServletRequest request, HttpServletResponse response, String userName, String password){
+	public ReturnT<String> register(HttpServletRequest request, HttpServletResponse response){
 		
-		// valid
-		if (PermissionInterceptor.ifLogin(request)) {
-			return ReturnT.SUCCESS;
-		}
-
+		String js = request.getParameter("data");
+		
+		logger.info("register>>>接收到的数据："+js);		
+		
 		// param
-		if (userName==null || userName.trim().length()==0 || password==null || password.trim().length()==0){
-			return new ReturnT<String>(500, "请输入账号密码");
+		if (js==null || js.trim().length()==0){
+			logger.error("register>>>数据的没有，搞啥");
+			return new ReturnT<String>(500, "data is empty");
 		}
-		boolean ifRem = false;
-
-		// do login
-		boolean loginRet = PermissionInterceptor.login(response, request, userName, password, ifRem);
-		if (!loginRet) {
-			return new ReturnT<String>(500, "账号密码错误");
+		
+		JSONObject jdata = null;
+		MemberInfo mbr = null;
+		String account;
+		String password;
+		try {
+			jdata 		= JSON.parseObject(js);
+			account 	= jdata.getString("account");
+			password 	= jdata.getString("password");
+			if (StrUtil.isNEmpty(account) || StrUtil.isNEmpty(password)){
+				return new ReturnT<String>(500, "name or pwd is empty");
+			}
+		} catch (Exception e){
+			logger.error("register>>>"+e.getMessage());
+			return new ReturnT<String>(500, "data trans json error");
 		}
+		
+		mbr = memberInfoService.getUnique("account", account);
+		if (null != mbr){
+			return new ReturnT<String>(500, "user exist");
+		}
+		
+		mbr = JSON.parseObject(js, new TypeReference<MemberInfo>(){});
+		if (null == mbr){
+			logger.error("register>>>data trans bean exception");
+			return new ReturnT<String>(500, "data trans bean exception");
+		}
+		
+		String pwd = DigestUtils.encryptMd5(DigestUtils.encryptMd5(password)+salt);
+		mbr.setPassword(pwd);
+		memberInfoService.add(mbr);
+		
 		return ReturnT.SUCCESS;
 	}
 	

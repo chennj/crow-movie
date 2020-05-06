@@ -27,7 +27,7 @@ public class MemberInfo {
 	private Integer isVisitor;
 	@Column(name="token")
 	private String token;
-	@Column(name="account")
+	@Column(name="account",unique=true,nullable=false)
 	private String account;
 	@Column(name="password")
 	private String password;

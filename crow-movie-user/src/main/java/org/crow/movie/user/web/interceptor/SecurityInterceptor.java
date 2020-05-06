@@ -27,7 +27,7 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter{
 	/**
 	 * 地址白名单
 	 */
-	@Value("${acti.time.excludeUrl}")
+	@Value("${movie.user.excludeUrl}")
 	private String excludeUrl;
 	
 	private static String[] excludeUrls;
