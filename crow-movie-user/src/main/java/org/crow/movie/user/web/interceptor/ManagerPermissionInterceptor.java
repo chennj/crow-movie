@@ -1,9 +1,13 @@
 package org.crow.movie.user.web.interceptor;
 
+import java.io.PrintWriter;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.crow.movie.user.web.annotation.PermessionLimit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
@@ -12,6 +16,8 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 @Component
 public class ManagerPermissionInterceptor extends HandlerInterceptorAdapter{
 
+	protected static final Logger logger = LoggerFactory.getLogger(ManagerPermissionInterceptor.class.getClass());
+	
 	/**
 	 * ip白名单
 	 */
@@ -63,15 +69,28 @@ public class ManagerPermissionInterceptor extends HandlerInterceptorAdapter{
 		PermessionLimit permission = method.getMethodAnnotation(PermessionLimit.class);
 		if (permission == null || permission.manager()){
 			
-			boolean goAHead = false;
-			boolean ajaxFlag = "XMLHttpRequest".equalsIgnoreCase(request.getHeader("x-requested-with"));
-			String referer = request.getHeader("Referer");
+			boolean goAHead 	= false;
+			boolean ajaxFlag 	= "XMLHttpRequest".equalsIgnoreCase(request.getHeader("x-requested-with"));
+			String referer 		= request.getHeader("Referer");
 			if (referer == null){
 				if (!"yes".equalsIgnoreCase(allowEmpty)){
 					if (ajaxFlag){
 						response.setContentType("application/json);charset=utf-8");
 					}
-					response.sendError(HttpServletResponse.SC_FORBIDDEN, "referer can't empty");
+					PrintWriter writer = null;
+					try{
+						writer = response.getWriter();
+						writer.write("{\"code\":\"404\",\"msg\":\"please login first\"}");
+						writer.flush();
+					} catch (Exception e){
+						logger.info("ManagerPermission.preHandle>>>"+e.getMessage());
+					} finally{
+						try{
+							if (null != writer){
+								writer.close();
+							}
+						} catch(Exception e){}
+					}
 					return false;
 				}
 				return true;
@@ -86,7 +105,21 @@ public class ManagerPermissionInterceptor extends HandlerInterceptorAdapter{
 				if (ajaxFlag){
 					response.setContentType("application/json);charset=utf-8");
 				}
-				response.sendError(HttpServletResponse.SC_FORBIDDEN, referer+" have not right access");
+				
+				PrintWriter writer = null;
+				try{
+					writer = response.getWriter();
+					writer.write("{\"code\":\"404\",\"msg\":\" have not right access\"}");
+					writer.flush();
+				} catch (Exception e){
+					logger.info("ManagerPermission.preHandle>>>"+e.getMessage());
+				} finally{
+					try{
+						if (null != writer){
+							writer.close();
+						}
+					} catch(Exception e){}
+				}
 				return false;
 			}
 		}

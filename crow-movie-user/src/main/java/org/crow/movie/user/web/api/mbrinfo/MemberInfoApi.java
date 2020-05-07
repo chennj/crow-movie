@@ -91,4 +91,25 @@ public class MemberInfoApi  extends BaseController{
 		
 		return success();
 	}
+	
+	@RequestMapping(value="del", method=RequestMethod.POST)
+	@ResponseBody
+	public ReturnT<?> del(
+			HttpServletRequest request,
+			@RequestParam(required=true) Integer id){
+		
+		if (StrUtil.isEmpty(id)){
+			return fail("id is empty");
+		}
+		
+		MemberInfo entity = memberInfoService.getById(id);
+		if (null == entity){
+			return fail("member is not exists");
+		}
+
+		memberInfoService.delete(id);
+		
+		return success("delete complete");
+	}
+	
 }

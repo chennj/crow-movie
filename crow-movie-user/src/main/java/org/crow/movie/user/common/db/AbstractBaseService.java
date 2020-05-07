@@ -1,5 +1,6 @@
 package org.crow.movie.user.common.db;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +43,10 @@ public abstract class AbstractBaseService<T> {
 	
 	public T modify(T t){
 		return baseDao.update(t);
+	}
+	
+	public void del(Serializable id){
+		baseDao.delete(id);
 	}
 	
 	public List<T> getList(String key,String value){

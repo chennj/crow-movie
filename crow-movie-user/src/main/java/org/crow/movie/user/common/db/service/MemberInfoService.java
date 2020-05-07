@@ -18,4 +18,12 @@ public class MemberInfoService extends AbstractBaseService<MemberInfo> {
 		super.setBaseDao(dao);
 	}
 
+	public void delete(Integer id) {
+		
+		super.del(id);
+		/**
+		 * 还有关联表的删除
+		 */
+	}
+
 }

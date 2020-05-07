@@ -90,9 +90,9 @@ public class MemberPermissionInterceptor extends HandlerInterceptorAdapter imple
 					}
 					PrintWriter writer = null;
 					try{
-					writer = response.getWriter();
-					writer.write("{\"code\":\"201\",\"msg\":\"please login first\"}");
-					writer.flush();
+						writer = response.getWriter();
+						writer.write("{\"code\":\"201\",\"msg\":\"please login first\"}");
+						writer.flush();
 					} catch (Exception e){
 						logger.info("permission.preHandle>>>"+e.getMessage());
 					} finally{
