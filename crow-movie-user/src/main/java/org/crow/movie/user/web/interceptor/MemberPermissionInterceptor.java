@@ -1,5 +1,6 @@
 package org.crow.movie.user.web.interceptor;
 
+import java.io.PrintWriter;
 import java.math.BigInteger;
 
 import javax.servlet.http.HttpServletRequest;
@@ -14,6 +15,8 @@ import org.crow.movie.user.common.util.DigestUtils;
 import org.crow.movie.user.common.util.SessionUtil;
 import org.crow.movie.user.common.util.StrUtil;
 import org.crow.movie.user.web.annotation.PermessionLimit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -31,8 +34,10 @@ import com.alibaba.fastjson.JSONObject;
  *
  */
 @Component
-public class PermissionInterceptor extends HandlerInterceptorAdapter implements InitializingBean {
+public class MemberPermissionInterceptor extends HandlerInterceptorAdapter implements InitializingBean {
 
+	protected static final Logger logger = LoggerFactory.getLogger(MemberPermissionInterceptor.class.getClass());
+	
 	/**
 	 * 密码加盐
 	 */
@@ -64,14 +69,14 @@ public class PermissionInterceptor extends HandlerInterceptorAdapter implements 
 			return super.preHandle(request, response, handler);
 		}
 
-		if (!ifLogin(request)) {
+		if (!ifMemberLogin(request)) {
 			HandlerMethod method = (HandlerMethod)handler;
 			PermessionLimit permission = method.getMethodAnnotation(PermessionLimit.class);
 			if (permission == null || permission.limit()) {
 				String js = request.getParameter("data");
 				String username = null;
 				String password = null;
-				if (StrUtil.isNEmpty(js)){
+				if (!StrUtil.isEmpty(js)){
 					JSONObject jdata = JSON.parseObject(js);
 					username = jdata.getString("account");
 					password = jdata.getString("password");
@@ -83,7 +88,21 @@ public class PermissionInterceptor extends HandlerInterceptorAdapter implements 
 					if (ajaxFlag){
 						response.setContentType("application/json);charset=utf-8");
 					}
-					response.sendError(HttpServletResponse.SC_FORBIDDEN, "please login first");
+					PrintWriter writer = null;
+					try{
+					writer = response.getWriter();
+					writer.write("{\"code\":\"201\",\"msg\":\"please login first\"}");
+					writer.flush();
+					} catch (Exception e){
+						logger.info("permission.preHandle>>>"+e.getMessage());
+					} finally{
+						try{
+							if (null != writer){
+								writer.close();
+							}
+						} catch(Exception e){}
+					}
+					
 					return false;					
 				}
 			}
@@ -133,7 +152,21 @@ public class PermissionInterceptor extends HandlerInterceptorAdapter implements 
 		CookieUtil.remove(request, response, LOGIN_IDENTITY_KEY);
 	}
 	
-	public static boolean ifLogin(HttpServletRequest request){
+	public static boolean ifMemberLogin(HttpServletRequest request){
+		String indentityInfo = CookieUtil.getValue(request, LOGIN_IDENTITY_KEY);
+		if (indentityInfo==null) {
+			return false;
+		}
+		
+		HttpSession session = request.getSession();
+		MemberInfo user = (MemberInfo)session.getAttribute(Const.SESSION_USER_INFO_KEY);
+		if (user == null){
+			return false;
+		}
+		return true;
+	}
+	
+	public static boolean ifManagerLogin(HttpServletRequest request){
 		String indentityInfo = CookieUtil.getValue(request, LOGIN_IDENTITY_KEY);
 		if (indentityInfo==null) {
 			return false;

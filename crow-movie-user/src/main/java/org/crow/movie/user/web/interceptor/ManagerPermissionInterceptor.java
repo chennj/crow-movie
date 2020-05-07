@@ -3,12 +3,14 @@ package org.crow.movie.user.web.interceptor;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.crow.movie.user.web.annotation.PermessionLimit;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 @Component
-public class SecurityInterceptor extends HandlerInterceptorAdapter{
+public class ManagerPermissionInterceptor extends HandlerInterceptorAdapter{
 
 	/**
 	 * ip白名单
@@ -56,32 +58,37 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter{
 			}
 		}
 
-		// 如果不在ip白名单，拒绝访问
-		boolean goAHead = false;
-		boolean ajaxFlag = "XMLHttpRequest".equalsIgnoreCase(request.getHeader("x-requested-with"));
-		String referer = request.getHeader("Referer");
-		if (referer == null){
-			if (!"yes".equalsIgnoreCase(allowEmpty)){
+		// 如果是manager功能，但地址不在ip白名单，拒绝访问
+		HandlerMethod method = (HandlerMethod)handler;
+		PermessionLimit permission = method.getMethodAnnotation(PermessionLimit.class);
+		if (permission == null || permission.manager()){
+			
+			boolean goAHead = false;
+			boolean ajaxFlag = "XMLHttpRequest".equalsIgnoreCase(request.getHeader("x-requested-with"));
+			String referer = request.getHeader("Referer");
+			if (referer == null){
+				if (!"yes".equalsIgnoreCase(allowEmpty)){
+					if (ajaxFlag){
+						response.setContentType("application/json);charset=utf-8");
+					}
+					response.sendError(HttpServletResponse.SC_FORBIDDEN, "referer can't empty");
+					return false;
+				}
+				return true;
+			}
+			for (int i=0; i < addrUrls.length; i++){
+				String addr = addrUrls[i];
+				if (referer.startsWith(addr)){
+					return true;
+				}
+			}		
+			if (!goAHead){
 				if (ajaxFlag){
 					response.setContentType("application/json);charset=utf-8");
 				}
-				response.sendError(HttpServletResponse.SC_FORBIDDEN, "referer can't empty");
+				response.sendError(HttpServletResponse.SC_FORBIDDEN, referer+" have not right access");
 				return false;
 			}
-			return true;
-		}
-		for (int i=0; i < addrUrls.length; i++){
-			String addr = addrUrls[i];
-			if (referer.startsWith(addr)){
-				return true;
-			}
-		}		
-		if (!goAHead){
-			if (ajaxFlag){
-				response.setContentType("application/json);charset=utf-8");
-			}
-			response.sendError(HttpServletResponse.SC_FORBIDDEN, referer+" have not right access");
-			return false;
 		}
 		
 		return true;

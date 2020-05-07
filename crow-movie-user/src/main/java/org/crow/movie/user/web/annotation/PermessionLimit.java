@@ -18,4 +18,9 @@ public @interface PermessionLimit {
 	 * 登陆拦截 (默认拦截)
 	 */
 	boolean limit() default true;
+	
+	/**
+	 * 管理员拦截
+	 */
+	boolean manager() default true;
 }

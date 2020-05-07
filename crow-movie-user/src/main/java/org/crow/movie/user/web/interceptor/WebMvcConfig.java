@@ -15,11 +15,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebMvcConfig implements WebMvcConfigurer {
 
     @Resource
-    private PermissionInterceptor permissionInterceptor;
+    private MemberPermissionInterceptor permissionInterceptor;
     @Resource
     private CookieInterceptor cookieInterceptor;
     @Resource
-    private SecurityInterceptor securityInterceptor;
+    private ManagerPermissionInterceptor securityInterceptor;
 
     /**
      * addPathPatterns 添加拦截规则

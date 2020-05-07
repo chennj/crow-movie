@@ -232,8 +232,8 @@ public abstract class AbstractBaseDao<T> implements BaseDao<T> {
     
     private final static int BATCH_SIZE = 20;
     
-    public T get(String id){
-    	return (T)em.getReference(clazz, id);
+    public T get(Serializable id){
+    	return em.find(clazz, id);
     }
     
     @SuppressWarnings("unchecked")

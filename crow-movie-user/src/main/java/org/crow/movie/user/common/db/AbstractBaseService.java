@@ -36,6 +36,14 @@ public abstract class AbstractBaseService<T> {
 		return baseDao.get(id);
 	}
 	
+	public T getById(Integer id){
+		return baseDao.get(id);
+	}
+	
+	public T modify(T t){
+		return baseDao.update(t);
+	}
+	
 	public List<T> getList(String key,String value){
 		Map<String, Object> eq = new HashMap<String, Object>(){
 			/**

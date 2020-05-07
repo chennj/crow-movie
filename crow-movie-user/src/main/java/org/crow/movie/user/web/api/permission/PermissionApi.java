@@ -3,7 +3,6 @@ package org.crow.movie.user.web.api.permission;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.crow.movie.user.common.db.Page;
 import org.crow.movie.user.common.db.entity.MemberInfo;
 import org.crow.movie.user.common.db.model.ReturnT;
 import org.crow.movie.user.common.db.service.MemberInfoService;
@@ -12,7 +11,7 @@ import org.crow.movie.user.common.util.SomeUtil;
 import org.crow.movie.user.common.util.StrUtil;
 import org.crow.movie.user.web.annotation.PermessionLimit;
 import org.crow.movie.user.web.controller.BaseController;
-import org.crow.movie.user.web.interceptor.PermissionInterceptor;
+import org.crow.movie.user.web.interceptor.MemberPermissionInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,18 +30,19 @@ public class PermissionApi extends BaseController{
 	MemberInfoService memberInfoService;
 	
 	
-	@RequestMapping("demo")
+	@RequestMapping("isAlive")
     @ResponseBody
     @PermessionLimit(limit=false)
     public String demo() {
 		
-		Page<MemberInfo> page = memberInfoService.page(1, 10, null);
-		return page.toJsonString();
+		//Page<MemberInfo> page = memberInfoService.page(1, 10, null);
+		//return page.toJsonString();
+		return "isAlive";
     }
 	
 	@RequestMapping(value="register", method=RequestMethod.POST)
 	@ResponseBody
-	@PermessionLimit(limit=false)
+	@PermessionLimit(limit=false,manager=false)
 	public ReturnT<String> register(HttpServletRequest request, HttpServletResponse response){
 		
 		String js = request.getParameter("data");
@@ -63,7 +63,7 @@ public class PermissionApi extends BaseController{
 			jdata 		= JSON.parseObject(js);
 			account 	= jdata.getString("account");
 			password 	= jdata.getString("password");
-			if (StrUtil.isNEmpty(account) || StrUtil.isNEmpty(password)){
+			if (StrUtil.isEmpty(account) || StrUtil.isEmpty(password)){
 				return new ReturnT<String>(500, "name or pwd is empty");
 			}
 		} catch (Exception e){
@@ -95,36 +95,36 @@ public class PermissionApi extends BaseController{
 	
 	@RequestMapping(value="login", method=RequestMethod.POST)
 	@ResponseBody
-	@PermessionLimit(limit=false)
-	public ReturnT<String> loginDo(HttpServletRequest request, HttpServletResponse response, String userName, String password, String ifRemember){
+	@PermessionLimit(limit=false,manager=false)
+	public ReturnT<String> loginDo(HttpServletRequest request, HttpServletResponse response, String account, String password, String ifRemember){
 		
 		// valid
-		if (PermissionInterceptor.ifLogin(request)) {
-			return ReturnT.SUCCESS;
+		if (MemberPermissionInterceptor.ifMemberLogin(request)) {
+			return success("登录还在有效期");
 		}
 
 		// param
-		if (userName==null || userName.trim().length()==0 || password==null || password.trim().length()==0){
-			return new ReturnT<String>(500, "请输入账号密码");
+		if (StrUtil.isEmpty(account) || StrUtil.isEmpty(password)){
+			return fail("请输入账号密码");
 		}
 		boolean ifRem = (ifRemember!=null && "on".equals(ifRemember))?true:false;
 
 		// do login
-		boolean loginRet = PermissionInterceptor.login(response, request, userName, password, ifRem);
+		boolean loginRet = MemberPermissionInterceptor.login(response, request, account, password, ifRem);
 		if (!loginRet) {
-			return new ReturnT<String>(500, "账号密码错误");
+			return fail("账号密码错误");
 		}
-		return ReturnT.SUCCESS;
+		return success();
 	}
 
 	@RequestMapping(value="logout", method=RequestMethod.POST)
 	@ResponseBody
-	@PermessionLimit(limit=false)
+	@PermessionLimit(limit=false,manager=false)
 	public ReturnT<String> logout(HttpServletRequest request, HttpServletResponse response){
-		if (PermissionInterceptor.ifLogin(request)) {
-			PermissionInterceptor.logout(request, response);
+		if (MemberPermissionInterceptor.ifMemberLogin(request)) {
+			MemberPermissionInterceptor.logout(request, response);
 		}
-		return ReturnT.SUCCESS;
+		return success();
 	}
 
 
