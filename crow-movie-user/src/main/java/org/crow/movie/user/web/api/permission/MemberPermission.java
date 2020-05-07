@@ -9,7 +9,7 @@ import org.crow.movie.user.common.db.service.MemberInfoService;
 import org.crow.movie.user.common.util.DigestUtils;
 import org.crow.movie.user.common.util.SomeUtil;
 import org.crow.movie.user.common.util.StrUtil;
-import org.crow.movie.user.web.annotation.PermessionLimit;
+import org.crow.movie.user.web.annotation.Permission;
 import org.crow.movie.user.web.controller.BaseController;
 import org.crow.movie.user.web.interceptor.MemberPermissionInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,7 @@ import com.alibaba.fastjson.TypeReference;
 
 @Controller
 @RequestMapping("/")
-public class PermissionApi extends BaseController{
+public class MemberPermission extends BaseController{
 
 	@Autowired
 	MemberInfoService memberInfoService;
@@ -32,8 +32,7 @@ public class PermissionApi extends BaseController{
 	
 	@RequestMapping("isAlive")
     @ResponseBody
-    @PermessionLimit(limit=false)
-    public String demo() {
+    public String isAlive() {
 		
 		//Page<MemberInfo> page = memberInfoService.page(1, 10, null);
 		//return page.toJsonString();
@@ -42,7 +41,7 @@ public class PermissionApi extends BaseController{
 	
 	@RequestMapping(value="register", method=RequestMethod.POST)
 	@ResponseBody
-	@PermessionLimit(limit=false,manager=false)
+	@Permission(memberLimit=false,managerLimit=false)
 	public ReturnT<String> register(HttpServletRequest request, HttpServletResponse response){
 		
 		String js = request.getParameter("data");
@@ -95,7 +94,7 @@ public class PermissionApi extends BaseController{
 	
 	@RequestMapping(value="login", method=RequestMethod.POST)
 	@ResponseBody
-	@PermessionLimit(limit=false,manager=false)
+	@Permission(memberLimit=false,managerLimit=false)
 	public ReturnT<String> loginDo(HttpServletRequest request, HttpServletResponse response, String account, String password, String ifRemember){
 		
 		// valid
@@ -119,7 +118,7 @@ public class PermissionApi extends BaseController{
 
 	@RequestMapping(value="logout", method=RequestMethod.POST)
 	@ResponseBody
-	@PermessionLimit(limit=false,manager=false)
+	@Permission(memberLimit=false,managerLimit=false)
 	public ReturnT<String> logout(HttpServletRequest request, HttpServletResponse response){
 		if (MemberPermissionInterceptor.ifMemberLogin(request)) {
 			MemberPermissionInterceptor.logout(request, response);

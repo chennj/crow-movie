@@ -14,7 +14,7 @@ import org.crow.movie.user.common.util.CookieUtil;
 import org.crow.movie.user.common.util.DigestUtils;
 import org.crow.movie.user.common.util.SessionUtil;
 import org.crow.movie.user.common.util.StrUtil;
-import org.crow.movie.user.web.annotation.PermessionLimit;
+import org.crow.movie.user.web.annotation.Permission;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -68,11 +68,20 @@ public class MemberPermissionInterceptor extends HandlerInterceptorAdapter imple
 		if (!(handler instanceof HandlerMethod)) {
 			return super.preHandle(request, response, handler);
 		}
-
+		
+		HandlerMethod method = (HandlerMethod)handler;
+		Permission permission = method.getMethodAnnotation(Permission.class);
+		
+		/**
+		 * 检查是否是admin端内网接口，如果是直接返回
+		 */
+		if (permission == null || permission.managerLimit()){
+			return true;
+		}
+		
 		if (!ifMemberLogin(request)) {
-			HandlerMethod method = (HandlerMethod)handler;
-			PermessionLimit permission = method.getMethodAnnotation(PermessionLimit.class);
-			if (permission == null || permission.limit()) {
+			
+			if (permission == null || permission.memberLimit()) {
 				String js = request.getParameter("data");
 				String username = null;
 				String password = null;

@@ -12,15 +12,15 @@ import java.lang.annotation.RetentionPolicy;
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface PermessionLimit {
+public @interface Permission {
 
 	/**
 	 * 登陆拦截 (默认拦截)
 	 */
-	boolean limit() default true;
+	boolean memberLimit() default true;
 	
 	/**
 	 * 管理员拦截
 	 */
-	boolean manager() default true;
+	boolean managerLimit() default true;
 }

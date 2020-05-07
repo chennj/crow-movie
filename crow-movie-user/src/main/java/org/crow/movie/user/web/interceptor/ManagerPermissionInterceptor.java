@@ -5,7 +5,7 @@ import java.io.PrintWriter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.crow.movie.user.web.annotation.PermessionLimit;
+import org.crow.movie.user.web.annotation.Permission;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -66,8 +66,8 @@ public class ManagerPermissionInterceptor extends HandlerInterceptorAdapter{
 
 		// 如果是manager功能，但地址不在ip白名单，拒绝访问
 		HandlerMethod method = (HandlerMethod)handler;
-		PermessionLimit permission = method.getMethodAnnotation(PermessionLimit.class);
-		if (permission == null || permission.manager()){
+		Permission permission = method.getMethodAnnotation(Permission.class);
+		if (permission == null || permission.managerLimit()){
 			
 			boolean goAHead 	= false;
 			boolean ajaxFlag 	= "XMLHttpRequest".equalsIgnoreCase(request.getHeader("x-requested-with"));
