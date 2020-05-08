@@ -64,6 +64,10 @@ public class ManagerPermissionInterceptor extends HandlerInterceptorAdapter{
 			}
 		}
 
+		if (!(handler instanceof HandlerMethod)) {
+			return super.preHandle(request, response, handler);
+		}
+
 		// 如果是manager功能，但地址不在ip白名单，拒绝访问
 		HandlerMethod method = (HandlerMethod)handler;
 		Permission permission = method.getMethodAnnotation(Permission.class);
@@ -80,7 +84,7 @@ public class ManagerPermissionInterceptor extends HandlerInterceptorAdapter{
 					PrintWriter writer = null;
 					try{
 						writer = response.getWriter();
-						writer.write("{\"code\":\"404\",\"msg\":\"please login first\"}");
+						writer.write("{\"code\":\"404\",\"msg\":\"不能在地址栏直接访问\"}");
 						writer.flush();
 					} catch (Exception e){
 						logger.info("ManagerPermission.preHandle>>>"+e.getMessage());
@@ -109,7 +113,7 @@ public class ManagerPermissionInterceptor extends HandlerInterceptorAdapter{
 				PrintWriter writer = null;
 				try{
 					writer = response.getWriter();
-					writer.write("{\"code\":\"404\",\"msg\":\" have not right access\"}");
+					writer.write("{\"code\":\"404\",\"msg\":\"访问地址不在白名单内\"}");
 					writer.flush();
 				} catch (Exception e){
 					logger.info("ManagerPermission.preHandle>>>"+e.getMessage());

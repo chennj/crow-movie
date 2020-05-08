@@ -24,6 +24,7 @@ import com.alibaba.fastjson.TypeReference;
 
 @Controller
 @RequestMapping("/")
+@Permission(memberLimit=false,managerLimit=false)
 public class MemberPermission extends BaseController{
 
 	@Autowired
@@ -41,7 +42,6 @@ public class MemberPermission extends BaseController{
 	
 	@RequestMapping(value="register", method=RequestMethod.POST)
 	@ResponseBody
-	@Permission(memberLimit=false,managerLimit=false)
 	public ReturnT<String> register(HttpServletRequest request, HttpServletResponse response){
 		
 		String js = request.getParameter("data");
@@ -94,7 +94,6 @@ public class MemberPermission extends BaseController{
 	
 	@RequestMapping(value="login", method=RequestMethod.POST)
 	@ResponseBody
-	@Permission(memberLimit=false,managerLimit=false)
 	public ReturnT<String> loginDo(HttpServletRequest request, HttpServletResponse response, String account, String password, String ifRemember){
 		
 		// valid
@@ -118,7 +117,6 @@ public class MemberPermission extends BaseController{
 
 	@RequestMapping(value="logout", method=RequestMethod.POST)
 	@ResponseBody
-	@Permission(memberLimit=false,managerLimit=false)
 	public ReturnT<String> logout(HttpServletRequest request, HttpServletResponse response){
 		if (MemberPermissionInterceptor.ifMemberLogin(request)) {
 			MemberPermissionInterceptor.logout(request, response);

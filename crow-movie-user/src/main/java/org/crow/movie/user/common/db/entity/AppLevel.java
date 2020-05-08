@@ -8,30 +8,34 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
- * table name:  hg_member_message
+ * table name:  hg_app_level
  * author name: chennj
  * create time: 2020-05-06 09:52:16
  */ 
 @Entity
-@Table(name="hg_member_message",catalog="movie")
-public class MemberMessage{
+@Table(name="hg_app_level",catalog="movie")
+public class AppLevel{
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name="id",unique=true,nullable=false)
 	private Integer id;
-	@Column(name="message_type")
-	private Integer messageType;
-	@Column(name="member_id")
-	private Integer memberId;
 	@Column(name="title")
 	private String title;
-	@Column(name="content")
-	private String content;
-	@Column(name="is_read")
-	private Integer isRead;
-	@Column(name="notice_id")
-	private Integer noticeId;
+	@Column(name="code")
+	private String code;
+	@Column(name="grade")
+	private Integer grade;
+	@Column(name="icon")
+	private String icon;
+	@Column(name="promo_limit")
+	private Integer promoLimit;
+	@Column(name="day_view_times")
+	private Integer dayViewTimes;
+	@Column(name="day_cache_times")
+	private Integer dayCacheTimes;
+	@Column(name="status")
+	private Integer status;
 	@Column(name="create_time")
 	private Integer createTime;
 	@Column(name="create_user")
@@ -47,41 +51,53 @@ public class MemberMessage{
 	public Integer getId(){
 		return id;
 	}
-	public void setMessageType(Integer messageType){
-		this.messageType=messageType;
-	}
-	public Integer getMessageType(){
-		return messageType;
-	}
-	public void setMemberId(Integer memberId){
-		this.memberId=memberId;
-	}
-	public Integer getMemberId(){
-		return memberId;
-	}
 	public void setTitle(String title){
 		this.title=title;
 	}
 	public String getTitle(){
 		return title;
 	}
-	public void setContent(String content){
-		this.content=content;
+	public void setCode(String code){
+		this.code=code;
 	}
-	public String getContent(){
-		return content;
+	public String getCode(){
+		return code;
 	}
-	public void setIsRead(Integer isRead){
-		this.isRead=isRead;
+	public void setGrade(Integer grade){
+		this.grade=grade;
 	}
-	public Integer getIsRead(){
-		return isRead;
+	public Integer getGrade(){
+		return grade;
 	}
-	public void setNoticeId(Integer noticeId){
-		this.noticeId=noticeId;
+	public void setIcon(String icon){
+		this.icon=icon;
 	}
-	public Integer getNoticeId(){
-		return noticeId;
+	public String getIcon(){
+		return icon;
+	}
+	public void setPromoLimit(Integer promoLimit){
+		this.promoLimit=promoLimit;
+	}
+	public Integer getPromoLimit(){
+		return promoLimit;
+	}
+	public void setDayViewTimes(Integer dayViewTimes){
+		this.dayViewTimes=dayViewTimes;
+	}
+	public Integer getDayViewTimes(){
+		return dayViewTimes;
+	}
+	public void setDayCacheTimes(Integer dayCacheTimes){
+		this.dayCacheTimes=dayCacheTimes;
+	}
+	public Integer getDayCacheTimes(){
+		return dayCacheTimes;
+	}
+	public void setStatus(Integer status){
+		this.status=status;
+	}
+	public Integer getStatus(){
+		return status;
 	}
 	public void setCreateTime(Integer createTime){
 		this.createTime=createTime;

@@ -4,17 +4,18 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
+//import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+//import org.springframework.data.annotation.CreatedDate;
+//import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @Table(name="hg_member_info",catalog="movie")
-@EntityListeners(AuditingEntityListener.class)
+//@EntityListeners(AuditingEntityListener.class)
 public class MemberInfo {
 
 	@Id
@@ -90,6 +91,7 @@ public class MemberInfo {
 	@Column(name="create_user")
 	private Integer createUser;
 	@Column(name="create_date")
+	//@CreatedDate
 	private Date createDate;
 	@Column(name="update_time")
 	private Integer updateTime;

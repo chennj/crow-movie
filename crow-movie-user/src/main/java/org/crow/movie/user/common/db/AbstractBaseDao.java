@@ -491,6 +491,47 @@ public abstract class AbstractBaseDao<T> implements BaseDao<T> {
 		return page;
 	}
 	
+	public <V> int delete(Map<String, Object> eq, Map<String, Object> not,
+			Map<String, Object> like, Map<String, Object> notlike,
+			Map<String, Object> leftlike, Map<String, Object> rightlike,
+			Map<String, List<V>> in, Map<String, List<V>> notin,
+			Map<String, List<Object>> between,Map<String, List<Object>> notbetween,
+			List<NVPair> custCondition){
+		
+		String hql = "delete from " + clazz.getName() + " where 1 = 1";
+		
+		Query query = buildQuery(hql, "" ,eq,not,like,notlike,leftlike,rightlike,in,notin,between,notbetween,custCondition);
+		
+		return query.executeUpdate();
+	}
+	
+	public int del(String key, Object value){
+		
+		Map<String, Object> eq = new HashMap<String, Object>(){
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			{
+				this.put(key, value);
+			}
+		};		
+		
+		return delete(eq, null, null, null, null, null, null, null, null, null, null);
+	}
+	
+    public int executeNative(String sql, Object... obj) {
+    	
+        Query query = em.createNativeQuery(sql);
+        if(obj.length > 0){
+            for (int i = 0; i < obj.length; i++) {
+                query.setParameter((i+1),obj[i]);
+            }
+        }
+        return query.executeUpdate();
+    }
+
 	public void batchInsert(List<T> list){
 		
 		int size = list.size();

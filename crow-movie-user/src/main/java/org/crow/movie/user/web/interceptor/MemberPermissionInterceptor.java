@@ -100,7 +100,7 @@ public class MemberPermissionInterceptor extends HandlerInterceptorAdapter imple
 					PrintWriter writer = null;
 					try{
 						writer = response.getWriter();
-						writer.write("{\"code\":\"201\",\"msg\":\"please login first\"}");
+						writer.write("{\"code\":\"404\",\"msg\":\"需要先登录\",\"data\":null}");
 						writer.flush();
 					} catch (Exception e){
 						logger.info("permission.preHandle>>>"+e.getMessage());
@@ -175,17 +175,4 @@ public class MemberPermissionInterceptor extends HandlerInterceptorAdapter imple
 		return true;
 	}
 	
-	public static boolean ifManagerLogin(HttpServletRequest request){
-		String indentityInfo = CookieUtil.getValue(request, LOGIN_IDENTITY_KEY);
-		if (indentityInfo==null) {
-			return false;
-		}
-		
-		HttpSession session = request.getSession();
-		MemberInfo user = (MemberInfo)session.getAttribute(Const.SESSION_USER_INFO_KEY);
-		if (user == null){
-			return false;
-		}
-		return true;
-	}
 }

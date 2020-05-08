@@ -15,11 +15,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebMvcConfig implements WebMvcConfigurer {
 
     @Resource
-    private MemberPermissionInterceptor permissionInterceptor;
+    private MemberPermissionInterceptor memberInterceptor;
     @Resource
     private CookieInterceptor cookieInterceptor;
     @Resource
-    private ManagerPermissionInterceptor securityInterceptor;
+    private ManagerPermissionInterceptor managerInterceptor;
 
     /**
      * addPathPatterns 添加拦截规则
@@ -27,8 +27,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
      */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-    	registry.addInterceptor(securityInterceptor).addPathPatterns("/**");
-        registry.addInterceptor(permissionInterceptor).addPathPatterns("/**");
+    	registry.addInterceptor(managerInterceptor).addPathPatterns("/**");
+        registry.addInterceptor(memberInterceptor).addPathPatterns("/**");
         registry.addInterceptor(cookieInterceptor).addPathPatterns("/**");
     }
 

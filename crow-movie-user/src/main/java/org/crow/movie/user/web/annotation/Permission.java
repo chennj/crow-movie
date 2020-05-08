@@ -10,7 +10,8 @@ import java.lang.annotation.RetentionPolicy;
  * @author chenn
  *
  */
-@Target(ElementType.METHOD)
+
+@Target({ElementType.METHOD,ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Permission {
 

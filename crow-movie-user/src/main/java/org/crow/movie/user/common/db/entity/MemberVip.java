@@ -1,16 +1,24 @@
 package org.crow.movie.user.common.db.entity;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
-import java.util.Date;
 /**
  * table name:  hg_member_vip
  * author name: chennj
  * create time: 2020-05-06 09:52:16
  */ 
+@Entity
+@Table(name="hg_member_vip",catalog="movie")
 public class MemberVip{
 
-	@Column(name="id")
+	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@Column(name="id",unique=true,nullable=false)
 	private Integer id;
 	@Column(name="member_id")
 	private Integer memberId;
