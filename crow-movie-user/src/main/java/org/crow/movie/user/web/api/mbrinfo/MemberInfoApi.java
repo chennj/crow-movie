@@ -1,10 +1,12 @@
 package org.crow.movie.user.web.api.mbrinfo;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.crow.movie.user.common.db.Page;
 import org.crow.movie.user.common.db.entity.AppLevel;
 import org.crow.movie.user.common.db.entity.MemberInfo;
 import org.crow.movie.user.common.db.model.ReturnT;
@@ -13,6 +15,7 @@ import org.crow.movie.user.common.db.service.MemberInfoService;
 import org.crow.movie.user.common.util.DigestUtils;
 import org.crow.movie.user.common.util.SomeUtil;
 import org.crow.movie.user.common.util.StrUtil;
+import org.crow.movie.user.common.util.TokenUtil;
 import org.crow.movie.user.web.controller.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -35,6 +38,63 @@ public class MemberInfoApi  extends BaseController{
 	@Autowired
 	AppLevelService appLevelService;
 	
+	@RequestMapping(value="", method=RequestMethod.POST)
+	@ResponseBody
+	public ReturnT<?> index(HttpServletRequest request,
+			@RequestParam(required = true) String data){
+		
+		logger.info("mbrinfo.index>>>enter,recive data="+data);
+		
+		// param
+		if (StrUtil.isEmpty(data)){
+			return fail("data is empty");
+		}
+				
+		JSONObject jo = null;
+		try {
+			jo = JSON.parseObject(data);
+		} catch (Exception e){
+			logger.error("mbrinfo.index>>>"+e.getMessage());
+			return fail("json格式错误");
+		}
+		
+		// combination sql
+		String sql = "";
+		
+		List<Object> params = new ArrayList<Object>(){
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			{
+				this.add("");
+			}
+		};
+		
+		Page<?> page = memberInfoService.page(sql, jo.getIntValue("page"), jo.getIntValue("pageSize"), params);
+		
+		JSONObject jRet = new JSONObject(){
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			{
+				
+			}
+		};
+		
+		return success(jRet);
+	}
+	
+	/**
+	 * 改密码
+	 * @param request
+	 * @param password
+	 * @param password2
+	 * @return
+	 */
 	@RequestMapping(value="changpwd", method=RequestMethod.POST)
 	@ResponseBody
 	public ReturnT<?> changPwd(
@@ -63,6 +123,12 @@ public class MemberInfoApi  extends BaseController{
 		return success(mbr);
 	}
 	
+	/**
+	 * 编辑用户信息
+	 * @param request
+	 * @param data
+	 * @return
+	 */
 	@RequestMapping(value="edit", method=RequestMethod.POST)
 	@ResponseBody
 	public ReturnT<?> edit(
@@ -101,6 +167,12 @@ public class MemberInfoApi  extends BaseController{
 		return success();
 	}
 	
+	/**
+	 * 新增用户
+	 * @param request
+	 * @param data
+	 * @return
+	 */
 	@RequestMapping(value="add", method=RequestMethod.POST)
 	@ResponseBody
 	public ReturnT<?> add(
@@ -151,9 +223,11 @@ public class MemberInfoApi  extends BaseController{
 		mbr.setNickName(account);
 		mbr.setIsVisitor(2);
 		mbr.setPassword(pwd);
+		mbr.setToken(TokenUtil.genToken("demo", 1));
 		mbr.setCreateDate(new Date());
 		mbr.setCreateTime(SomeUtil.safeLongToInt(ts));
 		mbr.setUpdateTime(SomeUtil.safeLongToInt(ts));
+		mbr.setCreateUser(1);
 
 		memberInfoService.add(mbr);
 		
@@ -161,6 +235,9 @@ public class MemberInfoApi  extends BaseController{
 		
 	}
 	
+	/*
+	 * 删除用户
+	 */
 	@RequestMapping(value="del", method=RequestMethod.POST)
 	@ResponseBody
 	public ReturnT<?> del(
@@ -181,6 +258,13 @@ public class MemberInfoApi  extends BaseController{
 		return success("delete complete");
 	}
 	
+	/**
+	 * 变更用户状态（status）
+	 * if 1 then 2 else 1
+	 * @param request
+	 * @param id
+	 * @return
+	 */
 	@RequestMapping(value="status", method=RequestMethod.POST)
 	@ResponseBody
 	public ReturnT<?> status(
@@ -201,6 +285,12 @@ public class MemberInfoApi  extends BaseController{
 		else return fail();
 	}
 	
+	/**
+	 * 获取用户详细信息，及applevel
+	 * @param request
+	 * @param id
+	 * @return
+	 */
 	@RequestMapping(value="details", method=RequestMethod.POST)
 	@ResponseBody
 	public ReturnT<?> details(

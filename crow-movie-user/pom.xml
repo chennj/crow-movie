@@ -14,7 +14,7 @@
 	  	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     	<fastjson.version>1.2.40</fastjson.version>  	
     	<commons-beanutils.version>1.9.4</commons-beanutils.version>
-    	<java-jwt.version>1.16.0</java-jwt.version>
+    	<java-jwt.version>3.10.0</java-jwt.version>
 	</properties>
 	
 	<dependencies>
@@ -50,6 +50,13 @@
 		    <groupId>commons-beanutils</groupId>
 		    <artifactId>commons-beanutils</artifactId>
 		    <version>${commons-beanutils.version}</version>
+		</dependency>
+
+		<!-- token -->
+		<dependency>
+		    <groupId>com.auth0</groupId>
+		    <artifactId>java-jwt</artifactId>
+		    <version>${java-jwt.version}</version>
 		</dependency>
 		          
     	<dependency>

@@ -1,8 +1,9 @@
 package org.crow.movie.user.common.db.service;
 
-import javax.transaction.Transactional;
+import java.util.List;
 
 import org.crow.movie.user.common.db.AbstractBaseService;
+import org.crow.movie.user.common.db.Page;
 import org.crow.movie.user.common.db.dao.MemberCacheDao;
 import org.crow.movie.user.common.db.dao.MemberClickAdvDao;
 import org.crow.movie.user.common.db.dao.MemberCommentDao;
@@ -20,6 +21,7 @@ import org.crow.movie.user.common.db.dao.MemberSmsDao;
 import org.crow.movie.user.common.db.entity.MemberInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -89,5 +91,13 @@ public class MemberInfoService extends AbstractBaseService<MemberInfo> {
 		String sql = "update hg_member_info m set m.status = if(m.status=1,2,1) where id=?1";
 		return mmInfoDao.executeNative(sql,id);
 	}
+
+	@Transactional(readOnly=true)
+	public Page<?> page(String nativeSql, int page, int pageSize, List<Object> params) {
+		// TODO Auto-generated method stub
+		return super.page(nativeSql, page, pageSize, params);
+	}
+	
+	
 
 }
