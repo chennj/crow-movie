@@ -116,9 +116,19 @@ public abstract class AbstractBaseService<T> {
 		return baseDao.add(t);
 	}
 	
-	@Transactional(readOnly=true)
-	public Page<?> page(String nativeSql,int page, int pageSize, Object... params){
+	@Transactional(propagation = Propagation.NOT_SUPPORTED)
+	public Page<?> pageRetListMap(String nativeSql,int page, int pageSize, Object... params){
 		return baseDao.findPage(nativeSql, page, pageSize, params);
+	}
+	
+	@Transactional(propagation = Propagation.NOT_SUPPORTED)
+	public List<Map<String, Object>> getPageListMap(String nativeSql, int page, int pageSize, Object...params){
+		return baseDao.findListMap(nativeSql, page, pageSize, params);
+	}
+	
+	@Transactional(propagation = Propagation.NOT_SUPPORTED)
+	public List<Map<String, Object>> getAllListMap(String nativeSql, Object...params){
+		return baseDao.findAllListMap(nativeSql, params);
 	}
 	
 	@Transactional(readOnly=true)

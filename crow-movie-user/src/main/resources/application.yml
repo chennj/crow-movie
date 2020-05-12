@@ -1,0 +1,6 @@
+# referer 地址验证
+referer:
+    refererDomain:
+        - 127.0.0.1:9091/movie-user
+        - pibigstar.com
+        - mxspvip.cn

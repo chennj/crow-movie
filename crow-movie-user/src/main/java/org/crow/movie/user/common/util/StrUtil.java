@@ -1,14 +1,13 @@
 package org.crow.movie.user.common.util;
 
 public final class StrUtil {
-
-	public static boolean isEmpty(String s){
+	
+	public static boolean isEmpty(Object s){
 		
-		return s == null || s.trim().length() == 0;
+		return (s == null || "".equals(String.valueOf(s).trim()));
 	}
 	
-public static boolean isEmpty(Integer i){
-		
-		return i == null || i == 0;
+	public static boolean notEmpty(Object s){
+		return !(s == null || "".equals(String.valueOf(s).trim()));
 	}
 }

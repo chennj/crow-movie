@@ -1,12 +1,12 @@
 package org.crow.movie.user.web.api.mbrinfo;
 
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.crow.movie.user.common.db.Page;
 import org.crow.movie.user.common.db.entity.AppLevel;
 import org.crow.movie.user.common.db.entity.MemberInfo;
 import org.crow.movie.user.common.db.model.ReturnT;
@@ -38,41 +38,72 @@ public class MemberInfoApi  extends BaseController{
 	@Autowired
 	AppLevelService appLevelService;
 	
-	@RequestMapping(value="", method=RequestMethod.POST)
+	/**
+	 * 搜索
+	 * @param request
+	 * @param allParams
+	 * @return
+	 */
+	@RequestMapping(value="index", method=RequestMethod.POST)
 	@ResponseBody
 	public ReturnT<?> index(HttpServletRequest request,
-			@RequestParam(required = true) String data){
+			@RequestParam Map<String,Object> allParams){
 		
-		logger.info("mbrinfo.index>>>enter,recive data="+data);
-		
-		// param
-		if (StrUtil.isEmpty(data)){
-			return fail("data is empty");
-		}
+		logger.info("mbrinfo.search>>>enter,recive data="+allParams.entrySet());
 				
-		JSONObject jo = null;
-		try {
-			jo = JSON.parseObject(data);
-		} catch (Exception e){
-			logger.error("mbrinfo.index>>>"+e.getMessage());
-			return fail("json格式错误");
-		}
+		Map<String, List<Map<String, Object>>> allMap 	= memberInfoService.search(
+				Integer.valueOf(allParams.getOrDefault("page", 1).toString()), 
+				Integer.valueOf(allParams.getOrDefault("pageSize", 50).toString()), 
+				allParams);
 		
-		// combination sql
-		String sql = "";
+		List<Map<String, Object>> loginTypeList 		= allMap.get("login_type_list");
+		List<Map<String, Object>> todayLoginTyleList 	= allMap.get("today_login_type_list");
+		List<Map<String, Object>> list 					= allMap.get("list");
+		List<Map<String, Object>> visitorList			= allMap.get("visitor_list");
+		List<Map<String, Object>> classList				= allMap.get("class_list");
 		
-		List<Object> params = new ArrayList<Object>(){
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
-
-			{
-				this.add("");
+		HashMap<String, Integer> sumMap = new HashMap<String, Integer>();
+		
+		Integer 
+		sum_today_app = 0,
+		sum_today_pc = 0;
+		for (Map<String, Object> one : todayLoginTyleList){
+			if (
+					"ANDROID".equalsIgnoreCase(String.valueOf(one.get("device_type"))) ||
+					"IOS".equalsIgnoreCase(String.valueOf(one.get("device_type"))) ){
+				sum_today_app += Integer.valueOf(String.valueOf(one.get("count")));
+			} else if ("PC".equalsIgnoreCase(String.valueOf(one.get("device_type")))){
+				sum_today_pc += Integer.valueOf(String.valueOf(one.get("count")));
 			}
-		};
+		}
+		sumMap.put("today_app", sum_today_pc);
+		sumMap.put("today_pc", sum_today_pc);
 		
-		Page<?> page = memberInfoService.page(sql, jo.getIntValue("page"), jo.getIntValue("pageSize"), params);
+		Integer 
+		sum_app = 0,
+		sum_pc = 0;
+		for (Map<String, Object> one : loginTypeList){
+			if (
+					"ANDROID".equalsIgnoreCase(String.valueOf(one.get("device_type"))) ||
+					"IOS".equalsIgnoreCase(String.valueOf(one.get("device_type"))) ){
+				sum_app += Integer.valueOf(String.valueOf(one.get("count")));
+			} else if ("PC".equalsIgnoreCase(String.valueOf(one.get("device_type")))){
+				sum_pc += Integer.valueOf(String.valueOf(one.get("count")));
+			}
+		}
+		sumMap.put("today_app", sum_app);
+		sumMap.put("today_pc", sum_pc);
+		
+		Integer
+		sum_today_visitor = 0;
+		for (Map<String, Object> one : visitorList){
+			sum_today_visitor += Integer.valueOf(String.valueOf(one.get("visitor_count")));
+		}
+		sumMap.put("today_visitor", sum_today_visitor);
+		
+		Integer
+		sum_other = list.size() - sum_app - sum_pc;
+		sumMap.put("other", sum_other);
 		
 		JSONObject jRet = new JSONObject(){
 			/**
@@ -81,7 +112,10 @@ public class MemberInfoApi  extends BaseController{
 			private static final long serialVersionUID = 1L;
 
 			{
-				
+				this.put("list", list);
+				this.put("class_list", classList);
+				this.put("condition", allParams);
+				this.put("sum", sumMap);
 			}
 		};
 		

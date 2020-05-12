@@ -39,6 +39,14 @@ public class MemberPermissionInterceptor extends HandlerInterceptorAdapter imple
 	protected static final Logger logger = LoggerFactory.getLogger(MemberPermissionInterceptor.class.getClass());
 	
 	/**
+	 * 方法白名单
+	 */
+	@Value("${movie.user.excludeUrl}")
+	private String excludeUrl;
+	
+	private static String[] excludeUrls;
+
+	/**
 	 * 密码加盐
 	 */
 	@Value("${movie.user.salt}")
@@ -53,10 +61,16 @@ public class MemberPermissionInterceptor extends HandlerInterceptorAdapter imple
 		
 		if (salt == null || salt.trim().length() == 0){
 			throw new RuntimeException("Salt Cann't Be Empty! In Application Property File");
-		}
-		
+		}	
+
 		pwdSalt = salt;
-		
+
+		if (excludeUrl == null || excludeUrl.trim().length() == 0){
+			excludeUrls = new String[]{};
+		} else {
+			excludeUrls = excludeUrl.split(",");
+		}
+
 	}
 	
 	@Override
@@ -69,16 +83,33 @@ public class MemberPermissionInterceptor extends HandlerInterceptorAdapter imple
 			return super.preHandle(request, response, handler);
 		}
 		
-		HandlerMethod method = (HandlerMethod)handler;
-		Permission permission = method.getMethodAnnotation(Permission.class);
+		/**
+		 * 在请求方法(requestMethod)白名单中不进行拦截(例如isAlive)
+		 */
+		request.setCharacterEncoding("UTF-8");
+		String contextName 		= request.getContextPath();
+		String requestMethod 	= request.getRequestURI().replace(contextName, "");	
+		
+		for (int i = 0; i < excludeUrls.length; i++) {
+			String excludeUrl = excludeUrls[i];
+			if (requestMethod.startsWith(excludeUrl)) {
+				return true;
+			}
+		}
 		
 		/**
 		 * 检查是否是admin端内网接口，如果是直接返回
 		 */
+		HandlerMethod method = (HandlerMethod)handler;
+		Permission permission = method.getMethodAnnotation(Permission.class);
+		
 		if (permission == null || permission.managerLimit()){
 			return true;
 		}
 		
+		/**
+		 * 外网访问登录检查
+		 */
 		if (!ifMemberLogin(request)) {
 			
 			if (permission == null || permission.memberLimit()) {

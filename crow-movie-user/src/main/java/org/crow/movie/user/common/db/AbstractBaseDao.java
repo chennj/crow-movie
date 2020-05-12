@@ -491,6 +491,34 @@ public abstract class AbstractBaseDao<T> implements BaseDao<T> {
 		return page;
 	}
 	
+	public List<Map<String, Object>> findListMap(String nativeSql, int pgIndex, int pgSize, Object...params){
+		
+		Query query = em.createNativeQuery(nativeSql);
+		
+		@SuppressWarnings("unchecked")
+		List<Map<String,Object>> mapResult = 
+				query.unwrap(NativeQueryImpl.class)
+				.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
+				.setFirstResult((pgIndex-1)*pgSize)
+				.setMaxResults(pgSize)
+				.list();
+		
+		return mapResult;
+	}
+	
+	public List<Map<String, Object>> findAllListMap(String nativeSql, Object...params){
+		
+		Query query = em.createNativeQuery(nativeSql);
+		
+		@SuppressWarnings("unchecked")
+		List<Map<String,Object>> mapResult = 
+				query.unwrap(NativeQueryImpl.class)
+				.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
+				.list();
+		
+		return mapResult;
+	}
+	
 	public <V> int delete(Map<String, Object> eq, Map<String, Object> not,
 			Map<String, Object> like, Map<String, Object> notlike,
 			Map<String, Object> leftlike, Map<String, Object> rightlike,
