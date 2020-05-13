@@ -4,14 +4,27 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.List;
 import java.util.Map.Entry;
 
+import org.crow.movie.user.common.cache.ConstCache;
 import org.crow.movie.user.common.constant.Const;
+import org.crow.movie.user.common.db.entity.AppCdn;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.env.Environment;
 
 import com.alibaba.fastjson.JSONObject;
 
 public final class SomeUtil {
 
+	private final static Logger logger = LoggerFactory.getLogger(SomeUtil.class);
+	
+	private final static Environment environment = ApplicationUtil.getBean(Environment.class);
+	
 	/**
 	 * @description long to int
 	 * @param l
@@ -106,5 +119,69 @@ public final class SomeUtil {
         }else {
             return typeClass.cast(value);
         }
+	}
+	
+	/**
+	 * 是否MP4
+	 * @param url
+	 * @return
+	 */
+	public static boolean isMp4(String url){
+		String ext = getExt(url);
+		if (StrUtil.notEmpty(ext) && (ext.equals("mp4") || ext.equals("m3u8"))){
+			return true;
+		}
+		return false;
+	}
+	
+	public static String getExt(String url){
+		
+		return url.substring(url.lastIndexOf("."));
+	}
+	
+	public static List<AppCdn> getCdnList(){
+		
+		return ConstCache.appCdnCache();
+	}
+	
+	public static String getRamdomHost(){
+		
+		List<AppCdn> cdnList = getCdnList();
+		String host = getDomain();
+		
+		for (AppCdn one : cdnList){
+			
+		}
+		
+		return null;
+	}
+	
+	public static String getDomain(){
+		
+		String protocol = "443".equals(environment.getProperty("local.server.port"))? "https://":"http://";
+		InetAddress localHost = null;
+		try {
+			localHost = Inet4Address.getLocalHost();
+		} catch (UnknownHostException e) {
+			logger.error(e.getMessage(),e);
+		}
+		String ip = localHost.getHostAddress();  // 返回格式为：xxx.xxx.xxx
+		return (protocol + ip);
+	}
+	
+	public static String getHost(String url)
+	{	
+		if (StrUtil.notEmpty(url)) {
+			if (url.indexOf("http") != -1) {
+				return url;
+			} else {
+				if(isMp4(url)){
+					return (getRamdomHost() + url);
+				}
+				String host = getDomain();
+				return (host + url);
+			}
+		}
+		return url;
 	}
 }

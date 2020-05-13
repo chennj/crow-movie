@@ -99,6 +99,17 @@ public abstract class AbstractBaseService<T> {
 	}
 	
 	@Transactional(propagation=Propagation.NOT_SUPPORTED)
+	public T getSingle(String orderBy){
+		
+		List<T> results = baseDao.findList(orderBy, null, null, null, null, null, null, null, null, null, null, null);
+		if (results != null && results.size()>0){
+			return results.get(0);
+		} else {
+			return null;
+		}
+	}
+	
+	@Transactional(propagation=Propagation.NOT_SUPPORTED)
 	public T getSingle(String orderBy, Map<String,Object> eq){
 		List<T> results = baseDao.findList(orderBy, eq, null, null, null, null, null, null, null, null, null, null);
 		if (results != null && results.size()>0){

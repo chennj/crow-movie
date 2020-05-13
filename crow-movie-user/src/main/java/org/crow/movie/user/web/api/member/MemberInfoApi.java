@@ -45,7 +45,7 @@ public class MemberInfoApi  extends BaseController{
 	AppLevelService appLevelService;
 	
 	/**
-	 * 搜索
+	 * 搜索-统计
 	 * @param request
 	 * @param allParams
 	 * @return

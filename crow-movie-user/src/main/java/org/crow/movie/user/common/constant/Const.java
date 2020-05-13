@@ -26,4 +26,7 @@ public interface Const {
 			addAll(list);
 		}
 	};
+	
+	Long TS_AUTO_FIND_APP_CDN = (long) (60 * 1000);
+	Long TS_AUTO_FIND_APP_CONFIG = (long) (60 * 1000);
 }

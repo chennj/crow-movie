@@ -117,7 +117,7 @@ public class MemberInfoService extends AbstractBaseService<MemberInfo> {
 				Object 
 				o = allParams.get("id");
 				if (StrUtil.notEmpty(o)){
-					where.append("a.id = ?1 ");
+					where.append("and a.id = ?1 ");
 					this.add(o);
 				}
 				
