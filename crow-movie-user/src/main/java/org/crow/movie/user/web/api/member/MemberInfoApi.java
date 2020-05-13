@@ -1,4 +1,4 @@
-package org.crow.movie.user.web.api.mbrinfo;
+package org.crow.movie.user.web.api.member;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.crow.movie.user.common.db.entity.AppLevel;
 import org.crow.movie.user.common.db.entity.MemberInfo;
+import org.crow.movie.user.common.db.model.BaseTypeWrapper;
 import org.crow.movie.user.common.db.model.ReturnT;
 import org.crow.movie.user.common.db.service.AppLevelService;
 import org.crow.movie.user.common.db.service.MemberInfoService;
@@ -28,6 +29,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 
+/**
+ * 用户信息
+ * @author chenn
+ *
+ */
 @Controller
 @RequestMapping("/mbrinfo")
 public class MemberInfoApi  extends BaseController{
@@ -44,17 +50,19 @@ public class MemberInfoApi  extends BaseController{
 	 * @param allParams
 	 * @return
 	 */
-	@RequestMapping(value="index", method=RequestMethod.POST)
+	@RequestMapping(value="search-count", method=RequestMethod.POST)
 	@ResponseBody
-	public ReturnT<?> index(HttpServletRequest request,
+	public ReturnT<?> searchCount(HttpServletRequest request,
 			@RequestParam Map<String,Object> allParams){
 		
 		logger.info("mbrinfo.search>>>enter,recive data="+allParams.entrySet());
-				
+		
+		BaseTypeWrapper<Integer> listCount = new BaseTypeWrapper<Integer>();
+		
 		Map<String, List<Map<String, Object>>> allMap 	= memberInfoService.search(
 				Integer.valueOf(allParams.getOrDefault("page", 1).toString()), 
 				Integer.valueOf(allParams.getOrDefault("pageSize", 50).toString()), 
-				allParams);
+				allParams, listCount);
 		
 		List<Map<String, Object>> loginTypeList 		= allMap.get("login_type_list");
 		List<Map<String, Object>> todayLoginTyleList 	= allMap.get("today_login_type_list");
@@ -102,7 +110,7 @@ public class MemberInfoApi  extends BaseController{
 		sumMap.put("today_visitor", sum_today_visitor);
 		
 		Integer
-		sum_other = list.size() - sum_app - sum_pc;
+		sum_other = Integer.valueOf(String.valueOf(listCount.getT())) - sum_app - sum_pc;
 		sumMap.put("other", sum_other);
 		
 		JSONObject jRet = new JSONObject(){

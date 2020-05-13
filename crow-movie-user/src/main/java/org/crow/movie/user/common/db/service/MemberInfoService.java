@@ -23,6 +23,7 @@ import org.crow.movie.user.common.db.dao.MemberPromoDao;
 import org.crow.movie.user.common.db.dao.MemberSearchDao;
 import org.crow.movie.user.common.db.dao.MemberSmsDao;
 import org.crow.movie.user.common.db.entity.MemberInfo;
+import org.crow.movie.user.common.db.model.BaseTypeWrapper;
 import org.crow.movie.user.common.util.StrUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -99,7 +100,7 @@ public class MemberInfoService extends AbstractBaseService<MemberInfo> {
 	}
 
 	@Transactional(propagation = Propagation.NOT_SUPPORTED)
-	public Map<String, List<Map<String, Object>>> search(Integer page, Integer pageSize, Map<String, Object> allParams) {
+	public Map<String, List<Map<String, Object>>> search(Integer page, Integer pageSize, Map<String, Object> allParams, Object...returnObj) {
 
 		final StringBuilder where 	= new StringBuilder("where 1=1 ");
 		final StringBuilder having 	= new StringBuilder();
@@ -228,42 +229,53 @@ public class MemberInfoService extends AbstractBaseService<MemberInfo> {
 			"select a.*,count(b.member_id) promo_num from hg_member_info a "
 			+ "left join hg_member_promo b on b.member_id=a.id "
 			+ where.toString()
-			+ "a.id desc "
 			+ "group by a.id "
+			+ "order by a.id desc "
 			+ having.toString();
 		
-		List<Map<String,Object>> list = super.getPageListMap(sql, page, pageSize, params);
+		List<Map<String,Object>> list = super.getPageListMap(sql, page, pageSize, params.toArray());
 		
+		if (returnObj.length>0){
+			sql = 
+				"select a.id from hg_member_info a "
+				+ "left join hg_member_promo b on b.member_id=a.id "
+				+ where.toString();
+			@SuppressWarnings({ "rawtypes", "unchecked" })
+			BaseTypeWrapper<Integer> wrap = (BaseTypeWrapper) returnObj[0];
+			Integer count = super.countNative(sql, params.toArray());
+			wrap.setT(count);
+		}
+				
 		sql = 
 			"select count(c.member_id) count,c.device_type from hg_member_info a "
 			+ "left join hg_member_promo b on b.member_id=a.id "
-			+ "(SELECT member_id, device_type FROM hg_member_open GROUP BY member_id, device_type) c on c.member_id=a.id "
+			+ "left join (SELECT member_id, device_type FROM hg_member_open GROUP BY member_id, device_type) c on c.member_id=a.id "
 			+ where.toString()
 			+ "group by c.device_type "
 			+ having.toString();
 		
-		List<Map<String,Object>> loginTypeList = super.getAllListMap(sql, params);
+		List<Map<String,Object>> loginTypeList = super.getAllListMap(sql, params.toArray());
 		
 		SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
 		String today = fmt.format(new Date());
 		sql = 
 			"select count(DISTINCT c.member_id) count,c.device_type from hg_member_info a "
 			+ "left join hg_member_promo b on b.member_id=a.id "
-			+ "left join hg_member_open c onc.member_id=a.id "
+			+ "left join hg_member_open c on c.member_id=a.id "
 			+ where
-				.append(" and a.create_time >= '").append(today).append(" 00:00:00'")
-				.append(" and a.create_time <= '").append(today).append(" 23:59:59'")
+				.append("and a.create_time >= UNIX_TIMESTAMP('").append(today).append(" 00:00:00') ")
+				.append("and a.create_time <= UNIX_TIMESTAMP('").append(today).append(" 23:59:59') ")
 			+ "group by c.device_type "
 			+ having.toString();
 		
-		List<Map<String,Object>> todayLoginTyleList = super.getAllListMap(sql, params);
+		List<Map<String,Object>> todayLoginTyleList = super.getAllListMap(sql, params.toArray());
 
 		sql = 
-			"select count(1) visitor_count from hg_member_info"
+			"select count(1) visitor_count from hg_member_info a "
 			+ new StringBuilder()
 				.append("where is_visitor = 1 ")
-				.append("and a.create_time >= '").append(today).append(" 00:00:00' ")
-				.append("and a.create_time <= '").append(today).append(" 23:59:59' ")
+				.append("and a.create_time >= UNIX_TIMESTAMP('").append(today).append(" 00:00:00') ")
+				.append("and a.create_time <= UNIX_TIMESTAMP('").append(today).append(" 23:59:59') ")
 				.toString();
 		List<Map<String,Object>> visitorList = super.getAllListMap(sql);
 		

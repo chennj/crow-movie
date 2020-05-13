@@ -2,6 +2,7 @@ package org.crow.movie.user.common.db;
 
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -235,7 +236,24 @@ public abstract class AbstractBaseDao<T> implements BaseDao<T> {
     public T get(Serializable id){
     	return em.find(clazz, id);
     }
-    
+
+    public int countNative(String nativeSql,Object... obj) {
+        try{
+        	String sql = "select count(1) from ("+nativeSql+") tbl";
+            Query query = em.createNativeQuery(sql);
+            if(obj.length > 0){
+                for (int i = 0; i < obj.length; i++) {
+                    query.setParameter((i+1),obj[i]);
+                }
+            }
+            BigInteger num = (BigInteger) query.getSingleResult();
+            return num.intValue();
+        }catch (Exception e){
+        	logger.error("Abstract Base Dao.countNative>>>"+e.getMessage());
+            return 0;
+        }
+    }
+
     @SuppressWarnings("unchecked")
 	protected <V> List<T> findList(
     		String order, 
@@ -467,10 +485,15 @@ public abstract class AbstractBaseDao<T> implements BaseDao<T> {
 		return page;
 	}
 	
-	public Page<?> findPage(String nativeSql, int pgIndex, int pgSize, Object...params){
+	public Page<?> findPage(String nativeSql, int pgIndex, int pgSize, Object...objs){
 		
 		Query query = em.createNativeQuery(nativeSql);
-		
+        if(objs.length > 0){
+            for (int i = 0; i < objs.length; i++) {
+                query.setParameter((i+1),objs[i]);
+            }
+        }
+        
 		int total = ((Long)query.getSingleResult()).intValue();
 		
 		Page<T> page = new Page<T>();
@@ -491,9 +514,14 @@ public abstract class AbstractBaseDao<T> implements BaseDao<T> {
 		return page;
 	}
 	
-	public List<Map<String, Object>> findListMap(String nativeSql, int pgIndex, int pgSize, Object...params){
+	public List<Map<String, Object>> findListMap(String nativeSql, int pgIndex, int pgSize, Object...objs){
 		
 		Query query = em.createNativeQuery(nativeSql);
+        if(objs.length > 0){
+            for (int i = 0; i < objs.length; i++) {
+                query.setParameter((i+1),objs[i]);
+            }
+        }
 		
 		@SuppressWarnings("unchecked")
 		List<Map<String,Object>> mapResult = 
@@ -506,10 +534,15 @@ public abstract class AbstractBaseDao<T> implements BaseDao<T> {
 		return mapResult;
 	}
 	
-	public List<Map<String, Object>> findAllListMap(String nativeSql, Object...params){
+	public List<Map<String, Object>> findAllListMap(String nativeSql, Object...objs){
 		
 		Query query = em.createNativeQuery(nativeSql);
-		
+        if(objs.length > 0){
+            for (int i = 0; i < objs.length; i++) {
+                query.setParameter((i+1),objs[i]);
+            }
+        }
+
 		@SuppressWarnings("unchecked")
 		List<Map<String,Object>> mapResult = 
 				query.unwrap(NativeQueryImpl.class)

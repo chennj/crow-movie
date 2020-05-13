@@ -52,6 +52,10 @@ public abstract class AbstractBaseService<T> {
 		baseDao.delete(id);
 	}
 	
+	public int countNative(String nativeSql, Object... objects){
+		return baseDao.countNative(nativeSql, objects);
+	}
+	
 	public int del(String key, Object value){
 		
 		return del(key,value);
