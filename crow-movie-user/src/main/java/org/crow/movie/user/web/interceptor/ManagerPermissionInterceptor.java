@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.assertj.core.util.Arrays;
+import org.crow.movie.user.common.ApplicationProperties;
 import org.crow.movie.user.common.util.IPUtil;
 import org.crow.movie.user.web.annotation.Permission;
 import org.slf4j.Logger;
@@ -24,7 +25,7 @@ public class ManagerPermissionInterceptor extends HandlerInterceptorAdapter{
 	protected static final Logger logger = LoggerFactory.getLogger(ManagerPermissionInterceptor.class.getClass());
 	
 	@Autowired
-    private RefererProperties properties;
+    private ApplicationProperties properties;
 	
 	// URL匹配器
     //private AntPathMatcher matcher = new AntPathMatcher();

@@ -10,9 +10,11 @@ import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang3.RandomUtils;
 import org.crow.movie.user.common.cache.ConstCache;
 import org.crow.movie.user.common.constant.Const;
 import org.crow.movie.user.common.db.entity.AppCdn;
+import org.crow.movie.user.common.db.entity.AppConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
@@ -149,11 +151,17 @@ public final class SomeUtil {
 		List<AppCdn> cdnList = getCdnList();
 		String host = getDomain();
 		
-		for (AppCdn one : cdnList){
-			
+		if (null != cdnList && !cdnList.isEmpty()){
+			AppConfig appConfig = ConstCache.appConfigCache();
+			Integer cdnType = appConfig.getCdnType();
+			if (cdnType == 1){
+				host = cdnList.get(0).getHost();
+			} else {
+				host = cdnList.get(RandomUtils.nextInt(0, cdnList.size())).getHost();
+			}
 		}
 		
-		return null;
+		return host;
 	}
 	
 	public static String getDomain(){
@@ -183,5 +191,24 @@ public final class SomeUtil {
 			}
 		}
 		return url;
+	}
+	
+	public static String transByte(Long bytesLen)
+	{
+	    Long KB = 1024l;
+	    Long MB = 1024 * KB;
+	    Long GB = 1024 * MB;
+	    Long TB = 1024 * GB;
+	    if (bytesLen < KB) {
+	        return String.valueOf(bytesLen)+"B";
+	    } else if (bytesLen < MB) {
+	        return String.valueOf(Math.round(bytesLen / KB))+"KB";
+	    } else if (bytesLen < GB) {
+	        return String.valueOf(Math.round(bytesLen / MB))+"MB";
+	    } else if (bytesLen < TB) {
+	        return String.valueOf(Math.round(bytesLen / GB))+"GB";
+	    } else {
+	        return String.valueOf(Math.round(bytesLen / TB))+"TB";
+	    }
 	}
 }

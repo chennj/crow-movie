@@ -177,6 +177,10 @@ public abstract class AbstractBaseService<T> {
 		return baseDao.findPage(page, pageSize, null, eq, null, like, null, null, null, null, null, null, null, null);
 	}
 	
+	public <V> int delete(Map<String, Object> eq,Map<String, Object> like, Map<String, List<V>> in){
+		return baseDao.delete(eq, null, like, null, null, null, in, null, null, null, null);
+	}
+	
 	public void addList(List<T> list) throws Exception{
 		baseDao.batchInsert(list);
 	}

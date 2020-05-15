@@ -1,4 +1,4 @@
-package org.crow.movie.user.web.interceptor;
+package org.crow.movie.user.common;
 
 import java.util.List;
 
@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @ConfigurationProperties(prefix = "my.config")
-public class RefererProperties {
+public class ApplicationProperties {
 	
 	// referer白名单域名
     private List<String> refererDomain;

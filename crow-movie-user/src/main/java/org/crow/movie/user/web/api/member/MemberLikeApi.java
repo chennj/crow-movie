@@ -1,6 +1,5 @@
 package org.crow.movie.user.web.api.member;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,7 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.assertj.core.util.Arrays;
 import org.crow.movie.user.common.db.model.ReturnT;
-import org.crow.movie.user.common.db.service.MemberCacheService;
+import org.crow.movie.user.common.db.service.MemberLikeService;
 import org.crow.movie.user.common.util.SomeUtil;
 import org.crow.movie.user.common.util.StrUtil;
 import org.crow.movie.user.web.controller.BaseController;
@@ -24,11 +23,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.alibaba.fastjson.JSONObject;
 
 @Controller
-@RequestMapping("/mbrcache")
-public class MemberCacheApi extends BaseController{
+@RequestMapping("/mbrlike")
+public class MemberLikeApi extends BaseController{
 
 	@Autowired
-	MemberCacheService memberCacheService;
+	MemberLikeService memberLikeService;
 	
 	/**
 	 * 搜索统计
@@ -43,7 +42,7 @@ public class MemberCacheApi extends BaseController{
 
 		logger.info("mbrcache.search>>>enter,recive data="+allParams.entrySet());
 		
-		Map<String, List<Map<String, Object>>> allMap 	= memberCacheService.search(
+		Map<String, List<Map<String, Object>>> allMap 	= memberLikeService.search(
 				Integer.valueOf(allParams.getOrDefault("page", 1).toString()), 
 				Integer.valueOf(allParams.getOrDefault("pageSize", 20).toString()), 
 				allParams);
@@ -64,30 +63,18 @@ public class MemberCacheApi extends BaseController{
 		
 		return success(jRet);
 	}
-	
-	/**
-	 * 获取用户缓存表中的视频文件大小与路径
-	 * @param request
-	 * @param allParams
-	 * @return
-	 */
-	@RequestMapping(value="cache", method=RequestMethod.POST)
-	@ResponseBody
-	public ReturnT<?> cache(HttpServletRequest request,
-			@RequestParam Map<String,Object> allParams){
 
-		logger.info("mbrcache.cache>>>enter,recive data="+allParams.entrySet());
+	@RequestMapping(value="like", method=RequestMethod.POST)
+	@ResponseBody
+	public ReturnT<?> like(
+			@RequestParam(required = true) String memberId,
+			@RequestParam(required = false,defaultValue = "1") Integer page,
+			@RequestParam(required = false,defaultValue = "20") Integer pageSize){
 		
-		Map<String, List<Map<String, Object>>> allMap 	= memberCacheService.cache(
-				Integer.valueOf(allParams.getOrDefault("page", 1).toString()), 
-				Integer.valueOf(allParams.getOrDefault("pageSize", 20).toString()), 
-				allParams);
+		List<Map<String, Object>> list = memberLikeService.like(page,pageSize,memberId);
 		
-		List<Map<String, Object>> cacheList = allMap.get("cache_list");
-		
-		for (Map<String, Object> one : cacheList){
+		for (Map<String, Object> one : list){
 			one.put("cover", SomeUtil.getHost(String.valueOf(one.get("cover"))));
-			one.put("size", SomeUtil.transByte(new File(System.getProperty("user.dir")+one.get("url2")).length()));
 		}
 		
 		JSONObject jRet = new JSONObject(){
@@ -97,26 +84,24 @@ public class MemberCacheApi extends BaseController{
 			private static final long serialVersionUID = 1L;
 
 			{
-				this.put("cache_list", cacheList);
-				this.put("condition", allParams);
+				this.put("list", list);
 			}
 		};
 		
 		return success(jRet);
 	}
-
+	
 	@RequestMapping(value="dels", method=RequestMethod.POST)
 	@ResponseBody
 	public ReturnT<?> dels(
 			@RequestParam(required = true) String ids,
-			@RequestParam(required = true) String memberId,
-			@RequestParam(required = true) String deviceId){
+			@RequestParam(required = true) String memberId){
 		
-		if (StrUtil.isEmpty(ids) || StrUtil.isEmpty(memberId) || StrUtil.isEmpty(deviceId)){
+		if (StrUtil.isEmpty(ids) || StrUtil.isEmpty(memberId)){
 			return fail("ids or memberId or deviceId is empty");
 		}
 		
-		logger.info("mbrcache.del>>>enter,recive data="+ids+","+memberId+","+deviceId);
+		logger.info("mbrcache.del>>>enter,recive data="+ids+","+memberId);
 		
 		Map<String, Object> eq = new HashMap<String, Object>(){
 			/**
@@ -126,7 +111,6 @@ public class MemberCacheApi extends BaseController{
 
 			{
 				this.put("memberId", memberId);
-				this.put("deviceId", deviceId);
 			}
 		};
 		List<Object> list = new ArrayList<Object>(){
@@ -142,12 +126,11 @@ public class MemberCacheApi extends BaseController{
 		Map<String, List<Object>> in = new HashMap<>();
 		in.put("id", list);
 		
-		int n = memberCacheService.delete(eq, null, in);
+		int n = memberLikeService.delete(eq, null, in);
 		if (n>0){
 			return success();
 		} else {
 			return fail("删除失败");
 		}
 	}
-	
 }
