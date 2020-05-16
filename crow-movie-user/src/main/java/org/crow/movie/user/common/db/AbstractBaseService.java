@@ -78,7 +78,7 @@ public abstract class AbstractBaseService<T> {
 	}
 	
 	@Transactional(propagation=Propagation.NOT_SUPPORTED)
-	public T getUnique(String key, String value){
+	public T getUnique(String key, Object value){
 		
 		HashMap<String, Object> eq = new HashMap<>();
 		eq.put(key, value);
@@ -129,6 +129,13 @@ public abstract class AbstractBaseService<T> {
 
 	public T add(T t){
 		return baseDao.add(t);
+	}
+	
+	public int count(String key, Object value){
+		
+		Map<String, Object> eq = new HashMap<>();
+		eq.put(key, value);
+		return baseDao.findCount(eq, null, null, null, null, null, null, null, null, null, null);
 	}
 	
 	@Transactional(propagation = Propagation.NOT_SUPPORTED)

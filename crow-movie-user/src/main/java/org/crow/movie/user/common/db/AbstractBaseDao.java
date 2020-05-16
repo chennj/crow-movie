@@ -166,7 +166,7 @@ public abstract class AbstractBaseDao<T> implements BaseDao<T> {
  
     @Override
     public int count() {
-        Long num = (Long) em.createQuery("select count(1) from "+clazz.getSimpleName()).getSingleResult();
+    	BigInteger num = (BigInteger) em.createQuery("select count(1) from "+clazz.getSimpleName()).getSingleResult();
         return num.intValue();
     }
  
@@ -438,7 +438,7 @@ public abstract class AbstractBaseDao<T> implements BaseDao<T> {
 		}
 	}
 
-	public <V>Long findCount( 
+	public <V>Integer findCount( 
 			Map<String, Object> eq, Map<String, Object> not,
 			Map<String, Object> like, Map<String, Object> notlike,
 			Map<String, Object> leftlike, Map<String, Object> rightlike,
@@ -450,9 +450,9 @@ public abstract class AbstractBaseDao<T> implements BaseDao<T> {
 		
 		Query query = buildQuery(hql, "" ,eq,not,like,notlike,leftlike,rightlike,in,notin,between,notbetween,custCondition);
 
-		Object o = query.getSingleResult();
+		BigInteger num = (BigInteger)query.getSingleResult();
 		
-		return (Long) o;
+		return num.intValue();
 	}
 	
 	public <V> Page<T> findPage(
