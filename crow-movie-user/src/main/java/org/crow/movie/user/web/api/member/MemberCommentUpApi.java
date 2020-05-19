@@ -5,8 +5,10 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.crow.movie.user.common.db.entity.MemberComment;
 import org.crow.movie.user.common.db.model.ReturnT;
-import org.crow.movie.user.common.db.service.MemberCommentUpService;
+import org.crow.movie.user.common.db.service.MemberCommentService;
+import org.crow.movie.user.common.util.StrUtil;
 import org.crow.movie.user.web.controller.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -17,16 +19,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.alibaba.fastjson.JSONObject;
 
-/**
- * 评论点赞
- * @author chenn
- *
- */
 @Controller
-public class MemberCommentApi extends BaseController{
+public class MemberCommentUpApi extends BaseController{
 
 	@Autowired
-	MemberCommentUpService memberCommentUpService;
+	MemberCommentService memberCommentService;
 	
 	/**
 	 * 搜索统计
@@ -41,11 +38,18 @@ public class MemberCommentApi extends BaseController{
 
 		logger.info("mbrcache.search>>>enter,recive data="+allParams.entrySet());
 		
-		Map<String, List<Map<String, Object>>> allMap 	= memberCommentUpService.search(
+		Map<String, List<Map<String, Object>>> allMap 	= memberCommentService.search(
 				Integer.valueOf(allParams.getOrDefault("page", 1).toString()), 
 				Integer.valueOf(allParams.getOrDefault("pageSize", 20).toString()), 
 				allParams);
 		
+		List<Map<String, Object>> list = allMap.get("list");
+		
+		Object fid = allParams.getOrDefault("fid", 0);
+		
+		for (Map<String, Object> one : list){
+			one.put("reply_num", memberCommentService.count("fid", fid));
+		}
 		
 		JSONObject jRet = new JSONObject(){
 			/**
@@ -54,11 +58,30 @@ public class MemberCommentApi extends BaseController{
 			private static final long serialVersionUID = 1L;
 
 			{
-				this.put("list", allMap.get("list"));
+				this.put("list", list);
+				this.put("condition", allParams);
+				this.put("fid", fid);
+				this.put("movie_id", allParams.get("movie_id"));
 			}
 		};
 		
 		return success(jRet);
 	}
-
+	
+	@RequestMapping(value="del", method=RequestMethod.POST)
+	@ResponseBody
+	public ReturnT<?> del(@RequestParam(required = true) Integer id){
+		
+		if (StrUtil.isEmpty(id)){
+			return fail("没有id");
+		}
+		
+		MemberComment entity = memberCommentService.getById(id);
+		if (entity == null){
+			return fail("评论不存在");
+		}
+		memberCommentService.delCascade(entity);
+		
+		return success("操作完成");
+	}
 }

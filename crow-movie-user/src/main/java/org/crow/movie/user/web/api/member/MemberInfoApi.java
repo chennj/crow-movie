@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.crow.movie.user.common.constant.Const;
 import org.crow.movie.user.common.db.entity.AppLevel;
 import org.crow.movie.user.common.db.entity.MemberInfo;
 import org.crow.movie.user.common.db.model.BaseTypeWrapper;
@@ -198,7 +199,7 @@ public class MemberInfoApi  extends BaseController{
 		}
 		
 		try {
-			SomeUtil.updateBean(entity, jo);
+			SomeUtil.updateBean(entity, jo, Const.MEMBERINFO_FIELD_EDIT_IGNORE);
 		} catch (Exception e) {
 			logger.error("mbrinfo.edit>>>updateBean failed,"+e.getMessage());
 			return fail("modify user info failed");
@@ -219,12 +220,11 @@ public class MemberInfoApi  extends BaseController{
 	@ResponseBody
 	public ReturnT<?> add(
 			HttpServletRequest request,
-			@RequestParam(required=true) String data){
+			@RequestParam Map<String,Object> allParams){
 		
-		logger.info("mbrinfo.add>>>enter,recive data="+data);
+		logger.info("mbrinfo.add>>>enter,recive data="+allParams.entrySet());
 		
-		// param
-		if (StrUtil.isEmpty(data)){
+		if (allParams.isEmpty()){
 			logger.error("mbrinfo.add>>>数据的没有，搞啥");
 			return fail("data is empty");
 		}
@@ -234,7 +234,7 @@ public class MemberInfoApi  extends BaseController{
 		String account;
 		String password,password2;
 		try {
-			jdata 		= JSON.parseObject(data);
+			jdata 		= new JSONObject(allParams);
 			account 	= jdata.getString("account");
 			password 	= jdata.getString("password");
 			password2 	= jdata.getString("password2");
@@ -254,7 +254,7 @@ public class MemberInfoApi  extends BaseController{
 			return new ReturnT<String>(500, "user exist");
 		}
 		
-		mbr = JSON.parseObject(data, new TypeReference<MemberInfo>(){});
+		mbr = JSON.parseObject(jdata.toJSONString(), new TypeReference<MemberInfo>(){});
 		if (null == mbr){
 			logger.error("mbrinfo.add>>>data trans bean exception");
 			return fail("data trans bean exception");

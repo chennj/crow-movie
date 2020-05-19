@@ -114,54 +114,64 @@ public class MemberInfoService extends AbstractBaseService<MemberInfo> {
 			{
 				SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 				
+				int paramidx = 1;
+				
 				Object 
 				o = allParams.get("id");
 				if (StrUtil.notEmpty(o)){
-					where.append("and a.id = ?1 ");
+					where.append("and a.id = '?"+paramidx+"' ");
 					this.add(o);
+					paramidx++;
 				}
 				
 				o = allParams.get("account");
 				if (StrUtil.notEmpty(o)){
-					where.append("and a.account = ?2 ");
+					where.append("and a.account = '?"+paramidx+"' ");
 					this.add(o);
+					paramidx++;
 				}
 				
 				o = allParams.get("mobile");
 				if (StrUtil.notEmpty(o)){
-					where.append("and a.mobile like '%?3%' ");
+					where.append("and a.mobile like '%?"+paramidx+"%' ");
 					this.add(o);
+					paramidx++;
 				}
 				
 				o = allParams.get("level");
 				if (StrUtil.notEmpty(o)){
-					where.append("and a.level_id like '%?4%' ");
+					where.append("and a.level_id like '%?"+paramidx+"%' ");
 					this.add(o);
+					paramidx++;
 				}
 				
 				o = allParams.get("is_visitor");
 				if (StrUtil.notEmpty(o)){
-					where.append("and a.is_visitor = ?5 ");
+					where.append("and a.is_visitor = '?"+paramidx+"' ");
 					this.add(o);
+					paramidx++;
 				}
 				
 				o = allParams.get("sex");
 				if (StrUtil.notEmpty(o)){
-					where.append("and a.sex = ?6 ");
+					where.append("and a.sex = '?"+paramidx+"' ");
 					this.add(o);
+					paramidx++;
 				}
 				
 				o = allParams.get("status");
 				if (StrUtil.notEmpty(o)){
-					where.append("and a.status = ?7  ");
+					where.append("and a.status = '?"+paramidx+"' ");
 					this.add(o);
+					paramidx++;
 				}
 				
 				o = allParams.get("begin_time");
 				if (StrUtil.notEmpty(o)){
 					try {
 						this.add(fmt.parse(String.valueOf(o)));
-						where.append("and a.create_time >= ?8  ");
+						where.append("and a.create_time >= '?"+paramidx+"'  ");
+						paramidx++;
 					} catch (Exception e){
 						logger.error("member info service.search>>>begin_time 转换失败"+e.getMessage());
 					}
@@ -171,7 +181,8 @@ public class MemberInfoService extends AbstractBaseService<MemberInfo> {
 				if (StrUtil.notEmpty(o)){
 					try {
 						this.add(fmt.parse(String.valueOf(o)));
-						where.append("and a.create_time < ?9  ");
+						where.append("and a.create_time < '?"+paramidx+"'  ");
+						paramidx++;
 					} catch (Exception e){
 						logger.error("member info service.search>>>end_time 转换失败"+e.getMessage());
 					}
@@ -179,25 +190,28 @@ public class MemberInfoService extends AbstractBaseService<MemberInfo> {
 				
 				o = allParams.get("reg_promo_code");
 				if (StrUtil.notEmpty(o)){
-					where.append("and a.reg_promo_code like '%?10%' ");
+					where.append("and a.reg_promo_code like '%?"+paramidx+"%' ");
 					this.add(o);
+					paramidx++;
 				}
 				
 				o = allParams.get("promo_code");
 				if (StrUtil.notEmpty(o)){
-					where.append("and a.promo_code = ?11 ");
+					where.append("and a.promo_code = '?"+paramidx+"' ");
 					this.add(o);
+					paramidx++;
 				}
 				
 				o = allParams.get("is_vip");
 				if (StrUtil.notEmpty(o)){
 					
 					if ("1".equals(String.valueOf(o))){
-						where.append("and a.expire_time <= ?12 ");
+						where.append("and a.expire_time <= '?"+paramidx+"' ");
 					} else {
-						where.append("and a.expire_time > ?12 ");
+						where.append("and a.expire_time > '?"+paramidx+"' ");
 					}					
 					this.add(new Date());
+					paramidx++;
 				}
 				
 				o = allParams.get("device_id_isnull");
@@ -213,8 +227,9 @@ public class MemberInfoService extends AbstractBaseService<MemberInfo> {
 				
 				o = allParams.get("promo_num");
 				if (StrUtil.notEmpty(o)){
-					having.append("count(b.member_id) >= ?13 ");
+					having.append("count(b.member_id) >= '?"+paramidx+"' ");
 					this.add(Integer.valueOf(String.valueOf(o)));
+					paramidx++;
 				}
 			}
 		};
@@ -289,6 +304,67 @@ public class MemberInfoService extends AbstractBaseService<MemberInfo> {
 		return result;
 	}
 	
-	
+	public Map<String, List<Map<String, Object>>> getSave(Integer page, Integer pageSize,
+			Map<String, Object> allParams , Object...returnObj) {
+
+		final StringBuilder where = new StringBuilder("where 1=1 ");
+		
+		List<Object> params = new ArrayList<Object>(){
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			{
+				int paramidx = 1;
+				
+				Object 
+				o = allParams.get("account");
+				if (StrUtil.notEmpty(o)){
+					where.append("and a.account like '%?"+paramidx+"%' ");
+					this.add(o);
+					paramidx++;
+				}
+				
+				o = allParams.get("is_save_qrcode");
+				if (StrUtil.notEmpty(o)){
+					where.append("and a.is_save_qrcode = 1 ");
+					this.add(o);
+					paramidx++;
+				}
+				
+				o = allParams.get("begin_time");
+				if (StrUtil.notEmpty(o)){
+					where.append("and a.save_qrcode_time >= UNIX_TIMESTAMP(?"+paramidx+") ");
+					this.add(o);
+					paramidx++;
+				}
+				
+				o = allParams.get("end_time");
+				if (StrUtil.notEmpty(o)){
+					where.append("and a.save_qrcode_time < UNIX_TIMESTAMP(?"+paramidx+") ");
+					this.add(o);
+					paramidx++;
+				}
+				
+			}
+		};
+		
+		if (returnObj.length>0){
+			logger.warn(">>>有回传对象没有被处理");
+		}
+		
+		String 
+		sql = 
+			"select a.*,b.account,b.is_visitor,c.title from hg_member_info a "
+			+ where 
+			+ "order by id desc ";
+		
+		List<Map<String,Object>> list = super.getPageListMap(sql, page, pageSize, params.toArray());
+		
+		Map<String, List<Map<String, Object>>> result = new HashMap<String, List<Map<String, Object>>>();
+		result.put("list", list);
+		return result;
+	}
 
 }

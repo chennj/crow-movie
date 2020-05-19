@@ -19,9 +19,9 @@ import org.slf4j.LoggerFactory;
  * @author chenn
  *
  */
-public class ConstCache {
+public class FixedCache {
 
-	private static final Logger logger = LoggerFactory.getLogger(ConstCache.class);
+	private static final Logger logger = LoggerFactory.getLogger(FixedCache.class);
 	
 	/**
 	 * appCdn 缓存

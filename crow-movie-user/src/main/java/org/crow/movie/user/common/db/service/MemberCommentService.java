@@ -8,7 +8,9 @@ import java.util.Map;
 import javax.transaction.Transactional;
 
 import org.crow.movie.user.common.db.AbstractBaseService;
+import org.crow.movie.user.common.db.dao.AppMovieDao;
 import org.crow.movie.user.common.db.dao.MemberCommentDao;
+import org.crow.movie.user.common.db.entity.AppMovie;
 import org.crow.movie.user.common.db.entity.MemberComment;
 import org.crow.movie.user.common.util.StrUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,9 @@ import org.springframework.stereotype.Service;
 @Service
 @Transactional
 public class MemberCommentService extends AbstractBaseService<MemberComment> {
+	
+	@Autowired
+	AppMovieDao appMovieDao;
 	
 	@Autowired
 	public void setBaseDao(MemberCommentDao dao){
@@ -110,8 +115,14 @@ public class MemberCommentService extends AbstractBaseService<MemberComment> {
 		return result;
 	}
 
-	public void delWith(MemberComment entity) {
+	public void delCascade(MemberComment entity) {
 		
-		
+		//评论数量减一
+		AppMovie movie = appMovieDao.get(entity.getMovieId());
+		movie.setCommentNum(movie.getCommentNum()-1);
+		//删除下级评论
+		this.del("fid",entity.getFid());
+		//删除评论
+		this.del(entity.getId());
 	}
 }

@@ -6,7 +6,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.crow.movie.user.common.db.model.ReturnT;
-import org.crow.movie.user.common.db.service.MemberCommentUpService;
+import org.crow.movie.user.common.db.service.MemberPromoService;
+import org.crow.movie.user.common.util.StrUtil;
 import org.crow.movie.user.web.controller.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -18,15 +19,16 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.alibaba.fastjson.JSONObject;
 
 /**
- * 评论点赞
+ * 
  * @author chenn
  *
  */
 @Controller
-public class MemberCommentApi extends BaseController{
+@RequestMapping("/mbrpromo")
+public class MemberPromoApi extends BaseController{
 
 	@Autowired
-	MemberCommentUpService memberCommentUpService;
+	MemberPromoService memberPromoService;
 	
 	/**
 	 * 搜索统计
@@ -39,9 +41,9 @@ public class MemberCommentApi extends BaseController{
 	public ReturnT<?> searchCount(HttpServletRequest request,
 			@RequestParam Map<String,Object> allParams){
 
-		logger.info("mbrcache.search>>>enter,recive data="+allParams.entrySet());
+		logger.info("mbrpromo.search>>>enter,recive data="+allParams.entrySet());
 		
-		Map<String, List<Map<String, Object>>> allMap 	= memberCommentUpService.search(
+		Map<String, List<Map<String, Object>>> allMap 	= memberPromoService.search(
 				Integer.valueOf(allParams.getOrDefault("page", 1).toString()), 
 				Integer.valueOf(allParams.getOrDefault("pageSize", 20).toString()), 
 				allParams);
@@ -55,10 +57,23 @@ public class MemberCommentApi extends BaseController{
 
 			{
 				this.put("list", allMap.get("list"));
+				this.put("condition", allParams);
 			}
 		};
 		
 		return success(jRet);
 	}
 
+	@RequestMapping(value="del", method=RequestMethod.POST)
+	@ResponseBody
+	public ReturnT<?> del(@RequestParam(required = true) Integer id){
+		
+		if (StrUtil.isEmpty(id)){
+			return fail("没有id");
+		}
+		
+		memberPromoService.del(id);
+		
+		return success("操作完成");
+	}
 }

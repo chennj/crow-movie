@@ -27,6 +27,20 @@ public interface Const {
 		}
 	};
 	
+	ArrayList<Object> GENERAL_FIELD_EDIT_IGNORE = new ArrayList<Object>(){
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		{
+			List<Object> list = Arrays.asList(
+					new String[]{"id","createTime","createUser"});
+			
+			addAll(list);
+		}
+	};
+	
 	Long TS_AUTO_FIND_APP_CDN = (long) (60 * 1000);
 	Long TS_AUTO_FIND_APP_CONFIG = (long) (60 * 1000);
 }

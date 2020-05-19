@@ -7,11 +7,12 @@ import java.math.BigDecimal;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.RandomUtils;
-import org.crow.movie.user.common.cache.ConstCache;
+import org.crow.movie.user.common.cache.FixedCache;
 import org.crow.movie.user.common.constant.Const;
 import org.crow.movie.user.common.db.entity.AppCdn;
 import org.crow.movie.user.common.db.entity.AppConfig;
@@ -52,7 +53,11 @@ public final class SomeUtil {
         return new String(ch);
     }
 	
-	public static <T> void updateBean(T t, JSONObject jo) throws Exception{
+	public static <T> void updateBean(T t, JSONObject jo, ArrayList<Object> ignoreList) throws Exception{
+		
+		if (null == ignoreList){
+			ignoreList = Const.GENERAL_FIELD_EDIT_IGNORE;
+		}
 		
 		for (Entry<String, Object> entry : jo.entrySet()){
 			
@@ -61,7 +66,7 @@ public final class SomeUtil {
 			Method m;
 			try {
 				f 	= t.getClass().getDeclaredField(entry.getKey());
-				if (Const.MEMBERINFO_FIELD_EDIT_IGNORE.contains(f.getName())){
+				if (ignoreList.contains(f.getName())){
 					continue;
 				}
 				ft 	= f.getType();
@@ -143,7 +148,7 @@ public final class SomeUtil {
 	
 	public static List<AppCdn> getCdnList(){
 		
-		return ConstCache.appCdnCache();
+		return FixedCache.appCdnCache();
 	}
 	
 	public static String getRamdomHost(){
@@ -152,7 +157,7 @@ public final class SomeUtil {
 		String host = getDomain();
 		
 		if (null != cdnList && !cdnList.isEmpty()){
-			AppConfig appConfig = ConstCache.appConfigCache();
+			AppConfig appConfig = FixedCache.appConfigCache();
 			Integer cdnType = appConfig.getCdnType();
 			if (cdnType == 1){
 				host = cdnList.get(0).getHost();

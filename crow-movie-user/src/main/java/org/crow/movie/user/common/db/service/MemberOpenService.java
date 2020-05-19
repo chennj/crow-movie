@@ -8,18 +8,18 @@ import java.util.Map;
 import javax.transaction.Transactional;
 
 import org.crow.movie.user.common.db.AbstractBaseService;
-import org.crow.movie.user.common.db.dao.MemberPromoDao;
-import org.crow.movie.user.common.db.entity.MemberPromo;
+import org.crow.movie.user.common.db.dao.MemberOpenDao;
+import org.crow.movie.user.common.db.entity.MemberOpen;
 import org.crow.movie.user.common.util.StrUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 @Transactional
-public class MemberPromoService extends AbstractBaseService<MemberPromo> {
+public class MemberOpenService extends AbstractBaseService<MemberOpen> {
 	
 	@Autowired
-	public void setBaseDao(MemberPromoDao dao){
+	public void setBaseDao(MemberOpenDao dao){
 		
 		super.setBaseDao(dao);
 	}
@@ -42,6 +42,13 @@ public class MemberPromoService extends AbstractBaseService<MemberPromo> {
 				o = allParams.get("account");
 				if (StrUtil.notEmpty(o)){
 					where.append("and b.account like '%?"+paramidx+"%' ");
+					this.add(o);
+					paramidx++;
+				}
+				
+				o = allParams.get("device_type");
+				if (StrUtil.notEmpty(o)){
+					where.append("and a.device_type = '?"+paramidx+"' ");
 					this.add(o);
 					paramidx++;
 				}
@@ -76,9 +83,8 @@ public class MemberPromoService extends AbstractBaseService<MemberPromo> {
 		
 		String 
 		sql = 
-			"select a.*,b.account,b.is_visitor,c.account account2,c.is_visitor is_visitor2 from hg_member_promo a "
+			"select a.*,b.account,b.is_visitor from hg_member_movie_up_down a "
 			+ "left join hg_member_info b on a.member_id=b.id "
-			+ "left join hg_member_info c on a.to_member_id=c.id "
 			+ where 
 			+ "order by id desc ";
 		
@@ -88,5 +94,4 @@ public class MemberPromoService extends AbstractBaseService<MemberPromo> {
 		result.put("list", list);
 		return result;
 	}
-
 }
