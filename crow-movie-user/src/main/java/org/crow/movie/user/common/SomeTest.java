@@ -26,5 +26,12 @@ public class SomeTest {
 		String path2 = ResourceUtils.getURL("classpath:").getPath();
 		System.out.println(path2);
 		//运行结果：/D:/eclipse_springboot/crow-movie/crow-movie-user/target/classes/
+		
+		System.out.println("==============php-java时间转换======");
+		long l = System.currentTimeMillis();
+		String ts = String.valueOf(l);
+		int i = Integer.valueOf(ts.substring(0,ts.length()-3));
+		long l1 = Long.valueOf(String.valueOf(i)+"000");
+		System.out.println("long<=>string<=>int<=>long："+l+"<=>"+ts+"<=>"+i+"<=>"+l1);		
 	}
 }

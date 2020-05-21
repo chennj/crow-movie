@@ -15,6 +15,7 @@ import org.crow.movie.user.common.db.model.ReturnT;
 import org.crow.movie.user.common.db.service.AppLevelService;
 import org.crow.movie.user.common.db.service.MemberInfoService;
 import org.crow.movie.user.common.util.DigestUtils;
+import org.crow.movie.user.common.util.Php2JavaUtil;
 import org.crow.movie.user.common.util.SomeUtil;
 import org.crow.movie.user.common.util.StrUtil;
 import org.crow.movie.user.common.util.TokenUtil;
@@ -205,6 +206,7 @@ public class MemberInfoApi  extends BaseController{
 			return fail("modify user info failed");
 		}
 		
+		entity.setUpdateTime(Php2JavaUtil.transTimeJ2P(System.currentTimeMillis()));
 		memberInfoService.modify(entity);
 		
 		return success();
@@ -267,8 +269,8 @@ public class MemberInfoApi  extends BaseController{
 		mbr.setPassword(pwd);
 		mbr.setToken(TokenUtil.genToken("demo", 1));
 		mbr.setCreateDate(new Date());
-		mbr.setCreateTime(SomeUtil.safeLongToInt(ts));
-		mbr.setUpdateTime(SomeUtil.safeLongToInt(ts));
+		mbr.setCreateTime(Php2JavaUtil.transTimeJ2P(ts));
+		mbr.setUpdateTime(Php2JavaUtil.transTimeJ2P(ts));
 		mbr.setCreateUser(1);
 
 		memberInfoService.add(mbr);
