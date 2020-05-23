@@ -24,6 +24,7 @@ import com.alibaba.fastjson.JSONObject;
  *
  */
 @Controller
+@RequestMapping("/mbrhistory")
 public class MemberHistoryApi extends BaseController{
 
 	@Autowired
@@ -40,7 +41,7 @@ public class MemberHistoryApi extends BaseController{
 	public ReturnT<?> searchCount(HttpServletRequest request,
 			@RequestParam Map<String,Object> allParams){
 
-		logger.info("mbrcache.search>>>enter,recive data="+allParams.entrySet());
+		logger.info("mbrhistory.search>>>enter,recive data="+allParams.entrySet());
 		
 		Map<String, List<Map<String, Object>>> allMap 	= memberHistoryService.search(
 				Integer.valueOf(allParams.getOrDefault("page", 1).toString()), 

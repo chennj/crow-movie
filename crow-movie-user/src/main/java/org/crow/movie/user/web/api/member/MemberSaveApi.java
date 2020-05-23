@@ -40,7 +40,7 @@ public class MemberSaveApi extends BaseController{
 	public ReturnT<?> searchCount(HttpServletRequest request,
 			@RequestParam Map<String,Object> allParams){
 
-		logger.info("mbrpromo.search>>>enter,recive data="+allParams.entrySet());
+		logger.info("mbrsave.search>>>enter,recive data="+allParams.entrySet());
 		
 		Map<String, List<Map<String, Object>>> allMap 	= memberInfoService.getSave(
 				Integer.valueOf(allParams.getOrDefault("page", 1).toString()), 

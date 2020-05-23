@@ -9,6 +9,7 @@ import org.crow.movie.user.common.constant.CC;
 import org.crow.movie.user.common.db.entity.MemberFeedback;
 import org.crow.movie.user.common.db.model.ReturnT;
 import org.crow.movie.user.common.db.service.MemberFeedbackService;
+import org.crow.movie.user.common.util.Php2JavaUtil;
 import org.crow.movie.user.common.util.StrUtil;
 import org.crow.movie.user.web.controller.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.alibaba.fastjson.JSONObject;
 
 @Controller
+@RequestMapping("/mbrfeedback")
 public class MemberFeedbackApi extends BaseController{
 
 	@Autowired
@@ -37,7 +39,7 @@ public class MemberFeedbackApi extends BaseController{
 	public ReturnT<?> searchCount(HttpServletRequest request,
 			@RequestParam Map<String,Object> allParams){
 
-		logger.info("mbrcache.search>>>enter,recive data="+allParams.entrySet());
+		logger.info("mbrfeedback.search>>>enter,recive data="+allParams.entrySet());
 		
 		Map<String, List<Map<String, Object>>> allMap 	= memberFeedbackService.search(
 				Integer.valueOf(allParams.getOrDefault("page", 1).toString()), 
@@ -64,7 +66,7 @@ public class MemberFeedbackApi extends BaseController{
 	
 	@RequestMapping(value="status", method=RequestMethod.POST)
 	@ResponseBody
-	public ReturnT<?> status(@RequestParam(required = true) Integer id){
+	public ReturnT<?> status(HttpServletRequest request,@RequestParam(required = true) Integer id){
 		
 		if (StrUtil.isEmpty(id)){
 			return fail("没有id");
@@ -79,7 +81,9 @@ public class MemberFeedbackApi extends BaseController{
 		} else {
 			entity.setAdminIsRead(1);
 		}
+		entity.setUpdateTime(Php2JavaUtil.transTimeJ2P(System.currentTimeMillis()));
 		memberFeedbackService.modify(entity);
 		return success("操作完成");
 	}
+	
 }

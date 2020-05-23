@@ -97,7 +97,7 @@ public class MemberMovieUpDownService extends AbstractBaseService<MemberMovieUpD
 		
 		String 
 		sql = 
-			"a.*,b.account,b.is_visitor,c.title from hg_member_movie_up_down a "
+			"select a.*,b.account,b.is_visitor,c.title from hg_member_movie_up_down a "
 			+ "left join hg_member_info b on a.member_id=b.id "
 			+ "left join ht_app_movie c on a.movie_id=c.id "
 			+ where 

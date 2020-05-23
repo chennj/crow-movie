@@ -24,6 +24,7 @@ import com.alibaba.fastjson.JSONObject;
  *
  */
 @Controller
+@RequestMapping("/mbrmovieupdown")
 public class MemberMovieUpDownApi extends BaseController{
 
 	@Autowired
@@ -40,7 +41,7 @@ public class MemberMovieUpDownApi extends BaseController{
 	public ReturnT<?> searchCount(HttpServletRequest request,
 			@RequestParam Map<String,Object> allParams){
 
-		logger.info("mbrcache.search>>>enter,recive data="+allParams.entrySet());
+		logger.info("mbrmovieupdown.search>>>enter,recive data="+allParams.entrySet());
 		
 		Map<String, List<Map<String, Object>>> allMap 	= memberMovieUpDownService.search(
 				Integer.valueOf(allParams.getOrDefault("page", 1).toString()), 

@@ -450,7 +450,7 @@ public abstract class AbstractBaseDao<T> implements BaseDao<T> {
 		
 		Query query = buildQuery(hql, "" ,eq,not,like,notlike,leftlike,rightlike,in,notin,between,notbetween,custCondition);
 
-		BigInteger num = (BigInteger)query.getSingleResult();
+		Long num = (Long) query.getSingleResult();
 		
 		return num.intValue();
 	}

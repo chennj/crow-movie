@@ -1,4 +1,4 @@
-package org.crow.movie.user.web.api.member;
+package org.crow.movie.user.web.api.member.outside;
 
 import java.util.List;
 import java.util.Map;
@@ -6,8 +6,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.crow.movie.user.common.db.model.ReturnT;
-import org.crow.movie.user.common.db.service.MemberOpenService;
-import org.crow.movie.user.common.util.StrUtil;
+import org.crow.movie.user.common.db.service.MemberPromoService;
+import org.crow.movie.user.web.annotation.Permission;
 import org.crow.movie.user.web.controller.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -24,11 +24,12 @@ import com.alibaba.fastjson.JSONObject;
  *
  */
 @Controller
-@RequestMapping("/mbropen")
-public class MemberOpenApi extends BaseController{
+@RequestMapping("/mbrpromo/public")
+@Permission(managerLimit=false)
+public class MemberPromoApi extends BaseController{
 
 	@Autowired
-	MemberOpenService memberOpenService;
+	MemberPromoService memberPromoService;
 	
 	/**
 	 * 搜索统计
@@ -36,14 +37,14 @@ public class MemberOpenApi extends BaseController{
 	 * @param allParams
 	 * @return
 	 */
-	@RequestMapping(value="search-count", method=RequestMethod.POST)
+	@RequestMapping(value="save-qrcode", method=RequestMethod.POST)
 	@ResponseBody
-	public ReturnT<?> searchCount(HttpServletRequest request,
+	public ReturnT<?> saveQrcode(HttpServletRequest request,
 			@RequestParam Map<String,Object> allParams){
 
-		logger.info("mbropen.search>>>enter,recive data="+allParams.entrySet());
+		logger.info("mbrpromo.public.save-qrcode>>>enter,recive data="+allParams.entrySet());
 		
-		Map<String, List<Map<String, Object>>> allMap 	= memberOpenService.search(
+		Map<String, List<Map<String, Object>>> allMap 	= memberPromoService.search(
 				Integer.valueOf(allParams.getOrDefault("page", 1).toString()), 
 				Integer.valueOf(allParams.getOrDefault("pageSize", 20).toString()), 
 				allParams);
@@ -64,16 +65,4 @@ public class MemberOpenApi extends BaseController{
 		return success(jRet);
 	}
 
-	@RequestMapping(value="del", method=RequestMethod.POST)
-	@ResponseBody
-	public ReturnT<?> del(@RequestParam(required = true) Integer id){
-		
-		if (StrUtil.isEmpty(id)){
-			return fail("没有id");
-		}
-		
-		memberOpenService.del(id);
-		
-		return success("操作完成");
-	}
 }

@@ -1,7 +1,7 @@
 # referer 地址验证
-my.config:
-    refererDomain:
-        - 127.0.0.1:9091/movie-user
-        - pibigstar.com
-        - mxspvip.cn
-    	
+my:
+    config:
+        refererDomain:
+            - http://127.0.0.1:9091/movie-user
+            - pibigstar.com
+            - mxspvip.cn

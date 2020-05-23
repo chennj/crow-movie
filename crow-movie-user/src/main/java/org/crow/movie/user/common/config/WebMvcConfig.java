@@ -5,6 +5,7 @@ import javax.annotation.Resource;
 import org.crow.movie.user.web.interceptor.CookieInterceptor;
 import org.crow.movie.user.web.interceptor.ManagerPermissionInterceptor;
 import org.crow.movie.user.web.interceptor.MemberPermissionInterceptor;
+import org.crow.movie.user.web.interceptor.TokenInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -23,6 +24,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
     private CookieInterceptor cookieInterceptor;
     @Resource
     private ManagerPermissionInterceptor managerInterceptor;
+    @Resource
+    private TokenInterceptor tokenInterceptor;
 
     /**
      * addPathPatterns 添加拦截规则
@@ -30,9 +33,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
      */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+    	registry.addInterceptor(tokenInterceptor).addPathPatterns("/**");
     	registry.addInterceptor(managerInterceptor).addPathPatterns("/**");
         registry.addInterceptor(memberInterceptor).addPathPatterns("/**");
-        registry.addInterceptor(cookieInterceptor).addPathPatterns("/**");
+        //registry.addInterceptor(cookieInterceptor).addPathPatterns("/**");
     }
 
 }

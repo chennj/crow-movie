@@ -1,6 +1,5 @@
 package org.crow.movie.user.web.interceptor;
 
-import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.util.List;
 
@@ -56,6 +55,13 @@ public class ManagerPermissionInterceptor extends HandlerInterceptorAdapter{
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {
 		
+		if (!(handler instanceof HandlerMethod)) {
+			return super.preHandle(request, response, handler);
+		}
+
+		request.setCharacterEncoding("UTF-8");
+		response.setContentType("application/json;charset=utf-8");		
+		
 		if (null == ipAddrs){
 			ipAddrs = Arrays.asList(ipAddr.split(";"));
 		}
@@ -64,23 +70,11 @@ public class ManagerPermissionInterceptor extends HandlerInterceptorAdapter{
 			excludeUrls = excludeUrl.split(",");
 		}
 
-		if (!(handler instanceof HandlerMethod)) {
-			return super.preHandle(request, response, handler);
-		}
-
-		request.setCharacterEncoding("UTF-8");
-		response.setContentType("application/json;charset=utf-8");		
 		/**
 		 * 在请求方法(requestMethod)白名单中不进行拦截(例如isAlive)
 		 */		
-		String contextName 		= request.getContextPath();
-		String requestMethod 	= request.getRequestURI().replace(contextName, "");	
-		
-		for (int i = 0; i < excludeUrls.length; i++) {
-			String excludeUrl = excludeUrls[i];
-			if (requestMethod.startsWith(excludeUrl)) {
-				return true;
-			}
+		if (InterceptorFunc.IsUrlWhiteList(request, response, excludeUrls)){
+			return true;
 		}
         
 		/**
@@ -95,21 +89,7 @@ public class ManagerPermissionInterceptor extends HandlerInterceptorAdapter{
 			String clientIp 	= IPUtil.getClientIp(request);
 			if (!ipAddrs.contains(clientIp)){
 				
-				PrintWriter writer = null;
-				try{
-					writer = response.getWriter();
-					writer.write("{\"code\":\"404\",\"msg\":\"ip:"+clientIp+" 不在白名单内\"}");
-					writer.flush();
-				} catch (Exception e){
-					logger.info("ManagerPermission.preHandle>>>"+e.getMessage());
-				} finally{
-					try{
-						if (null != writer){
-							writer.close();
-						}
-					} catch(Exception e){}
-				}
-				return false;
+				return InterceptorFunc.FAIL(response,"{\"code\":\"404\",\"msg\":\"ip:"+clientIp+" 不在白名单内\"}");
 			}
 
 			// referer 拦截器防御CSRF攻击
@@ -134,21 +114,7 @@ public class ManagerPermissionInterceptor extends HandlerInterceptorAdapter{
 					if (ajaxFlag){
 						response.setContentType("application/json;charset=utf-8");
 					}
-					PrintWriter writer = null;
-					try{
-						writer = response.getWriter();
-						writer.write("{\"code\":\"404\",\"msg\":\"不能在地址栏直接访问\"}");
-						writer.flush();
-					} catch (Exception e){
-						logger.info("ManagerPermission.preHandle>>>"+e.getMessage());
-					} finally{
-						try{
-							if (null != writer){
-								writer.close();
-							}
-						} catch(Exception e){}
-					}
-					return false;
+					return InterceptorFunc.FAIL(response,"{\"code\":\"404\",\"msg\":\"不能在地址栏直接访问\"}");
 				}
 				return true;
 			}
@@ -158,26 +124,25 @@ public class ManagerPermissionInterceptor extends HandlerInterceptorAdapter{
                 url = new java.net.URL(referer);
             } catch (MalformedURLException e) {
                 // URL解析异常，置为400，不返回有效信息
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                return false;
+                return InterceptorFunc.FAIL(response,"{\"code\":\"404\",\"msg\":\"URL解析异常\"}");
             }
             // 首先判断请求域名和referer域名是否相同
             if (!host.equals(url.getHost())) {
                 // 如果不等，判断是否在白名单中
                 if (properties.getRefererDomain() != null) {
                     for (String s : properties.getRefererDomain()) {
-                        if (s.equals(url.getHost())) {
+                        if (s.equals(referer)) {
                             return true;
                         }
                     }
                 }
                 // URL解析异常，也置为400，不返回有效信息
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                return false;
+                return InterceptorFunc.FAIL(response,"{\"code\":\"404\",\"msg\":\"拒绝访问\"}");
            }
 
 		}
 		
 		return true;
 	}
+
 }

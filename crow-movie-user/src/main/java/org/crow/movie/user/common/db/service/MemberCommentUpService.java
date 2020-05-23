@@ -55,9 +55,9 @@ public class MemberCommentUpService extends AbstractBaseService<MemberCommentUp>
 		
 		String 
 		sql = 
-			"a.*,b.account,b.is_visitor from hg_member_comment_up a "
+			"select a.*,b.account,b.is_visitor from hg_member_comment_up a "
 			+ "left join hg_member_info b on a.member_id=b.id "
-			+ "left join ht_member_comment c on a.comment_id=c.id "
+			+ "left join hg_member_comment c on a.comment_id=c.id "
 			+ where 
 			+ "order by id desc ";
 		

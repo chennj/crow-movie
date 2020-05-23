@@ -1,5 +1,7 @@
 package org.crow.movie.user.web.api.permission;
 
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -16,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.alibaba.fastjson.JSON;
@@ -42,24 +45,20 @@ public class MemberPermission extends BaseController{
 	
 	@RequestMapping(value="register", method=RequestMethod.POST)
 	@ResponseBody
-	public ReturnT<String> register(HttpServletRequest request, HttpServletResponse response){
+	public ReturnT<String> register(
+			HttpServletRequest request, 
+			HttpServletResponse response,
+			@RequestParam Map<String,Object> allParams){
 		
-		String js = request.getParameter("data");
-		
-		logger.info("register>>>接收到的数据："+js);		
-		
-		// param
-		if (js==null || js.trim().length()==0){
-			logger.error("register>>>数据的没有，搞啥");
-			return new ReturnT<String>(500, "data is empty");
-		}
+		logger.info("register>>>接收到的数据："+allParams.entrySet());		
+
 		
 		JSONObject jdata = null;
 		MemberInfo mbr = null;
 		String account;
 		String password;
 		try {
-			jdata 		= JSON.parseObject(js);
+			jdata 		= new JSONObject(allParams);
 			account 	= jdata.getString("account");
 			password 	= jdata.getString("password");
 			if (StrUtil.isEmpty(account) || StrUtil.isEmpty(password)){
@@ -75,7 +74,7 @@ public class MemberPermission extends BaseController{
 			return new ReturnT<String>(500, "user exist");
 		}
 		
-		mbr = JSON.parseObject(js, new TypeReference<MemberInfo>(){});
+		mbr = JSON.parseObject(jdata.toJSONString(), new TypeReference<MemberInfo>(){});
 		if (null == mbr){
 			logger.error("register>>>data trans bean exception");
 			return new ReturnT<String>(500, "data trans bean exception");

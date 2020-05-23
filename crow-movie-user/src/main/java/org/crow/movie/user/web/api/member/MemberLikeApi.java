@@ -40,7 +40,7 @@ public class MemberLikeApi extends BaseController{
 	public ReturnT<?> searchCount(HttpServletRequest request,
 			@RequestParam Map<String,Object> allParams){
 
-		logger.info("mbrcache.search>>>enter,recive data="+allParams.entrySet());
+		logger.info("mbrlike.search>>>enter,recive data="+allParams.entrySet());
 		
 		Map<String, List<Map<String, Object>>> allMap 	= memberLikeService.search(
 				Integer.valueOf(allParams.getOrDefault("page", 1).toString()), 
@@ -101,7 +101,7 @@ public class MemberLikeApi extends BaseController{
 			return fail("ids or memberId or deviceId is empty");
 		}
 		
-		logger.info("mbrcache.del>>>enter,recive data="+ids+","+memberId);
+		logger.info("mbrlike.del>>>enter,recive data="+ids+","+memberId);
 		
 		Map<String, Object> eq = new HashMap<String, Object>(){
 			/**

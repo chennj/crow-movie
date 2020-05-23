@@ -23,7 +23,7 @@ import com.alibaba.fastjson.JSONObject;
  *
  */
 @Controller
-@RequestMapping("/mbrsave")
+@RequestMapping("/some")
 public class SomeApi extends BaseController{
 
 	@Autowired
@@ -40,7 +40,7 @@ public class SomeApi extends BaseController{
 	public ReturnT<?> searchCount(HttpServletRequest request,
 			@RequestParam Map<String,Object> allParams){
 
-		logger.info("mbrpromo.search>>>enter,recive data="+allParams.entrySet());
+		logger.info("some.search>>>enter,recive data="+allParams.entrySet());
 		
 		Map<String, List<Map<String, Object>>> allMap 	= memberVipService.search(
 				Integer.valueOf(allParams.getOrDefault("page", 1).toString()), 

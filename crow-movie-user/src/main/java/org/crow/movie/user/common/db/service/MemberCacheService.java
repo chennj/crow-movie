@@ -37,35 +37,42 @@ public class MemberCacheService extends AbstractBaseService<MemberCache> {
 			private static final long serialVersionUID = 1L;
 
 			{
+				int paramidx = 1;
+				
 				Object 
 				o = allParams.get("account");
 				if (StrUtil.notEmpty(o)){
-					where.append("and b.account like '%?1%' ");
+					where.append("and b.account like '%?"+paramidx+"%' ");
 					this.add(o);
+					paramidx++;
 				}
 				
 				o = allParams.get("title");
 				if (StrUtil.notEmpty(o)){
-					where.append("and c.title like '%?2%' ");
+					where.append("and c.title like '%?"+paramidx+"%' ");
 					this.add(o);
+					paramidx++;
 				}
 				
 				o = allParams.get("is_visitor");
 				if (StrUtil.notEmpty(o)){
-					where.append("and b.is_visitor = ?3 ");
+					where.append("and b.is_visitor = '?"+paramidx+"' ");
 					this.add(o);
+					paramidx++;
 				}
 				
 				o = allParams.get("begin_time");
 				if (StrUtil.notEmpty(o)){
 					where.append("and a.create_time >= UNIX_TIMESTAMP(?4) ");
 					this.add(o);
+					paramidx++;
 				}
 				
 				o = allParams.get("end_time");
 				if (StrUtil.notEmpty(o)){
 					where.append("and a.create_time < UNIX_TIMESTAMP(?5) ");
 					this.add(o);
+					paramidx++;
 				}
 			}
 		};

@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  *
  */
 @Controller
-@RequestMapping("/some")
+@RequestMapping("/attr")
 public class MemberMessageApi extends BaseController{
 
 	@Autowired
@@ -28,7 +28,7 @@ public class MemberMessageApi extends BaseController{
 	@ResponseBody
 	public ReturnT<?> feedbackType(){
 		
-		logger.info("some.feedback-type>>>enter");
+		logger.info("attr.feedback-type>>>enter");
 		
 		return success(CC.FEEDBACK_TYPE);
 	}

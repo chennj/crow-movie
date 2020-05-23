@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.alibaba.fastjson.JSONObject;
 
 @Controller
+@RequestMapping("/mbrclkadv")
 public class MemberClickAdvApi extends BaseController{
 
 	@Autowired
@@ -35,7 +36,7 @@ public class MemberClickAdvApi extends BaseController{
 	public ReturnT<?> searchCount(HttpServletRequest request,
 			@RequestParam Map<String,Object> allParams){
 
-		logger.info("mbrcache.search>>>enter,recive data="+allParams.entrySet());
+		logger.info("mbrclkadv.search>>>enter,recive data="+allParams.entrySet());
 		
 		Map<String, List<Map<String, Object>>> allMap 	= memberClickAdvService.search(
 				Integer.valueOf(allParams.getOrDefault("page", 1).toString()), 

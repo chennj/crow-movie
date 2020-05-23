@@ -43,4 +43,6 @@ public interface Const {
 	
 	Long TS_AUTO_FIND_APP_CDN = (long) (60 * 1000);
 	Long TS_AUTO_FIND_APP_CONFIG = (long) (60 * 1000);
+	
+	String FILE_UPLOADED_FOLDER = "/uploads/feedback/";
 }
