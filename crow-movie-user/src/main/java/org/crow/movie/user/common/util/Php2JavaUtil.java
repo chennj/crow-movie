@@ -27,6 +27,11 @@ public final class Php2JavaUtil {
 		return (int)byteAscii;
 	}
 	
+	public static int ord(byte b){
+		
+		return (int)b;
+	}
+	
 	public static char chr(int ascii){
 		char ch = (char)ascii;
 		return ch;
@@ -36,7 +41,7 @@ public final class Php2JavaUtil {
 		
 		int lastIndex=0;
 		if (objs.length>0){
-			lastIndex = (int) objs[0];
+			lastIndex = start+(int) objs[0];
 		}
 		if (lastIndex == 0){
 			lastIndex = src.length();
