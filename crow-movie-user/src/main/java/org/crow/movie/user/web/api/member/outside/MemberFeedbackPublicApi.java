@@ -29,7 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Controller
 @RequestMapping("/mbrfeedback/public")
 @Permission(managerLimit=false)
-public class MemberFeedbackApi extends BaseController{
+public class MemberFeedbackPublicApi extends BaseController{
 
 	@Autowired
 	MemberFeedbackService memberFeedbackService;

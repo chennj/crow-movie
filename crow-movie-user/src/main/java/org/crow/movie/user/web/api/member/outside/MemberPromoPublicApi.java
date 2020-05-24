@@ -26,7 +26,7 @@ import com.alibaba.fastjson.JSONObject;
 @Controller
 @RequestMapping("/mbrpromo/public")
 @Permission(managerLimit=false)
-public class MemberPromoApi extends BaseController{
+public class MemberPromoPublicApi extends BaseController{
 
 	@Autowired
 	MemberPromoService memberPromoService;
