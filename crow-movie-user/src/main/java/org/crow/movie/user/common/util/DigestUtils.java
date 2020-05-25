@@ -4,7 +4,8 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import org.apache.commons.codec.binary.Base64;
+import java.util.Base64;
+//import org.apache.commons.codec.binary.Base64;
 import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
@@ -71,7 +72,8 @@ public class DigestUtils {
 		int keyLen = cryptkey.length();
 		if ("DECODE".equals(operation)){
 			//System.out.println(data.substring(4));
-			chrs = Base64.decodeBase64(data.substring(4).getBytes());
+			//chrs = Base64.decodeBase64(data.substring(4).getBytes());
+			chrs = Base64.getDecoder().decode(data.substring(4).getBytes());
 		} else {
 			data = System.out.printf(
 					"%010d", 
@@ -127,7 +129,8 @@ public class DigestUtils {
 				return "";
 			}
 		} else {
-			return keyc + new String(Base64.encodeBase64(result.toString().getBytes())).replaceAll("=", "");
+			//return keyc + new String(Base64.encodeBase64(result.toString().getBytes())).replaceAll("=", "");
+			return keyc + new String(Base64.getEncoder().encode(result.toString().getBytes())).replaceAll("=", "");
 		}
 	}
 	
