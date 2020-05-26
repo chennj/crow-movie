@@ -1,5 +1,6 @@
 package org.crow.movie.user.web.api.member.outside;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -8,7 +9,6 @@ import org.crow.movie.user.common.cache.FixedCache;
 import org.crow.movie.user.common.db.entity.AppConfig;
 import org.crow.movie.user.common.db.entity.AppLevel;
 import org.crow.movie.user.common.db.entity.MemberInfo;
-import org.crow.movie.user.common.db.entity.MemberPromo;
 import org.crow.movie.user.common.db.model.ReturnT;
 import org.crow.movie.user.common.db.service.MemberInfoService;
 import org.crow.movie.user.common.db.service.MemberPromoService;
@@ -145,18 +145,22 @@ public class MemberInfoPublicApi extends BaseController{
 			}
 			
 		};
-		JSONArray app_level_list = new JSONArray();
-		for (Map.Entry<Integer, AppLevel> entry : levelMap.entrySet()){
-			
-			
-		}
-		app_level_list.add(new JSONObject(){private static final long serialVersionUID = 1L;{this.put("click_adv_view_times", 		config.getClickAdvViewTimes());}});
-		app_level_list.add(new JSONObject(){private static final long serialVersionUID = 1L;{this.put("username_reg_view_times", 	config.getUsernameRegViewTimes());}});
-		app_level_list.add(new JSONObject(){private static final long serialVersionUID = 1L;{this.put("bind_phone_view_times", 		config.getBindPhoneViewTimes());}});
-		app_level_list.add(new JSONObject(){private static final long serialVersionUID = 1L;{this.put("mobile_reg_view_times", 		config.getUsernameRegViewTimes());}});
-		app_level_list.add(new JSONObject(){private static final long serialVersionUID = 1L;{this.put("reg_promo_view_times", 		config.getRegPromoViewTimes());}});
-		app_level_list.add(new JSONObject(){private static final long serialVersionUID = 1L;{this.put("save_promo_qrcode_view_times",config.getSavePromoQrcodeViewTimes());}});
 		
-		return success();
+		List<AppLevel> app_level_list = FixedCache.appLevelListCache();
+		JSONArray jary_app_level_list = new JSONArray();
+		for (AppLevel one : app_level_list){
+			JSONObject j1 = new JSONObject();
+			j1.put("title", one.getTitle()+"徽章");
+			j1.put("icon", SomeUtil.getHost(one.getIcon()));
+			j1.put("day_view_times", one.getDayViewTimes() != 999 ? one.getDayViewTimes() : "无限");
+			JSONObject j2 = new JSONObject();
+			j2.put(String.valueOf(one.getId()), j1);
+			jary_app_level_list.add(j2);
+		}
+		
+		promo.put("level", jary_app_level_list);
+		userInfo.put("promo", promo);
+		
+		return success(userInfo);
 	}
 }

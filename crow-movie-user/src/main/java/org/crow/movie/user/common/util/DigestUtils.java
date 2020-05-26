@@ -136,7 +136,7 @@ public class DigestUtils {
 	
 	public static void main(String[] args) throws UnsupportedEncodingException{
 		//System.out.println("md5(movie-chennj)："+encryptMd5("movie-chennj"));
-		//System.out.println("php decode password："+decryptPwd("d059RWJkzOsKLrA_bwNJ4MXftsiJVEybyg_avtrI1Vzt_at4HhV1JSq7L0"));
+		System.out.println("php decode password："+decryptPwd("1b10EyyyC_bqBy2P41l6BVZzWL_bTdJyb22uOnNaEKUtxTxWg"));
 		//System.out.println(Php2JavaUtil.chr(48));
 //		System.out.println("string replace："+
 //				"d059RWJkzOsKLrA_bwNJ4MXftsiJVEybyg_avtrI1Vzt_at4HhV1JSq7L0"

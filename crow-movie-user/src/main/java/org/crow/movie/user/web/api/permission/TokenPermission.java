@@ -86,13 +86,25 @@ public class TokenPermission extends BaseController{
 			return fail("用户不存在");
 		}
 		
-		String pwd = DigestUtils.encryptMd5(DigestUtils.encryptMd5(password)+salt);
-		if (!userInfo.getPassword().equals(pwd)){
-			return fail("密码错误");
-		}
+		//String pwd = DigestUtils.encryptMd5(DigestUtils.encryptMd5(password)+salt);
+		//if (!userInfo.getPassword().equals(pwd)){
+		//	return fail("密码错误");
+		//}
 		
 		//SessionUtil.setSession(Const.SESSION_USER_INFO_KEY, userInfo);
 
+		//for debug
+		String pwd;
+		try {
+			pwd = DigestUtils.decryptPwd(userInfo.getPassword());
+		} catch (UnsupportedEncodingException e) {
+			logger.error("/token/private>>>解码失败:"+e.getMessage());
+			return fail("解码失败");
+		}
+		if (!password.endsWith(pwd)){
+			return fail("密码错误");
+		}
+		
 		String token = TokenUtil.genToken(userInfo.getAccount(), userInfo.getId());
 		
 		JSONObject jret = new JSONObject();

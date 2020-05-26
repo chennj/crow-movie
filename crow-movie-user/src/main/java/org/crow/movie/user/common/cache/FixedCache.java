@@ -60,17 +60,17 @@ public class FixedCache {
 	private static volatile AtomicBoolean appConfigNeedReset = new AtomicBoolean(true);
 
 	/**
-	 * appLevel 缓存
+	 * appLevel map 缓存
 	 */
 	private static volatile Map<Integer,AppLevel> appLevelCache;
 	
 	/**
-	 * appLevel 最后更新日期
+	 * appLevel map 最后更新日期
 	 */
 	private static volatile Timestamp appLevelLastUpdateTime = new Timestamp(System.currentTimeMillis());
 	
 	/**
-	 * appLevel 是否需要更新
+	 * appLevel map 是否需要更新
 	 */
 	private static volatile AtomicBoolean appLevelNeedReset = new AtomicBoolean(true);
 
@@ -133,7 +133,7 @@ public class FixedCache {
 		} else {
 			List<NVPair> conditions = new ArrayList<NVPair>();
 			conditions.add(new NVPair("promoLimit",">", 0));
-			List<AppLevel> appLevels = appLevelService.getList("grade asc", conditions);
+			appLevelListCache = appLevelService.getList("grade asc", conditions);
 		}
 	}
 	
@@ -234,5 +234,39 @@ public class FixedCache {
 		}
 		
 		return appLevelCache;
+	}
+	
+	public static List<AppLevel> appLevelListCache(){
+		
+		Timestamp now = new Timestamp(System.currentTimeMillis());
+		Long diff = now.getTime() - appLevelListLastUpdateTime.getTime();
+		
+		if (diff > Const.TS_AUTO_FIND_APPLEVEL_LIST){
+			
+			if (appLevelListNeedReset.compareAndSet(true, false)){
+				
+				try {
+					appLevelListLastUpdateTime = new Timestamp(System.currentTimeMillis());
+					logger.info(">>>appLevelList cache update");
+					AppLevelService service = ApplicationUtil.getBean(AppLevelService.class);
+					appLevelListCache.clear();
+					if (null == service){
+						logger.error(">>>failed getting AppLevelService Bean");
+					} else {
+						List<NVPair> conditions = new ArrayList<NVPair>();
+						conditions.add(new NVPair("promoLimit",">", 0));
+						appLevelListCache = service.getList("grade asc", conditions);
+					}
+				} catch (Exception e){
+					e.printStackTrace();
+					logger.error(">>>failed getting appLevelList cache cause:",e.getMessage());
+				} finally{
+					appLevelListNeedReset.compareAndSet(false, true);
+				}
+				
+			}
+		}
+		
+		return appLevelListCache;
 	}
 }
