@@ -4,7 +4,14 @@ public class NVPair {
 
 	private String name;
 	private String op;
-	private String value;
+	private Object value;
+	
+	public NVPair(String name, String op, Object value){
+		this.name = name;
+		this.op = op;
+		this.value = value;
+	}
+	
 	public String getName() {
 		return name;
 	}
@@ -17,10 +24,10 @@ public class NVPair {
 	public void setOp(String op) {
 		this.op = op;
 	}
-	public String getValue() {
+	public Object getValue() {
 		return value;
 	}
-	public void setValue(String value) {
+	public void setValue(Object value) {
 		this.value = value;
 	}
 	@Override

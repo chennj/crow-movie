@@ -1,17 +1,22 @@
 package org.crow.movie.user.web.controller;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import org.crow.movie.user.common.constant.Const;
 import org.crow.movie.user.common.db.entity.MemberInfo;
 import org.crow.movie.user.common.db.model.ReturnT;
+import org.crow.movie.user.common.db.service.MemberInfoService;
 import org.crow.movie.user.common.util.StrUtil;
+import org.crow.movie.user.common.util.TokenUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 public abstract class BaseController {
+
+	@Autowired
+	private MemberInfoService memberInfoService;
 
 	@Value("${movie.user.salt}")
 	protected String salt;
@@ -20,8 +25,11 @@ public abstract class BaseController {
 	
 	protected MemberInfo getUserInfo(HttpServletRequest request){
 		
-		HttpSession session = request.getSession();
-		return (MemberInfo) session.getAttribute(Const.SESSION_USER_INFO_KEY);
+		//HttpSession session = request.getSession();
+		//return (MemberInfo) session.getAttribute(Const.SESSION_USER_INFO_KEY);
+		String token = request.getHeader("accessToken");
+		Integer id = TokenUtil.getUserID(token);
+		return memberInfoService.getById(id);
 	}
 	
 	protected ReturnT<String> success(String msg){

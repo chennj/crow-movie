@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.crow.movie.user.common.db.model.NVPair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -77,6 +78,27 @@ public abstract class AbstractBaseService<T> {
 		return baseDao.findList("", eq, null, null, null, null, null, null, null, null, null, null);
 	}
 	
+	@Transactional(readOnly=true)
+	public List<T> getList(String order, String key, Object value){
+		
+		Map<String, Object> eq = new HashMap<String, Object>(){
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			{
+				this.put(key, value);
+			}
+		};
+		return baseDao.findList(order, eq, null, null, null, null, null, null, null, null, null, null);
+	}
+	
+	@Transactional(readOnly=true)
+	public List<T> getList(String order, List<NVPair> custCondition){
+		return baseDao.findList(order, null, null, null, null, null, null, null, null, null, null, custCondition);
+	}
+	
 	@Transactional(propagation=Propagation.NOT_SUPPORTED)
 	public T getUnique(String key, Object value){
 		
@@ -120,7 +142,7 @@ public abstract class AbstractBaseService<T> {
 	}
 
 	@Transactional(readOnly=true)
-	public <V> List<T> getList(String key, List<V> inList){
+	public <V> List<T> getListWithIn(String key, List<V> inList){
 		
 		Map<String, List<V>> in = new HashMap<>();
 		in.put(key, inList);

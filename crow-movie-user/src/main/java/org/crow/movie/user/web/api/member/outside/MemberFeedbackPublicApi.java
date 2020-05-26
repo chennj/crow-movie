@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 @Controller
-@RequestMapping("/mbrfeedback/public")
+@RequestMapping("/public/mbrfeedback")
 @Permission(managerLimit=false)
 public class MemberFeedbackPublicApi extends BaseController{
 

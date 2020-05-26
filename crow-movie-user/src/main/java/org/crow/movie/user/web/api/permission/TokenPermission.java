@@ -5,14 +5,12 @@ import java.io.UnsupportedEncodingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.crow.movie.user.common.constant.Const;
 import org.crow.movie.user.common.db.entity.AdminInfo;
 import org.crow.movie.user.common.db.entity.MemberInfo;
 import org.crow.movie.user.common.db.model.ReturnT;
 import org.crow.movie.user.common.db.service.AdminInfoService;
 import org.crow.movie.user.common.db.service.MemberInfoService;
 import org.crow.movie.user.common.util.DigestUtils;
-import org.crow.movie.user.common.util.SessionUtil;
 import org.crow.movie.user.common.util.TokenUtil;
 import org.crow.movie.user.web.annotation.Permission;
 import org.crow.movie.user.web.controller.BaseController;
@@ -93,7 +91,7 @@ public class TokenPermission extends BaseController{
 			return fail("密码错误");
 		}
 		
-		SessionUtil.setSession(Const.SESSION_USER_INFO_KEY, userInfo);
+		//SessionUtil.setSession(Const.SESSION_USER_INFO_KEY, userInfo);
 
 		String token = TokenUtil.genToken(userInfo.getAccount(), userInfo.getId());
 		
