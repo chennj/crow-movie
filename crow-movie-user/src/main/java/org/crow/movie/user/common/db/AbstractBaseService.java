@@ -108,6 +108,11 @@ public abstract class AbstractBaseService<T> {
 	}
 	
 	@Transactional(propagation=Propagation.NOT_SUPPORTED)
+	public T getUnique(Map<String,Object> eq){
+		return baseDao.findUnique(eq, null, null, null, null, null, null, null, null, null, null);
+	}
+	
+	@Transactional(propagation=Propagation.NOT_SUPPORTED)
 	public T getSingle(String key, String value){
 		
 		HashMap<String, Object> eq = new HashMap<>();

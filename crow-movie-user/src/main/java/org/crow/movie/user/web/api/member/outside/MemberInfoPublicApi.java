@@ -51,7 +51,7 @@ public class MemberInfoPublicApi extends BaseController{
 
 		logger.info("public.mbrinfo.save-qrcode>>>enter,recive data="+allParams.entrySet());
 		
-		MemberInfo userInfo = this.getUserInfo(request);
+		MemberInfo userInfo = this.getMemberInfo(request);
 		
 		if (null == userInfo){
 			return fail("用户已经不存在");

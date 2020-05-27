@@ -80,7 +80,7 @@ public class MemberPermission extends BaseController{
 			return new ReturnT<String>(500, "data trans bean exception");
 		}
 		
-		String pwd = DigestUtils.encryptMd5(DigestUtils.encryptMd5(password)+salt);
+		String pwd = DigestUtils.encryptPwd(DigestUtils.encryptMd5(password));
 		Long ts = System.currentTimeMillis(); 
 		mbr.setPassword(pwd);
 		mbr.setCreateTime(SomeUtil.safeLongToInt(ts));

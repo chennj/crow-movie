@@ -73,7 +73,7 @@ public class MemberFeedbackPublicApi extends BaseController{
 	        }
         }
 		
-		MemberInfo member = getUserInfo(request);
+		MemberInfo member = getMemberInfo(request);
 		entity.setContent(content);
 		entity.setMemberId(member.getId());
 		entity.setFeedbackType(Integer.valueOf(feedback_type));

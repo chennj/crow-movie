@@ -47,44 +47,41 @@ public class DigestUtils {
 		return authCode(password,"DECODE","",0);
 	}
 	
-	public static String encryptPwd(String password) throws UnsupportedEncodingException{
+	public static String encryptPwd(String password){
 		
 		password = authCode(password,"ENCODE","",0);
 		password = password
 				.replaceAll("/","_a")
-				.replaceAll( "/","_b")
+				.replaceAll("\\+","_b")
 				.replaceAll("=","_c");
 		
 		return password;
 	}
 	
-	public static String authCode(String data, String operation, String key, int expiry) throws UnsupportedEncodingException{
+	public static String authCode(String data, String operation, String key, int expiry){
 		
 		byte[] chrs = null;
 		int ckeyLen = 4;
 		key = encryptMd5(StrUtil.isEmpty(key)?AUTH_KEY:key);
-		if (StrUtil.isEmpty(key))return "no data";
-		System.out.println("null key："+key);
 		String keya = encryptMd5(key.substring(0,16));
 		String keyb = encryptMd5(key.substring(16,32));
-		String keyc = ckeyLen>0 ? ("DECODE".equals(operation) ? Php2JavaUtil.substr(data, 0, ckeyLen) : String.valueOf(System.currentTimeMillis()).substring(String.valueOf(System.currentTimeMillis()).length()-ckeyLen)) : "";
+		String keyc = ckeyLen>0 ? ("DECODE".equals(operation) ? Php2JavaUtil.substr(data, 0, ckeyLen) : Php2JavaUtil.substr(encryptMd5(Php2JavaUtil.microtime()),-ckeyLen)): "";
+		//String keyc = "1234";
 		String cryptkey = keya + encryptMd5(keya+keyc);
 		int keyLen = cryptkey.length();
 		if ("DECODE".equals(operation)){
-			//System.out.println(data.substring(4));
-			//chrs = Base64.decodeBase64(data.substring(4).getBytes());
 			chrs = Base64.getDecoder().decode(data.substring(4).getBytes());
 		} else {
-			data = System.out.printf(
+			data = String.format(
 					"%010d", 
 					expiry>0 ? 
 							expiry + new Date().getTime() 
 							: 0)
 					+ encryptMd5(data+keyb).substring(0,16) + data;
+			chrs = data.getBytes();
 		}
 		
 		int dataLen = chrs.length;
-		System.out.println("string len="+dataLen);
 		StringBuilder result = new StringBuilder();
 		int[] box = Php2JavaUtil.range(0, 256, 1);
 		int[] rndkey = new int[256];
@@ -98,30 +95,30 @@ public class DigestUtils {
 			box[i] = box[j];
 			box[j] = tmp;
 		}
-		char[] bs = new char[dataLen];
+		char[] bsdecode = new char[dataLen];
+		byte[] bsencode = new byte[dataLen];
+		//System.out.println("==============");
 		for(a = j = i = 0; i < dataLen; i++) {
 			a = (a + 1) % 256;
 			j = (j + box[a]) % 256;
 			int tmp = box[a];
 			box[a] = box[j];
 			box[j] = tmp;
+			
+			//转换为无符号数
+			int ich = chrs[i];
+			ich &= 0xff;
+			
 			if ("DECODE".equals(operation)){
-				
-				//转换为无符号数
-				int ich = chrs[i];
-				ich &= 0xff;
-				
-				bs[i] = Php2JavaUtil.chr(ich ^ (box[(box[a] + box[j]) % 256]));
-				result.append(bs[i]);
-				//System.out.println(ich +"^"+ (box[(box[a] + box[j]) % 256])+"=>"+result);
+				bsdecode[i] = Php2JavaUtil.chr(ich ^ (box[(box[a] + box[j]) % 256]));
+				result.append(bsdecode[i]);
 			} else {
-				result.append(Php2JavaUtil.chr(Php2JavaUtil.ord(data.charAt(i)) ^ (box[(box[a] + box[j]) % 256])));
+				bsencode[i] = (byte)(ich ^ (box[(box[a] + box[j]) % 256]));
 			}
 		}
+		//System.out.println("==============");
 
 		if ("DECODE".equals(operation)) {
-			//System.out.println(Php2JavaUtil.substr(result.toString(), 10, 16));
-			//System.out.println(Php2JavaUtil.substr(encryptMd5(Php2JavaUtil.substr(result.toString(), 26)+ keyb), 0, 16));
 			if ((Integer.valueOf(Php2JavaUtil.substr(result.toString(), 0, 10)) == 0 || Php2JavaUtil.sumStrAscii(Php2JavaUtil.substr(result.toString(), 0, 10)) - System.currentTimeMillis() > 0) &&
 					Php2JavaUtil.substr(result.toString(), 10, 16).equals(Php2JavaUtil.substr(encryptMd5(Php2JavaUtil.substr(result.toString(), 26)+ keyb), 0, 16))) {
 				return Php2JavaUtil.substr(result.toString(), 26);
@@ -130,19 +127,26 @@ public class DigestUtils {
 			}
 		} else {
 			//return keyc + new String(Base64.encodeBase64(result.toString().getBytes())).replaceAll("=", "");
-			return keyc + new String(Base64.getEncoder().encode(result.toString().getBytes())).replaceAll("=", "");
+			return keyc + new String(Base64.getEncoder().encode(bsencode)).replaceAll("=", "");
 		}
 	}
 	
 	public static void main(String[] args) throws UnsupportedEncodingException{
-		//System.out.println("md5(movie-chennj)："+encryptMd5("movie-chennj"));
-		System.out.println("php decode password："+decryptPwd("1b10EyyyC_bqBy2P41l6BVZzWL_bTdJyb22uOnNaEKUtxTxWg"));
+		System.out.println("php encode password：\n"+encryptPwd("qqqqqq"));
+		System.out.println("php decode password：\n"+decryptPwd("770e_aAY5aKdE4JNgcgXvpH7Oah5eCYV34OUpKkcbbnDxb9k"));
+
 		//System.out.println(Php2JavaUtil.chr(48));
+		
 //		System.out.println("string replace："+
 //				"d059RWJkzOsKLrA_bwNJ4MXftsiJVEybyg_avtrI1Vzt_at4HhV1JSq7L0"
 //				.replaceAll("_a", "/")
 //				.replaceAll("_b", "+")
 //				.replaceAll("_c", "="));
+		
+//		String sec = String.valueOf(System.currentTimeMillis() / 1000);
+//		String non = String.valueOf(System.nanoTime()).substring(0,8);		
+//		String microtime = "0." + non + " " + sec;
+//		System.out.println("micro sec: "+microtime);
 		
 		//System.out.println("base 64 encode"+Base64.getDecoder().decode("d059RWJkzOsKLrA_bwNJ4MXftsiJVEybyg_avtrI1Vzt_at4HhV1JSq7L0".substring(0, 4)));
 		//System.out.println("base64 encode："+Base64.encodeBase64String("chennj123!$%^-fdd".getBytes()));

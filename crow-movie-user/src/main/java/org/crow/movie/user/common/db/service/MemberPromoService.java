@@ -89,4 +89,40 @@ public class MemberPromoService extends AbstractBaseService<MemberPromo> {
 		return result;
 	}
 
+	public List<Map<String, Object>> promoList(Integer page, Integer pageSize, Map<String, Object> allParams) {
+		
+		final StringBuilder where = new StringBuilder("where 1=1 ");
+		
+		List<Object> params = new ArrayList<Object>(){
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			{
+				int paramidx = 1;
+				
+				Object 
+				o = allParams.get("id");
+				if (StrUtil.notEmpty(o)){
+					where.append("and promo.member_id = ?"+paramidx+" ");
+					this.add(o);
+					paramidx++;
+				}
+				
+			}
+		};
+		
+		String 
+		sql = 
+			"select info.account,info.mobile,info.create_time from hg_member_promo promo "
+			+ "left join hg_member_info info on promo.to_member_id=info.id "
+			+ where 
+			+ "order by promo.create_time desc ";
+		
+		List<Map<String,Object>> list = super.getPageListMap(sql, page, pageSize, params.toArray());
+		
+		return list;
+	}
+
 }

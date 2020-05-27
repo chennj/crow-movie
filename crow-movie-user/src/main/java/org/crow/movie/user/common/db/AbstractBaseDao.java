@@ -14,6 +14,7 @@ import javax.persistence.Query;
 
 import org.apache.commons.lang3.StringUtils;
 import org.crow.movie.user.common.db.model.NVPair;
+import org.crow.movie.user.common.util.MapUtil;
 import org.hibernate.query.internal.NativeQueryImpl;
 import org.hibernate.transform.Transformers;
 import org.slf4j.Logger;
@@ -514,6 +515,26 @@ public abstract class AbstractBaseDao<T> implements BaseDao<T> {
 		return page;
 	}
 	
+	public Map<String, Object> findUnique(String nativeSql, Object...objs){
+		
+		Query query = em.createNativeQuery(nativeSql);
+        if(objs.length > 0){
+            for (int i = 0; i < objs.length; i++) {
+                query.setParameter((i+1),objs[i]);
+            }
+        }
+		
+		try {
+			Object mapResult = query.unwrap(NativeQueryImpl.class)
+					.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
+					.getSingleResult();
+			return MapUtil.objectToMap1(mapResult);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
 	public List<Map<String, Object>> findListMap(String nativeSql, int pgIndex, int pgSize, Object...objs){
 		
 		Query query = em.createNativeQuery(nativeSql);

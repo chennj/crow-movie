@@ -96,4 +96,10 @@ public class MemberExchangeService extends AbstractBaseService<MemberExchange> {
 		return result;
 	}
 
+	public Map<String, List<Map<String, Object>>> exchange(Integer valueOf, Integer valueOf2,
+			Map<String, Object> allParams) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

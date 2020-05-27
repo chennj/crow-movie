@@ -13,6 +13,11 @@ public final class Php2JavaUtil {
 		return Long.valueOf(String.valueOf(i)+"000").longValue();
 	}
 	
+	public static long transTimeP2J(String i){
+		
+		return Long.valueOf(i+"000").longValue();
+	}
+	
 	public static int[] range(int start,int end,int step){
 	    int sz =(end-start)/step;
 	    int[] result=new int[sz];
@@ -46,6 +51,10 @@ public final class Php2JavaUtil {
 		if (lastIndex == 0){
 			lastIndex = src.length();
 		}
+		if (start < 0){
+			start = src.length()+start;
+			lastIndex = src.length();
+		}
 		
 		return src.substring(start,lastIndex);
 	}
@@ -57,6 +66,13 @@ public final class Php2JavaUtil {
 			sum += bytestr[i];
 		}
 		return sum;
+	}
+	
+	public static String microtime(){
+		
+		String sec = String.valueOf(System.currentTimeMillis() / 1000);
+		String non = String.valueOf(System.nanoTime()).substring(0,8);		
+		return "0." + non + " " + sec;
 	}
 	
 	public static void main(String[] args){
