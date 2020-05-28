@@ -14,9 +14,9 @@ import org.crow.movie.user.common.db.service.MemberInfoService;
 import org.crow.movie.user.common.db.service.MemberPromoService;
 import org.crow.movie.user.common.util.MapUtil;
 import org.crow.movie.user.common.util.Php2JavaUtil;
-import org.crow.movie.user.common.util.SomeUtil;
+import org.crow.movie.user.common.util.CommUtil;
 import org.crow.movie.user.web.annotation.Permission;
-import org.crow.movie.user.web.controller.BaseController;
+import org.crow.movie.user.web.controller.BasePublicController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,7 +30,7 @@ import com.alibaba.fastjson.JSONObject;
 @Controller
 @RequestMapping("/public/mbrinfo")
 @Permission(managerLimit=false)
-public class MemberInfoPublicApi extends BaseController{
+public class MemberInfoPublicApi extends BasePublicController{
 
 	@Autowired
 	MemberInfoService memberInfoService;
@@ -51,7 +51,7 @@ public class MemberInfoPublicApi extends BaseController{
 
 		logger.info("public.mbrinfo.save-qrcode>>>enter,recive data="+allParams.entrySet());
 		
-		MemberInfo userInfo = this.getMemberInfo(request);
+		MemberInfo userInfo = this.getUser();
 		
 		if (null == userInfo){
 			return fail("用户已经不存在");
@@ -85,7 +85,7 @@ public class MemberInfoPublicApi extends BaseController{
 		
 		logger.info("public.mbrinfo.detail>>>enter,recive data="+allParams.entrySet());
 		
-		MemberInfo mi = this.getMemberInfo(request);
+		MemberInfo mi = this.getUser();
 		if (null == mi){
 			return fail("用户不存在");
 		}
@@ -108,7 +108,7 @@ public class MemberInfoPublicApi extends BaseController{
 		user_current_level.put("title", 	current_level.getTitle());
 		user_current_level.put("code", 		current_level.getCode());
 		user_current_level.put("grade", 	current_level.getGrade());
-		user_current_level.put("icon", 		SomeUtil.getHost(current_level.getIcon()));
+		user_current_level.put("icon", 		CommUtil.getHost(current_level.getIcon()));
 		user_current_level.put("next_per", 	0);
 		
 		Integer next_level_id = mi.getLevelId()+1;
@@ -118,7 +118,7 @@ public class MemberInfoPublicApi extends BaseController{
 			user_current_level.put("next_title", 	next_level.getTitle());
 			user_current_level.put("next_code",		next_level.getCode());
 			user_current_level.put("next_grade",	next_level.getGrade());
-			user_current_level.put("next_icon",		SomeUtil.getHost(next_level.getIcon()));
+			user_current_level.put("next_icon",		CommUtil.getHost(next_level.getIcon()));
 			if (current_level.getPromoLimit() < next_level.getPromoLimit()){
 				int promo_per = memberPromoService.count("memberId", mi.getId());
 				int next_per = next_level.getPromoLimit() - promo_per;
@@ -151,7 +151,7 @@ public class MemberInfoPublicApi extends BaseController{
 		for (AppLevel one : app_level_list){
 			JSONObject j1 = new JSONObject();
 			j1.put("title", one.getTitle()+"徽章");
-			j1.put("icon", SomeUtil.getHost(one.getIcon()));
+			j1.put("icon", CommUtil.getHost(one.getIcon()));
 			j1.put("day_view_times", one.getDayViewTimes() != 999 ? one.getDayViewTimes() : "无限");
 			JSONObject j2 = new JSONObject();
 			j2.put(String.valueOf(one.getId()), j1);

@@ -1,22 +1,25 @@
 package org.crow.movie.user.web.api.member.outside;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.crow.movie.user.common.db.entity.AppExchange;
 import org.crow.movie.user.common.db.entity.AppVip;
+import org.crow.movie.user.common.db.entity.MemberExchange;
 import org.crow.movie.user.common.db.entity.MemberInfo;
+import org.crow.movie.user.common.db.entity.MemberVip;
 import org.crow.movie.user.common.db.model.ReturnT;
 import org.crow.movie.user.common.db.service.AppExchangeService;
 import org.crow.movie.user.common.db.service.AppVipService;
 import org.crow.movie.user.common.db.service.MemberExchangeService;
+import org.crow.movie.user.common.db.service.MemberInfoService;
+import org.crow.movie.user.common.db.service.MemberVipService;
 import org.crow.movie.user.common.util.Php2JavaUtil;
 import org.crow.movie.user.common.util.RegexUtil;
 import org.crow.movie.user.common.util.StrUtil;
-import org.crow.movie.user.web.controller.BaseController;
+import org.crow.movie.user.web.controller.BasePublicController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,10 +31,16 @@ import com.alibaba.fastjson.JSONObject;
 
 @Controller
 @RequestMapping("/public/mbrexchange")
-public class MemberExchangePublicApi extends BaseController{
+public class MemberExchangePublicApi extends BasePublicController{
 
 	@Autowired
 	MemberExchangeService memberExchangeService;
+	
+	@Autowired
+	MemberVipService memberVipService;
+	
+	@Autowired
+	MemberInfoService memberInfoService;
 	
 	@Autowired
 	AppVipService appVipService;
@@ -79,24 +88,20 @@ public class MemberExchangePublicApi extends BaseController{
 		eq.put("status", 1);
 		AppVip vip = appVipService.getUnique(eq);
 		
-		Map<String, Object> exchange = appExchangeService.unique(code);
+		Map<String, Object> exchgMap = appExchangeService.unique(code);
 		
-		if (null == exchange && null == vip){
+		if (null == exchgMap && null == vip){
 			return fail("激活码有误");
 		}
 		
-		int now = Php2JavaUtil.transTimeJ2P(System.currentTimeMillis());
-		JSONObject member = this.getMemberInfoJson(request);
-		if (null == member){
+		JSONObject juser = this.getJUser();
+		if (null == juser){
 			return fail("数据异常");
 		}
-		if (null != vip){
-			Integer day = vip.getDay();
-			Integer expire_time = now + day * 60 * 60 * 24;
-			if (this.isVip == 1){
-				expire_time = 0;
-			}
-		}
+		
+		MemberInfo user = this.getUser();
+		memberExchangeService.exchange(vip, exchgMap,juser, user);
+		
 		
 		return success();
 	}

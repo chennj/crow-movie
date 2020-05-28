@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.assertj.core.util.Arrays;
 import org.crow.movie.user.common.db.model.ReturnT;
 import org.crow.movie.user.common.db.service.MemberCacheService;
-import org.crow.movie.user.common.util.SomeUtil;
+import org.crow.movie.user.common.util.CommUtil;
 import org.crow.movie.user.common.util.StrUtil;
 import org.crow.movie.user.web.controller.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,8 +86,8 @@ public class MemberCacheApi extends BaseController{
 		List<Map<String, Object>> cacheList = allMap.get("cache_list");
 		
 		for (Map<String, Object> one : cacheList){
-			one.put("cover", SomeUtil.getHost(String.valueOf(one.get("cover"))));
-			one.put("size", SomeUtil.transByte(new File(System.getProperty("user.dir")+one.get("url2")).length()));
+			one.put("cover", CommUtil.getHost(String.valueOf(one.get("cover"))));
+			one.put("size", CommUtil.transByte(new File(System.getProperty("user.dir")+one.get("url2")).length()));
 		}
 		
 		JSONObject jRet = new JSONObject(){

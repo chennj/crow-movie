@@ -17,7 +17,7 @@ import org.crow.movie.user.common.db.service.MemberFeedbackService;
 import org.crow.movie.user.common.util.Php2JavaUtil;
 import org.crow.movie.user.common.util.StrUtil;
 import org.crow.movie.user.web.annotation.Permission;
-import org.crow.movie.user.web.controller.BaseController;
+import org.crow.movie.user.web.controller.BasePublicController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,7 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Controller
 @RequestMapping("/public/mbrfeedback")
 @Permission(managerLimit=false)
-public class MemberFeedbackPublicApi extends BaseController{
+public class MemberFeedbackPublicApi extends BasePublicController{
 
 	@Autowired
 	MemberFeedbackService memberFeedbackService;
@@ -73,7 +73,7 @@ public class MemberFeedbackPublicApi extends BaseController{
 	        }
         }
 		
-		MemberInfo member = getMemberInfo(request);
+		MemberInfo member = getUser();
 		entity.setContent(content);
 		entity.setMemberId(member.getId());
 		entity.setFeedbackType(Integer.valueOf(feedback_type));

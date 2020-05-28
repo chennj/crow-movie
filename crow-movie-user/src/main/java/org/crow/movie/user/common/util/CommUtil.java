@@ -22,9 +22,9 @@ import org.springframework.core.env.Environment;
 
 import com.alibaba.fastjson.JSONObject;
 
-public final class SomeUtil {
+public final class CommUtil {
 
-	private final static Logger logger = LoggerFactory.getLogger(SomeUtil.class);
+	private final static Logger logger = LoggerFactory.getLogger(CommUtil.class);
 	
 	private final static Environment environment = ApplicationUtil.getBean(Environment.class);
 	
@@ -215,5 +215,22 @@ public final class SomeUtil {
 	    } else {
 	        return String.valueOf(Math.round(bytesLen / TB))+"TB";
 	    }
+	}
+	
+	public static String getAvatar(String url)
+	{
+		if (StrUtil.notEmpty(url)) {
+			if (url.indexOf("http") >= 0) {
+				return url;
+			} else {
+				return getDomain() + url;
+			}
+		} else {
+			return getDomain() + "/static/image/default_avatar.png";
+		}
+	}
+	
+	public static Integer o2i(Object object){
+		return Integer.valueOf(String.valueOf(object));
 	}
 }

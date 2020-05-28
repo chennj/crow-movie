@@ -16,7 +16,7 @@ import org.crow.movie.user.common.db.service.AppLevelService;
 import org.crow.movie.user.common.db.service.MemberInfoService;
 import org.crow.movie.user.common.util.DigestUtils;
 import org.crow.movie.user.common.util.Php2JavaUtil;
-import org.crow.movie.user.common.util.SomeUtil;
+import org.crow.movie.user.common.util.CommUtil;
 import org.crow.movie.user.common.util.StrUtil;
 import org.crow.movie.user.common.util.TokenUtil;
 import org.crow.movie.user.web.controller.BaseController;
@@ -200,7 +200,7 @@ public class MemberInfoApi  extends BaseController{
 		}
 		
 		try {
-			SomeUtil.updateBean(entity, jo, Const.MEMBERINFO_FIELD_EDIT_IGNORE);
+			CommUtil.updateBean(entity, jo, Const.MEMBERINFO_FIELD_EDIT_IGNORE);
 		} catch (Exception e) {
 			logger.error("mbrinfo.edit>>>updateBean failed,"+e.getMessage());
 			return fail("modify user info failed");

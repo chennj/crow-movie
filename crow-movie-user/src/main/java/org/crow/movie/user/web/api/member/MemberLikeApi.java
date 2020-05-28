@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.assertj.core.util.Arrays;
 import org.crow.movie.user.common.db.model.ReturnT;
 import org.crow.movie.user.common.db.service.MemberLikeService;
-import org.crow.movie.user.common.util.SomeUtil;
+import org.crow.movie.user.common.util.CommUtil;
 import org.crow.movie.user.common.util.StrUtil;
 import org.crow.movie.user.web.controller.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,7 +74,7 @@ public class MemberLikeApi extends BaseController{
 		List<Map<String, Object>> list = memberLikeService.like(page,pageSize,memberId);
 		
 		for (Map<String, Object> one : list){
-			one.put("cover", SomeUtil.getHost(String.valueOf(one.get("cover"))));
+			one.put("cover", CommUtil.getHost(String.valueOf(one.get("cover"))));
 		}
 		
 		JSONObject jRet = new JSONObject(){

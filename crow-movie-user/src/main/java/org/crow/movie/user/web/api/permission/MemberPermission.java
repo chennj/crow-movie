@@ -9,7 +9,7 @@ import org.crow.movie.user.common.db.entity.MemberInfo;
 import org.crow.movie.user.common.db.model.ReturnT;
 import org.crow.movie.user.common.db.service.MemberInfoService;
 import org.crow.movie.user.common.util.DigestUtils;
-import org.crow.movie.user.common.util.SomeUtil;
+import org.crow.movie.user.common.util.CommUtil;
 import org.crow.movie.user.common.util.StrUtil;
 import org.crow.movie.user.web.annotation.Permission;
 import org.crow.movie.user.web.controller.BaseController;
@@ -83,8 +83,8 @@ public class MemberPermission extends BaseController{
 		String pwd = DigestUtils.encryptPwd(DigestUtils.encryptMd5(password));
 		Long ts = System.currentTimeMillis(); 
 		mbr.setPassword(pwd);
-		mbr.setCreateTime(SomeUtil.safeLongToInt(ts));
-		mbr.setUpdateTime(SomeUtil.safeLongToInt(ts));
+		mbr.setCreateTime(CommUtil.safeLongToInt(ts));
+		mbr.setUpdateTime(CommUtil.safeLongToInt(ts));
 
 		memberInfoService.add(mbr);
 		
