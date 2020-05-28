@@ -31,7 +31,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional
 public class MemberInfoService extends AbstractBaseService<MemberInfo> {
 	
 	@Autowired
@@ -70,6 +69,7 @@ public class MemberInfoService extends AbstractBaseService<MemberInfo> {
 		super.setBaseDao(dao);
 	}
 
+	@Transactional
 	public void delete(Integer id) {
 		
 		super.del(id);
@@ -93,6 +93,7 @@ public class MemberInfoService extends AbstractBaseService<MemberInfo> {
 
 	}
 
+	@Transactional
 	public int updateStatus(Integer id) {
 		
 		String sql = "update hg_member_info m set m.status = if(m.status=1,2,1) where id=?1";
@@ -304,6 +305,7 @@ public class MemberInfoService extends AbstractBaseService<MemberInfo> {
 		return result;
 	}
 	
+	@Transactional(propagation = Propagation.NOT_SUPPORTED)
 	public Map<String, List<Map<String, Object>>> getSave(Integer page, Integer pageSize,
 			Map<String, Object> allParams , Object...returnObj) {
 

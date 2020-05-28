@@ -17,6 +17,7 @@ public class SomeTest {
 //		System.out.println(Math.incrementExact(l));
 //		
 //		new SomeTest().objs();
+		System.out.println("当前时间："+System.currentTimeMillis());
 		
 		System.out.println(System.getProperty("user.dir"));
 		//运行结果：D:\eclipse_springboot\crow-movie\crow-movie-user		

@@ -5,17 +5,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.transaction.Transactional;
-
 import org.crow.movie.user.common.db.AbstractBaseService;
 import org.crow.movie.user.common.db.dao.MemberCommentUpDao;
 import org.crow.movie.user.common.db.entity.MemberCommentUp;
 import org.crow.movie.user.common.util.StrUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional
 public class MemberCommentUpService extends AbstractBaseService<MemberCommentUp> {
 	
 	@Autowired
@@ -24,6 +23,7 @@ public class MemberCommentUpService extends AbstractBaseService<MemberCommentUp>
 		super.setBaseDao(dao);
 	}
 
+	@Transactional(propagation = Propagation.NOT_SUPPORTED)
 	public Map<String, List<Map<String, Object>>> search(Integer page, Integer pageSize,
 			Map<String, Object> allParams,Object...returnObj) {
 		

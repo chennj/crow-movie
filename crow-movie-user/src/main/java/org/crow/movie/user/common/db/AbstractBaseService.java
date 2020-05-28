@@ -30,17 +30,17 @@ public abstract class AbstractBaseService<T> {
 		this.baseDao = baseDao;
 	}
 	
-	@Transactional(readOnly=true)
+	@Transactional(propagation = Propagation.SUPPORTS)
 	public List<T> getAll(){
 		return baseDao.findAll();
 	}
 	
-	@Transactional(propagation=Propagation.NOT_SUPPORTED)
+	@Transactional(propagation=Propagation.SUPPORTS)
 	public T getById(String id){
 		return baseDao.get(id);
 	}
 	
-	@Transactional(propagation=Propagation.NOT_SUPPORTED)
+	@Transactional(propagation=Propagation.SUPPORTS)
 	public T getById(Integer id){
 		return baseDao.get(id);
 	}
@@ -53,6 +53,7 @@ public abstract class AbstractBaseService<T> {
 		baseDao.delete(id);
 	}
 	
+	@Transactional(propagation = Propagation.SUPPORTS)
 	public int countNative(String nativeSql, Object... objects){
 		return baseDao.countNative(nativeSql, objects);
 	}
@@ -62,7 +63,7 @@ public abstract class AbstractBaseService<T> {
 		return del(key,value);
 	}
 	
-	@Transactional(readOnly=true)
+	@Transactional(propagation = Propagation.SUPPORTS)
 	public List<T> getList(String key,Object value){
 		
 		Map<String, Object> eq = new HashMap<String, Object>(){
@@ -78,7 +79,7 @@ public abstract class AbstractBaseService<T> {
 		return baseDao.findList("", eq, null, null, null, null, null, null, null, null, null, null);
 	}
 	
-	@Transactional(readOnly=true)
+	@Transactional(propagation = Propagation.SUPPORTS)
 	public List<T> getList(String order, String key, Object value){
 		
 		Map<String, Object> eq = new HashMap<String, Object>(){
@@ -94,12 +95,12 @@ public abstract class AbstractBaseService<T> {
 		return baseDao.findList(order, eq, null, null, null, null, null, null, null, null, null, null);
 	}
 	
-	@Transactional(readOnly=true)
+	@Transactional(propagation = Propagation.SUPPORTS)
 	public List<T> getList(String order, List<NVPair> custCondition){
 		return baseDao.findList(order, null, null, null, null, null, null, null, null, null, null, custCondition);
 	}
 	
-	@Transactional(propagation=Propagation.NOT_SUPPORTED)
+	@Transactional(propagation=Propagation.SUPPORTS)
 	public T getUnique(String key, Object value){
 		
 		HashMap<String, Object> eq = new HashMap<>();
@@ -107,12 +108,12 @@ public abstract class AbstractBaseService<T> {
 		return baseDao.findUnique(eq, null, null, null, null, null, null, null, null, null, null);
 	}
 	
-	@Transactional(propagation=Propagation.NOT_SUPPORTED)
+	@Transactional(propagation=Propagation.SUPPORTS)
 	public T getUnique(Map<String,Object> eq){
 		return baseDao.findUnique(eq, null, null, null, null, null, null, null, null, null, null);
 	}
 	
-	@Transactional(propagation=Propagation.NOT_SUPPORTED)
+	@Transactional(propagation=Propagation.SUPPORTS)
 	public T getSingle(String key, String value){
 		
 		HashMap<String, Object> eq = new HashMap<>();
@@ -125,7 +126,7 @@ public abstract class AbstractBaseService<T> {
 		}
 	}
 	
-	@Transactional(propagation=Propagation.NOT_SUPPORTED)
+	@Transactional(propagation=Propagation.SUPPORTS)
 	public T getSingle(String orderBy){
 		
 		List<T> results = baseDao.findList(orderBy, null, null, null, null, null, null, null, null, null, null, null);
@@ -136,7 +137,7 @@ public abstract class AbstractBaseService<T> {
 		}
 	}
 	
-	@Transactional(propagation=Propagation.NOT_SUPPORTED)
+	@Transactional(propagation=Propagation.SUPPORTS)
 	public T getSingle(String orderBy, Map<String,Object> eq){
 		List<T> results = baseDao.findList(orderBy, eq, null, null, null, null, null, null, null, null, null, null);
 		if (results != null && results.size()>0){
@@ -146,7 +147,7 @@ public abstract class AbstractBaseService<T> {
 		}
 	}
 
-	@Transactional(readOnly=true)
+	@Transactional(propagation = Propagation.SUPPORTS)
 	public <V> List<T> getListWithIn(String key, List<V> inList){
 		
 		Map<String, List<V>> in = new HashMap<>();
@@ -158,6 +159,7 @@ public abstract class AbstractBaseService<T> {
 		return baseDao.add(t);
 	}
 	
+	@Transactional(propagation = Propagation.SUPPORTS)
 	public int count(String key, Object value){
 		
 		Map<String, Object> eq = new HashMap<>();
@@ -165,32 +167,32 @@ public abstract class AbstractBaseService<T> {
 		return baseDao.findCount(eq, null, null, null, null, null, null, null, null, null, null);
 	}
 	
-	@Transactional(propagation = Propagation.NOT_SUPPORTED)
+	@Transactional(propagation = Propagation.SUPPORTS)
 	public Page<?> pageRetListMap(String nativeSql,int page, int pageSize, Object... params){
 		return baseDao.findPage(nativeSql, page, pageSize, params);
 	}
 	
-	@Transactional(propagation = Propagation.NOT_SUPPORTED)
+	@Transactional(propagation = Propagation.SUPPORTS)
 	public List<Map<String, Object>> getPageListMap(String nativeSql, int page, int pageSize, Object...params){
 		return baseDao.findListMap(nativeSql, page, pageSize, params);
 	}
 	
-	@Transactional(propagation = Propagation.NOT_SUPPORTED)
+	@Transactional(propagation = Propagation.SUPPORTS)
 	public List<Map<String, Object>> getAllListMap(String nativeSql, Object...params){
 		return baseDao.findAllListMap(nativeSql, params);
 	}
 	
-	@Transactional(readOnly=true)
+	@Transactional(propagation = Propagation.SUPPORTS)
 	public Page<T> page(int page, int pageSize, Map<String, Object> eq){
 		return baseDao.findPage(page, pageSize, null, eq, null, null, null, null, null, null, null, null, null, null);
 	}
 
-	@Transactional(readOnly=true)
+	@Transactional(propagation = Propagation.SUPPORTS)
 	public Page<T> page(int page, int pageSize, String order, Map<String, Object> eq){
 		return baseDao.findPage(page, pageSize, order, eq, null, null, null, null, null, null, null, null, null, null);
 	}
 
-	@Transactional(readOnly=true)
+	@Transactional(propagation = Propagation.SUPPORTS)
 	public Page<T> pageLk(int page, int pageSize, Map<String, Object> like){
 		boolean isDebug =
 			     java.lang.management.ManagementFactory.getRuntimeMXBean().
@@ -205,7 +207,7 @@ public abstract class AbstractBaseService<T> {
 		return baseDao.findPage(page, pageSize, null, null, null, like, null, null, null, null, null, null, null, null);
 	}
 	
-	@Transactional(readOnly=true)
+	@Transactional(propagation = Propagation.SUPPORTS)
 	public Page<T> pageEqLk(int page, int pageSize, Map<String, Object> eq, Map<String, Object> like){
 
 		return baseDao.findPage(page, pageSize, null, eq, null, like, null, null, null, null, null, null, null, null);

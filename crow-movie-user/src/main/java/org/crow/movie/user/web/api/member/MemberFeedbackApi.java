@@ -13,15 +13,14 @@ import org.crow.movie.user.common.util.Php2JavaUtil;
 import org.crow.movie.user.common.util.StrUtil;
 import org.crow.movie.user.web.controller.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSONObject;
 
-@Controller
+@RestController
 @RequestMapping("/mbrfeedback")
 public class MemberFeedbackApi extends BaseController{
 
@@ -35,7 +34,6 @@ public class MemberFeedbackApi extends BaseController{
 	 * @return
 	 */
 	@RequestMapping(value="search-count", method=RequestMethod.POST)
-	@ResponseBody
 	public ReturnT<?> searchCount(HttpServletRequest request,
 			@RequestParam Map<String,Object> allParams){
 
@@ -56,7 +54,7 @@ public class MemberFeedbackApi extends BaseController{
 
 			{
 				this.put("list", list);
-				this.put("class_list", CC.FEEDBACK_TYPE);
+				this.put("class_list", CC.FEEDBACK_TYPE_LIST);
 				this.put("condition", allParams);
 			}
 		};
@@ -65,7 +63,6 @@ public class MemberFeedbackApi extends BaseController{
 	}
 	
 	@RequestMapping(value="status", method=RequestMethod.POST)
-	@ResponseBody
 	public ReturnT<?> status(HttpServletRequest request,@RequestParam(required = true) Integer id){
 		
 		if (StrUtil.isEmpty(id)){

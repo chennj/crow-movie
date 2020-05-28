@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.transaction.Transactional;
-
 import org.crow.movie.user.common.db.AbstractBaseService;
 import org.crow.movie.user.common.db.dao.AppLevelDao;
 import org.crow.movie.user.common.db.dao.MemberMessageDao;
@@ -14,9 +12,10 @@ import org.crow.movie.user.common.db.entity.MemberMessage;
 import org.crow.movie.user.common.util.StrUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional
 public class MemberMessageService extends AbstractBaseService<MemberMessage> {
 	
 	@Autowired
@@ -28,6 +27,7 @@ public class MemberMessageService extends AbstractBaseService<MemberMessage> {
 		super.setBaseDao(dao);
 	}
 
+	@Transactional(propagation = Propagation.NOT_SUPPORTED)
 	public Map<String, List<Map<String, Object>>> search(Integer page, Integer pageSize,
 			Map<String, Object> allParams , Object...returnObj) {
 
@@ -112,6 +112,7 @@ public class MemberMessageService extends AbstractBaseService<MemberMessage> {
 		return result;
 	}
 	
+	@Transactional(propagation = Propagation.NOT_SUPPORTED)
 	public Map<String, List<Map<String, Object>>> notice(Integer page, Integer pageSize,
 			Map<String, Object> allParams , Object...returnObj) {
 

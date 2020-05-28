@@ -2,8 +2,6 @@ package org.crow.movie.user.common.db.service;
 
 import java.util.Map;
 
-import javax.transaction.Transactional;
-
 import org.crow.movie.user.common.db.AbstractBaseService;
 import org.crow.movie.user.common.db.dao.AppExchangeDao;
 import org.crow.movie.user.common.db.entity.AppExchange;
@@ -11,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-@Transactional
 public class AppExchangeService extends AbstractBaseService<AppExchange> {
 	
 	@Autowired

@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional
 public class MemberCacheService extends AbstractBaseService<MemberCache> {
 	
 	@Autowired

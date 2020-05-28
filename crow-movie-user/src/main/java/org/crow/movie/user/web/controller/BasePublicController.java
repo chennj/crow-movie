@@ -1,9 +1,15 @@
 package org.crow.movie.user.web.controller;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.crow.movie.user.common.constant.Const;
 import org.crow.movie.user.common.db.entity.MemberInfo;
 import org.crow.movie.user.common.db.model.ReturnT;
 import org.crow.movie.user.common.db.service.MemberInfoService;
@@ -16,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.fastjson.JSONObject;
 
@@ -30,6 +37,7 @@ public abstract class BasePublicController {
 	
 	private MemberInfo user = null;
 	
+	private final SimpleDateFormat sftYMD = new SimpleDateFormat("yyyy-MM-dd");
 	
 	@ModelAttribute
 	private void init(HttpServletRequest request){
@@ -39,7 +47,7 @@ public abstract class BasePublicController {
 		user = memberInfoService.getById(id);
 		if (null != user){
 			try {
-				juser = new JSONObject(MapUtil.objectToMap2(juser));
+				juser = new JSONObject(MapUtil.objectToMap2(user));
 			} catch (Exception e) {
 				e.printStackTrace();
 				logger.error("用户对象转json出错"+e.getMessage());
@@ -90,12 +98,17 @@ public abstract class BasePublicController {
 	protected int now(){
 		return Php2JavaUtil.transTimeJ2P(System.currentTimeMillis());
 	}
+	
+	protected String ts(int i){
+		long l = Php2JavaUtil.transTimeP2J(i);
+		return this.sftYMD.format(l);
+	}
 	protected ReturnT<String> success(String msg){
 		return new ReturnT<>(msg);
 	}
 	
 	protected  ReturnT<String> success(){
-		return new ReturnT<>("operator success");
+		return new ReturnT<>("操作成功");
 	}
 	
 	protected  ReturnT<?> success(Object t){
@@ -107,7 +120,7 @@ public abstract class BasePublicController {
 	}
 	
 	protected  <T> ReturnT<T> fail(){
-		return new ReturnT<>(ReturnT.FAIL_CODE,"operator failed");
+		return new ReturnT<>(ReturnT.FAIL_CODE,"操作失败");
 	}
 	
 	protected String getIp(HttpServletRequest request){
@@ -133,4 +146,19 @@ public abstract class BasePublicController {
 			return "null";
 		}
 	}
+	
+	protected void saveUploadedFiles(List<MultipartFile> files) throws IOException {
+
+        for (MultipartFile file : files) {
+
+            if (file.isEmpty()) {
+                continue; 
+            }
+
+            byte[] bytes = file.getBytes();
+            Path path = Paths.get(Const.FILE_UPLOADED_FOLDER + file.getOriginalFilename());
+            Files.write(path, bytes);
+        }
+
+    }
 }

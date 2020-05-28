@@ -14,15 +14,14 @@ import org.crow.movie.user.common.util.CommUtil;
 import org.crow.movie.user.common.util.StrUtil;
 import org.crow.movie.user.web.controller.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSONObject;
 
-@Controller
+@RestController
 @RequestMapping("/mbrlike")
 public class MemberLikeApi extends BaseController{
 
@@ -36,7 +35,6 @@ public class MemberLikeApi extends BaseController{
 	 * @return
 	 */
 	@RequestMapping(value="search-count", method=RequestMethod.POST)
-	@ResponseBody
 	public ReturnT<?> searchCount(HttpServletRequest request,
 			@RequestParam Map<String,Object> allParams){
 
@@ -65,7 +63,6 @@ public class MemberLikeApi extends BaseController{
 	}
 
 	@RequestMapping(value="like", method=RequestMethod.POST)
-	@ResponseBody
 	public ReturnT<?> like(
 			@RequestParam(required = true) String memberId,
 			@RequestParam(required = false,defaultValue = "1") Integer page,
@@ -92,7 +89,6 @@ public class MemberLikeApi extends BaseController{
 	}
 	
 	@RequestMapping(value="dels", method=RequestMethod.POST)
-	@ResponseBody
 	public ReturnT<?> dels(
 			@RequestParam(required = true) String ids,
 			@RequestParam(required = true) String memberId){

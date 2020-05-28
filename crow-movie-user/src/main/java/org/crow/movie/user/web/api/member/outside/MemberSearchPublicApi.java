@@ -13,18 +13,17 @@ import org.crow.movie.user.common.util.StrUtil;
 import org.crow.movie.user.web.annotation.Permission;
 import org.crow.movie.user.web.controller.BasePublicController;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 
  * @author chenn
  *
  */
-@Controller
+@RestController
 @RequestMapping("/public/mbrsearch")
 @Permission(managerLimit=false)
 public class MemberSearchPublicApi extends BasePublicController{
@@ -39,7 +38,6 @@ public class MemberSearchPublicApi extends BasePublicController{
 	 * @return
 	 */
 	@RequestMapping(value="add-keyword", method=RequestMethod.POST)
-	@ResponseBody
 	public ReturnT<?> action(HttpServletRequest request,
 			@RequestParam(required=true) String keywords){
 		logger.info("public.mbrsearch.add-keyword>>>enter,recive data="+keywords);
@@ -70,7 +68,6 @@ public class MemberSearchPublicApi extends BasePublicController{
 	 * @return
 	 */
 	@RequestMapping(value="keywords", method=RequestMethod.POST)
-	@ResponseBody
 	public ReturnT<?> keywords(HttpServletRequest request){
 		
 		logger.info("public.mbrsearch.keywords>>>enter");
@@ -89,7 +86,6 @@ public class MemberSearchPublicApi extends BasePublicController{
 	 * @return
 	 */
 	@RequestMapping(value="clear", method=RequestMethod.POST)
-	@ResponseBody
 	public ReturnT<?> clear(HttpServletRequest request){
 		
 		logger.info("public.mbrsearch.clear>>>enter");

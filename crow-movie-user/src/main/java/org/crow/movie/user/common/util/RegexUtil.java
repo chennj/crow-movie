@@ -7,7 +7,7 @@ public final class RegexUtil {
 
 	public static boolean isNotNumOrChar(String s){
 		
-		String regex = "/^[0-9a-z]*$/i";
+		String regex = "^[0-9a-zA-Z]*$";
 		return isNotMatch(regex,s);
 	}
 	

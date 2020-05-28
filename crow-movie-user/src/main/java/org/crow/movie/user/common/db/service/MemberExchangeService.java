@@ -29,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.alibaba.fastjson.JSONObject;
 
 @Service
-@Transactional
 public class MemberExchangeService extends AbstractBaseService<MemberExchange> {
 	
 	@Autowired
@@ -126,6 +125,7 @@ public class MemberExchangeService extends AbstractBaseService<MemberExchange> {
 		return result;
 	}
 
+	@Transactional
 	public void exchange(AppVip vip, Map<String, Object> exchgMap, JSONObject juser, MemberInfo user) {
 		
 		int now = Php2JavaUtil.transTimeJ2P(System.currentTimeMillis());
@@ -154,10 +154,14 @@ public class MemberExchangeService extends AbstractBaseService<MemberExchange> {
 			}
 		}
 		
-		AppExchange aexchange = appExchangeDao.get(CommUtil.o2i(exchgMap.get("id")));
-		if (null == aexchange){
+		AppExchange aexchange = null;
+		try {
+			aexchange = appExchangeDao.get(CommUtil.o2i(exchgMap.get("id")));
+		} catch (Exception e){
 			throw new RuntimeException("兑换失败：app exchange 无效");
 		}
+		aexchange.setUpdateTime(now);
+		aexchange.setStatus(2);
 		appExchangeDao.update(aexchange);
 		
 		MemberExchange mexchange = new MemberExchange();

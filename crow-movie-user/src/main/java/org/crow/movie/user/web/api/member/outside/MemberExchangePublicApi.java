@@ -17,15 +17,14 @@ import org.crow.movie.user.common.util.RegexUtil;
 import org.crow.movie.user.common.util.StrUtil;
 import org.crow.movie.user.web.controller.BasePublicController;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSONObject;
 
-@Controller
+@RestController
 @RequestMapping("/public/mbrexchange")
 public class MemberExchangePublicApi extends BasePublicController{
 
@@ -51,7 +50,6 @@ public class MemberExchangePublicApi extends BasePublicController{
 	 * @return
 	 */
 	@RequestMapping(value="exchange", method=RequestMethod.POST)
-	@ResponseBody
 	public ReturnT<?> exchange(HttpServletRequest request,
 			@RequestParam(required=true)String code,
 			@RequestParam(required=true)String verify_code){
@@ -86,9 +84,11 @@ public class MemberExchangePublicApi extends BasePublicController{
 		
 		Map<String, Object> exchgMap = appExchangeService.unique(code);
 		
-		if (null == exchgMap && null == vip){
+		if (null == exchgMap){
 			return fail("激活码有误");
 		}
+		
+		logger.info("exchgMap data:"+exchgMap.entrySet());
 		
 		JSONObject juser = this.getJUser();
 		if (null == juser){
@@ -105,7 +105,6 @@ public class MemberExchangePublicApi extends BasePublicController{
 	}
 	
 	@RequestMapping(value="del", method=RequestMethod.POST)
-	@ResponseBody
 	public ReturnT<?> del(@RequestParam(required = true) Integer id){
 		
 		if (StrUtil.isEmpty(id)){

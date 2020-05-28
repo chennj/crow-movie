@@ -21,11 +21,10 @@ import org.crow.movie.user.common.util.StrUtil;
 import org.crow.movie.user.common.util.TokenUtil;
 import org.crow.movie.user.web.controller.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -36,7 +35,7 @@ import com.alibaba.fastjson.TypeReference;
  * @author chenn
  *
  */
-@Controller
+@RestController
 @RequestMapping("/mbrinfo")
 public class MemberInfoApi  extends BaseController{
 
@@ -53,7 +52,6 @@ public class MemberInfoApi  extends BaseController{
 	 * @return
 	 */
 	@RequestMapping(value="search-count", method=RequestMethod.POST)
-	@ResponseBody
 	public ReturnT<?> searchCount(HttpServletRequest request,
 			@RequestParam Map<String,Object> allParams){
 		
@@ -140,7 +138,6 @@ public class MemberInfoApi  extends BaseController{
 	 * @return
 	 */
 	@RequestMapping(value="changpwd", method=RequestMethod.POST)
-	@ResponseBody
 	public ReturnT<?> changPwd(
 			HttpServletRequest request,
 			@RequestParam(required = true) String password,
@@ -174,7 +171,6 @@ public class MemberInfoApi  extends BaseController{
 	 * @return
 	 */
 	@RequestMapping(value="edit", method=RequestMethod.POST)
-	@ResponseBody
 	public ReturnT<?> edit(
 			HttpServletRequest request,
 			@RequestParam(required=true) String data){
@@ -219,7 +215,6 @@ public class MemberInfoApi  extends BaseController{
 	 * @return
 	 */
 	@RequestMapping(value="add", method=RequestMethod.POST)
-	@ResponseBody
 	public ReturnT<?> add(
 			HttpServletRequest request,
 			@RequestParam Map<String,Object> allParams){
@@ -283,7 +278,6 @@ public class MemberInfoApi  extends BaseController{
 	 * 删除用户
 	 */
 	@RequestMapping(value="del", method=RequestMethod.POST)
-	@ResponseBody
 	public ReturnT<?> del(
 			HttpServletRequest request,
 			@RequestParam(required=true) Integer id){
@@ -310,7 +304,6 @@ public class MemberInfoApi  extends BaseController{
 	 * @return
 	 */
 	@RequestMapping(value="status", method=RequestMethod.POST)
-	@ResponseBody
 	public ReturnT<?> status(
 			HttpServletRequest request,
 			@RequestParam(required=true) Integer id){
@@ -336,7 +329,6 @@ public class MemberInfoApi  extends BaseController{
 	 * @return
 	 */
 	@RequestMapping(value="details", method=RequestMethod.POST)
-	@ResponseBody
 	public ReturnT<?> details(
 			HttpServletRequest request,
 			@RequestParam(required=true) Integer id){

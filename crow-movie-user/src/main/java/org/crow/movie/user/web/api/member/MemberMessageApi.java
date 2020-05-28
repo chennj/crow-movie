@@ -5,10 +5,9 @@ import org.crow.movie.user.common.db.model.ReturnT;
 import org.crow.movie.user.common.db.service.MemberMessageService;
 import org.crow.movie.user.web.controller.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 
 /**
@@ -16,8 +15,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * @author chenn
  *
  */
-@Controller
-@RequestMapping("/attr")
+@RestController
+@RequestMapping("/mbrmessage")
 public class MemberMessageApi extends BaseController{
 
 	@Autowired
@@ -25,11 +24,10 @@ public class MemberMessageApi extends BaseController{
 	
 	
 	@RequestMapping(value="feedback-type", method=RequestMethod.POST)
-	@ResponseBody
 	public ReturnT<?> feedbackType(){
 		
 		logger.info("attr.feedback-type>>>enter");
 		
-		return success(CC.FEEDBACK_TYPE);
+		return success(CC.FEEDBACK_TYPE_LIST);
 	}
 }

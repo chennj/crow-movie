@@ -1,11 +1,17 @@
 package org.crow.movie.user.web.api.member.outside;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.crow.movie.user.common.cache.FixedCache;
+import org.crow.movie.user.common.constant.Const;
 import org.crow.movie.user.common.db.entity.AppConfig;
 import org.crow.movie.user.common.db.entity.AppLevel;
 import org.crow.movie.user.common.db.entity.MemberInfo;
@@ -14,20 +20,21 @@ import org.crow.movie.user.common.db.service.MemberInfoService;
 import org.crow.movie.user.common.db.service.MemberPromoService;
 import org.crow.movie.user.common.util.MapUtil;
 import org.crow.movie.user.common.util.Php2JavaUtil;
+import org.crow.movie.user.common.util.StrUtil;
 import org.crow.movie.user.common.util.CommUtil;
 import org.crow.movie.user.web.annotation.Permission;
 import org.crow.movie.user.web.controller.BasePublicController;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
-@Controller
+@RestController
 @RequestMapping("/public/mbrinfo")
 @Permission(managerLimit=false)
 public class MemberInfoPublicApi extends BasePublicController{
@@ -45,7 +52,6 @@ public class MemberInfoPublicApi extends BasePublicController{
 	 * @return
 	 */
 	@RequestMapping(value="save-qrcode", method=RequestMethod.POST)
-	@ResponseBody
 	public ReturnT<?> saveQrcode(HttpServletRequest request,
 			@RequestParam Map<String,Object> allParams){
 
@@ -78,12 +84,11 @@ public class MemberInfoPublicApi extends BasePublicController{
 		return success();
 	}
 	
-	@RequestMapping(value="detail", method=RequestMethod.POST)
-	@ResponseBody
-	public ReturnT<?> detail(HttpServletRequest request,
+	@RequestMapping(value="promo-detail", method=RequestMethod.POST)
+	public ReturnT<?> promodDail(HttpServletRequest request,
 			@RequestParam Map<String,Object> allParams){
 		
-		logger.info("public.mbrinfo.detail>>>enter,recive data="+allParams.entrySet());
+		logger.info("public.mbrinfo.promo-detail>>>enter,recive data="+allParams.entrySet());
 		
 		MemberInfo mi = this.getUser();
 		if (null == mi){
@@ -95,7 +100,7 @@ public class MemberInfoPublicApi extends BasePublicController{
 			userInfo = new JSONObject(MapUtil.objectToMap1(mi));
 		} catch (Exception e) {			
 			e.printStackTrace();
-			logger.error("public.mbrinfo.detail>>>"+e.getMessage());
+			logger.error("public.mbrinfo.promo-detail>>>"+e.getMessage());
 			return fail(e.getMessage());
 		}
 		
@@ -162,5 +167,110 @@ public class MemberInfoPublicApi extends BasePublicController{
 		userInfo.put("promo", promo);
 		
 		return success(userInfo);
+	}
+	
+	@RequestMapping(value="update-sex", method=RequestMethod.POST)
+	public ReturnT<?> updateSex(HttpServletRequest request,
+			@RequestParam(required=true) Integer sex){
+		
+		logger.info("public.mbrinfo.update-sex>>>enter");
+		
+		if (sex != 1 && sex != 2){
+			return fail("参数错误");
+		}
+		
+		MemberInfo user = this.getUser();
+		
+		user.setSex(sex);
+		user.setUpdateTime(now());
+		user.setIsSex(1);
+		
+		user = memberInfoService.modify(user);
+		if (null == user){
+			return fail("更新失败 ");
+		} else {
+			return success();
+		}
+	}
+	
+	@RequestMapping(value="update-nickname", method=RequestMethod.POST)
+	public ReturnT<?> updateNickname(HttpServletRequest request,
+			@RequestParam(required=true) String nickName){
+		
+		logger.info("public.mbrinfo.update-sex>>>enter");
+		
+		if (StrUtil.isEmpty(nickName)){
+			return fail("昵称不能为空");
+		}
+		if (nickName.length()<4 || nickName.length()>12){
+			return fail("昵称长度有误");
+		}
+		
+		MemberInfo user = this.getUser();
+		
+		user.setNickName(nickName);
+		user.setUpdateTime(now());
+		user.setIsNickName(1);
+		
+		user = memberInfoService.modify(user);
+		if (null == user){
+			return fail("更新失败 ");
+		} else {
+			return success();
+		}
+	}
+	
+	/**
+	 * 更新头像
+	 * @param request
+	 * @param file
+	 * @return
+	 */
+	@RequestMapping(value="update-avatar", method=RequestMethod.POST)
+	public ReturnT<?> updateNickname(HttpServletRequest request,
+			@RequestParam("file") MultipartFile file){
+		
+		logger.info("public.mbrinfo.update-avatar>>>enter");
+		
+		if (file.isEmpty()){
+			return fail("头像不能为空");
+		}
+		
+		//check file
+		String[] fileExts = {"jpg","jpeg","png"};
+		String filename = file.getOriginalFilename();
+		if (!Arrays.asList(fileExts).contains(filename.substring(filename.lastIndexOf(".")))){
+			return fail("文件格式不正确");
+		}
+		
+		MemberInfo user = this.getUser();
+
+		try {
+            // Get the file and save it somewhere
+            byte[] bytes = file.getBytes();
+            Path path = Paths.get(Const.FILE_UPLOADED_FOLDER + "/avatar/" + file.getOriginalFilename());
+            Files.write(path, bytes);
+            user.setAvatar(Const.FILE_UPLOADED_FOLDER + "/avatar/" + file.getOriginalFilename());
+            user.setIsAvatar(1);
+            user.setUpdateTime(now());
+            memberInfoService.modify(user);
+        } catch (IOException e) {
+            return fail(e.getMessage());
+        }
+		
+		JSONObject jRet = new JSONObject();
+		jRet.put("avatar", CommUtil.getAvatar(user.getAvatar()));
+		
+		return success(jRet);
+	}
+	
+	/**
+	 * 用户信息
+	 * @return
+	 */
+	@RequestMapping(value="manage", method=RequestMethod.POST)
+	public ReturnT<?> manage(){
+		
+		return success(this.getJUser());
 	}
 }

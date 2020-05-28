@@ -10,11 +10,10 @@ import org.crow.movie.user.common.db.service.MemberOpenService;
 import org.crow.movie.user.common.util.StrUtil;
 import org.crow.movie.user.web.controller.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSONObject;
 
@@ -23,7 +22,7 @@ import com.alibaba.fastjson.JSONObject;
  * @author chenn
  *
  */
-@Controller
+@RestController
 @RequestMapping("/mbropen")
 public class MemberOpenApi extends BaseController{
 
@@ -37,7 +36,6 @@ public class MemberOpenApi extends BaseController{
 	 * @return
 	 */
 	@RequestMapping(value="search-count", method=RequestMethod.POST)
-	@ResponseBody
 	public ReturnT<?> searchCount(HttpServletRequest request,
 			@RequestParam Map<String,Object> allParams){
 
@@ -65,7 +63,6 @@ public class MemberOpenApi extends BaseController{
 	}
 
 	@RequestMapping(value="del", method=RequestMethod.POST)
-	@ResponseBody
 	public ReturnT<?> del(@RequestParam(required = true) Integer id){
 		
 		if (StrUtil.isEmpty(id)){

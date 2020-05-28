@@ -14,18 +14,17 @@ import org.crow.movie.user.common.util.Php2JavaUtil;
 import org.crow.movie.user.web.annotation.Permission;
 import org.crow.movie.user.web.controller.BasePublicController;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 
  * @author chenn
  *
  */
-@Controller
+@RestController
 @RequestMapping("/public/mbrpromo")
 @Permission(managerLimit=false)
 public class MemberPromoPublicApi extends BasePublicController{
@@ -34,7 +33,6 @@ public class MemberPromoPublicApi extends BasePublicController{
 	MemberPromoService memberPromoService;
 	
 	@RequestMapping(value="action", method=RequestMethod.POST)
-	@ResponseBody
 	public ReturnT<?> action(HttpServletRequest request,
 			@RequestParam Map<String,Object> allParams){
 		logger.info("public.mbrpromo.action>>>enter,recive data="+allParams.entrySet());
@@ -51,7 +49,6 @@ public class MemberPromoPublicApi extends BasePublicController{
 	 * @return
 	 */
 	@RequestMapping(value="list", method=RequestMethod.POST)
-	@ResponseBody
 	public ReturnT<?> list(HttpServletRequest request,
 			@RequestParam Map<String,Object> allParams){
 		
