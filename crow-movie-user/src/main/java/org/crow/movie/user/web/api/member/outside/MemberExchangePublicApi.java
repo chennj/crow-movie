@@ -5,18 +5,14 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.crow.movie.user.common.db.entity.AppExchange;
 import org.crow.movie.user.common.db.entity.AppVip;
-import org.crow.movie.user.common.db.entity.MemberExchange;
 import org.crow.movie.user.common.db.entity.MemberInfo;
-import org.crow.movie.user.common.db.entity.MemberVip;
 import org.crow.movie.user.common.db.model.ReturnT;
 import org.crow.movie.user.common.db.service.AppExchangeService;
 import org.crow.movie.user.common.db.service.AppVipService;
 import org.crow.movie.user.common.db.service.MemberExchangeService;
 import org.crow.movie.user.common.db.service.MemberInfoService;
 import org.crow.movie.user.common.db.service.MemberVipService;
-import org.crow.movie.user.common.util.Php2JavaUtil;
 import org.crow.movie.user.common.util.RegexUtil;
 import org.crow.movie.user.common.util.StrUtil;
 import org.crow.movie.user.web.controller.BasePublicController;
@@ -49,7 +45,7 @@ public class MemberExchangePublicApi extends BasePublicController{
 	AppExchangeService appExchangeService;
 	
 	/**
-	 * 互换
+	 * 兑换
 	 * @param request
 	 * @param allParams
 	 * @return
@@ -100,9 +96,11 @@ public class MemberExchangePublicApi extends BasePublicController{
 		}
 		
 		MemberInfo user = this.getUser();
-		memberExchangeService.exchange(vip, exchgMap,juser, user);
-		
-		
+		try {
+			memberExchangeService.exchange(vip, exchgMap,juser, user);		
+		} catch (RuntimeException e){
+			return fail(e.getMessage());
+		}
 		return success();
 	}
 	

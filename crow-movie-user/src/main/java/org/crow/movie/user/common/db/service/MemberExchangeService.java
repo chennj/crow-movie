@@ -171,6 +171,14 @@ public class MemberExchangeService extends AbstractBaseService<MemberExchange> {
 		if (current_level.getGrade() < CommUtil.o2i(exchgMap.get("grade"))){
 			user.setLevelId(CommUtil.o2i(exchgMap.get("lid")));
 		}
+		user.setUpdateTime(now);
+		user.setDayViewTimes(user.getDayViewTimes()+CommUtil.o2i(exchgMap.get("day_view_times")));
+		user.setTodayViewTimes(user.getTodayViewTimes()+CommUtil.o2i(exchgMap.get("day_view_times")));
+		user.setReTodayViewTimes(user.getReTodayViewTimes()+CommUtil.o2i(exchgMap.get("day_view_times")));
+		user.setDayCacheTimes(user.getDayCacheTimes()+CommUtil.o2i(exchgMap.get("day_cache_times")));
+		user.setTodayCacheTimes(user.getTodayCacheTimes()+CommUtil.o2i(exchgMap.get("day_cache_times")));
+		user.setReTodayCacheTimes(user.getReTodayCacheTimes()+CommUtil.o2i(exchgMap.get("day_cache_times")));
+		memberInfoDao.update(user);
 	}
 
 }
