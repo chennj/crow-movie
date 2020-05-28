@@ -64,7 +64,7 @@ public class MemberLikeApi extends BaseController{
 
 	@RequestMapping(value="like", method=RequestMethod.POST)
 	public ReturnT<?> like(
-			@RequestParam(required = true) String memberId,
+			@RequestParam(required = true) Integer memberId,
 			@RequestParam(required = false,defaultValue = "1") Integer page,
 			@RequestParam(required = false,defaultValue = "20") Integer pageSize){
 		

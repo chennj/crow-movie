@@ -8,7 +8,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.assertj.core.util.Arrays;
 import org.crow.movie.user.common.db.model.ReturnT;
 import org.crow.movie.user.common.db.service.MemberCacheService;
 import org.crow.movie.user.common.util.CommUtil;
@@ -105,13 +104,21 @@ public class MemberCacheApi extends BaseController{
 	@RequestMapping(value="dels", method=RequestMethod.POST)
 	public ReturnT<?> dels(
 			@RequestParam(required = true) String ids,
-			@RequestParam(required = true) String memberId,
+			@RequestParam(required = true) Integer memberId,
 			@RequestParam(required = true) String deviceId){
 		
 		if (StrUtil.isEmpty(ids) || StrUtil.isEmpty(memberId) || StrUtil.isEmpty(deviceId)){
 			return fail("ids or memberId or deviceId is empty");
 		}
 		
+		logger.info("mbrcache.del>>>enter,recive data="+ids+","+memberId+","+deviceId);
+		
+		String[] idss		= ids.split(",");
+		
+		List<Object> list = new ArrayList<Object>();
+		for (String s : idss){
+			list.add(Integer.valueOf(s));
+		}
 		logger.info("mbrcache.del>>>enter,recive data="+ids+","+memberId+","+deviceId);
 		
 		Map<String, Object> eq = new HashMap<String, Object>(){
@@ -123,16 +130,6 @@ public class MemberCacheApi extends BaseController{
 			{
 				this.put("memberId", memberId);
 				this.put("deviceId", deviceId);
-			}
-		};
-		List<Object> list = new ArrayList<Object>(){
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
-
-			{
-				this.addAll(Arrays.asList(ids.split(",")));
 			}
 		};
 		Map<String, List<Object>> in = new HashMap<>();

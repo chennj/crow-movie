@@ -104,7 +104,7 @@ public class MemberLikeService extends AbstractBaseService<MemberLike> {
 	}
 
 	@Transactional(propagation = Propagation.NOT_SUPPORTED)
-	public List<Map<String, Object>> like(Integer page, Integer pageSize, String memberId) {
+	public List<Map<String, Object>> like(Integer page, Integer pageSize, Integer memberId) {
 		
 		String
 		sql = 
