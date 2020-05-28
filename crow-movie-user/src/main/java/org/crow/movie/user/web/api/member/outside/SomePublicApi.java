@@ -119,6 +119,7 @@ public class SomePublicApi extends BasePublicController{
 		Page<MemberMessage> page = memberMessageService.page(
 				Integer.valueOf(allParams.getOrDefault("page", 1).toString()), 
 				Integer.valueOf(allParams.getOrDefault("pageSize", 20).toString()),
+				"isRead asc,createTime desc",
 				eq);
 		JSONArray jRet = new JSONArray();
 		for (MemberMessage one : page.getResults()){
