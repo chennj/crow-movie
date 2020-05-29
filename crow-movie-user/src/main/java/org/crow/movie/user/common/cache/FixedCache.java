@@ -8,10 +8,12 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.crow.movie.user.common.constant.Const;
+import org.crow.movie.user.common.db.entity.AppAdv;
 import org.crow.movie.user.common.db.entity.AppCdn;
 import org.crow.movie.user.common.db.entity.AppConfig;
 import org.crow.movie.user.common.db.entity.AppLevel;
 import org.crow.movie.user.common.db.model.NVPair;
+import org.crow.movie.user.common.db.service.AppAdvService;
 import org.crow.movie.user.common.db.service.AppCdnService;
 import org.crow.movie.user.common.db.service.AppConfigService;
 import org.crow.movie.user.common.db.service.AppLevelService;
@@ -29,6 +31,7 @@ public class FixedCache {
 
 	private static final Logger logger = LoggerFactory.getLogger(FixedCache.class);
 	
+	/*--------------------------appCdn 缓存-------------------------------------------------*/
 	/**
 	 * appCdn 缓存
 	 */
@@ -44,6 +47,7 @@ public class FixedCache {
 	 */
 	private static volatile AtomicBoolean appCdnNeedReset = new AtomicBoolean(true);
 	
+	/*--------------------------appConfig 缓存-----------------------------------------------*/
 	/**
 	 * appConfig 缓存
 	 */
@@ -59,10 +63,11 @@ public class FixedCache {
 	 */
 	private static volatile AtomicBoolean appConfigNeedReset = new AtomicBoolean(true);
 
+	/*--------------------------appLevel map 缓存-------------------------------------------*/
 	/**
 	 * appLevel map 缓存
 	 */
-	private static volatile Map<Integer,AppLevel> appLevelCache;
+	private static volatile Map<Integer,AppLevel> appLevelCache = new HashMap<>();
 	
 	/**
 	 * appLevel map 最后更新日期
@@ -74,6 +79,7 @@ public class FixedCache {
 	 */
 	private static volatile AtomicBoolean appLevelNeedReset = new AtomicBoolean(true);
 
+	/*--------------------------appLevel list 缓存------------------------------------------*/
 	/**
 	 * appLevel list缓存
 	 */
@@ -88,6 +94,22 @@ public class FixedCache {
 	 * appLevel list 是否需要更新
 	 */
 	private static volatile AtomicBoolean appLevelListNeedReset = new AtomicBoolean(true);
+	
+	/*--------------------------appAdv 缓存-------------------------------------------------*/
+	/**
+	 * appAdv 缓存
+	 */
+	private static volatile List<AppAdv> appAdvCache;
+	
+	/**
+	 * appAdv 最后更新日期
+	 */
+	private static volatile Timestamp appAdvLastUpdateTime = new Timestamp(System.currentTimeMillis());
+	
+	/**
+	 * appAdv 是否需要更新
+	 */
+	private static volatile AtomicBoolean appAdvNeedReset = new AtomicBoolean(true);
 	
 	static {
 		
@@ -118,8 +140,7 @@ public class FixedCache {
 		if (null == appLevelService){
 			logger.error(">>>failed getting AppLevelService Bean");
 		} else {
-			List<AppLevel> appLevels = appLevelService.getAll();
-			appLevelCache = new HashMap<>();
+			List<AppLevel> appLevels = appLevelService.getList("grade asc", null);
 			for (AppLevel one : appLevels){
 				appLevelCache.put(one.getId(), one);
 			}
@@ -135,6 +156,16 @@ public class FixedCache {
 			conditions.add(new NVPair("promoLimit",">", 0));
 			appLevelListCache = appLevelService.getList("grade asc", conditions);
 		}
+		
+		/**
+		 * 初始化app adv list
+		 */
+		AppAdvService appAdvService = ApplicationUtil.getBean(AppAdvService.class);
+		if (null == appAdvService){
+			logger.error(">>>failed getting appAdvService Bean");
+		} else {
+			appAdvCache = appAdvService.getAll();			
+		}
 	}
 	
 	public static List<AppCdn> appCdnCache(){
@@ -149,7 +180,7 @@ public class FixedCache {
 				try {
 					appCdnLastUpdateTime = new Timestamp(System.currentTimeMillis());
 					logger.info(">>>appCdn cache update");
-					appCdnCache.clear();
+					appCdnCache = null;
 					AppCdnService service = ApplicationUtil.getBean(AppCdnService.class);
 					if (null == service){
 						logger.error(">>>failed getting AppCdnService Bean");
@@ -213,7 +244,7 @@ public class FixedCache {
 					appLevelLastUpdateTime = new Timestamp(System.currentTimeMillis());
 					logger.info(">>>appLevel cache update");
 					AppLevelService service = ApplicationUtil.getBean(AppLevelService.class);
-					appLevelCache.clear();
+					appLevelCache = null;
 					if (null == service){
 						logger.error(">>>failed getting AppLevelService Bean");
 					} else {
@@ -249,7 +280,7 @@ public class FixedCache {
 					appLevelListLastUpdateTime = new Timestamp(System.currentTimeMillis());
 					logger.info(">>>appLevelList cache update");
 					AppLevelService service = ApplicationUtil.getBean(AppLevelService.class);
-					appLevelListCache.clear();
+					appLevelListCache = null;
 					if (null == service){
 						logger.error(">>>failed getting AppLevelService Bean");
 					} else {
@@ -268,5 +299,37 @@ public class FixedCache {
 		}
 		
 		return appLevelListCache;
+	}
+	
+	public static List<AppAdv> appAdvCache(){
+		
+		Timestamp now = new Timestamp(System.currentTimeMillis());
+		Long diff = now.getTime() - appAdvLastUpdateTime.getTime();
+		
+		if (diff > Const.TS_AUTO_FIND_APPADV){
+			
+			if (appAdvNeedReset.compareAndSet(true, false)){
+				
+				try {
+					appAdvLastUpdateTime = new Timestamp(System.currentTimeMillis());
+					logger.info(">>>appAdv cache update");
+					AppAdvService service = ApplicationUtil.getBean(AppAdvService.class);
+					appAdvCache = null;
+					if (null == service){
+						logger.error(">>>failed getting appAdvService Bean");
+					} else {
+						appAdvCache = service.getAll();
+					}
+				} catch (Exception e){
+					e.printStackTrace();
+					logger.error(">>>failed getting appAdv cache cause:",e.getMessage());
+				} finally{
+					appAdvNeedReset.compareAndSet(false, true);
+				}
+				
+			}
+		}
+		
+		return appAdvCache;
 	}
 }

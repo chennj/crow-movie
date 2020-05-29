@@ -1,23 +1,34 @@
 package org.crow.movie.user.web.api.member.outside;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.crow.movie.user.common.ApplicationProperties;
 import org.crow.movie.user.common.cache.FixedCache;
 import org.crow.movie.user.common.constant.Const;
+import org.crow.movie.user.common.db.entity.AppAdv;
 import org.crow.movie.user.common.db.entity.AppConfig;
 import org.crow.movie.user.common.db.entity.AppLevel;
 import org.crow.movie.user.common.db.entity.MemberInfo;
+import org.crow.movie.user.common.db.entity.MemberMessage;
+import org.crow.movie.user.common.db.entity.MemberPromo;
 import org.crow.movie.user.common.db.model.ReturnT;
+import org.crow.movie.user.common.db.service.MemberFeedbackService;
+import org.crow.movie.user.common.db.service.MemberHistoryService;
 import org.crow.movie.user.common.db.service.MemberInfoService;
+import org.crow.movie.user.common.db.service.MemberMessageService;
 import org.crow.movie.user.common.db.service.MemberPromoService;
+import org.crow.movie.user.common.plugin.qrcode.QRCodeService;
 import org.crow.movie.user.common.util.MapUtil;
 import org.crow.movie.user.common.util.Php2JavaUtil;
 import org.crow.movie.user.common.util.StrUtil;
@@ -40,11 +51,27 @@ import com.alibaba.fastjson.JSONObject;
 public class MemberInfoPublicApi extends BasePublicController{
 
 	@Autowired
-	MemberInfoService memberInfoService;
+	private MemberInfoService memberInfoService;
 	
 	@Autowired
-	MemberPromoService memberPromoService;
+	private MemberHistoryService memberHistoryService;
 	
+	@Autowired
+	private MemberPromoService memberPromoService;
+	
+	@Autowired
+    private QRCodeService qrCodeService;
+	
+	@Autowired
+	private MemberMessageService memberMessageService;
+	
+	@Autowired
+	private MemberFeedbackService memberFeedbackService;
+	
+	@Autowired
+    private ApplicationProperties appProperties;
+	
+
 	/**
 	 * 保存二维码
 	 * @param request
@@ -272,5 +299,148 @@ public class MemberInfoPublicApi extends BasePublicController{
 	public ReturnT<?> manage(){
 		
 		return success(this.getJUser());
+	}
+	
+	/**
+	 * 二维码
+	 * @return
+	 */
+	@RequestMapping(value="promo-info", method=RequestMethod.POST)
+	public ReturnT<?> promoInfo(){
+				
+		MemberInfo user = this.getUser();
+		String promo_filename = "";
+		AppConfig app_config = FixedCache.appConfigCache();
+		
+		// 如果没有二维码，生成新的二维码
+		if (StrUtil.isEmpty(user.getPromoQrcode())){
+			
+			int width 	= 166;
+			int height 	= 166;
+			
+			String qrcodeDir = appProperties.getQrcodeDir();
+			String uploadDir = appProperties.getUploadDir();
+			String promo_url = app_config.getPromoUrl();
+			if (StrUtil.isEmpty(promo_url)){
+				promo_url = "http://www.k3289.com/?code=";
+			}
+			String data = promo_url+this.getUser().getPromoCode();
+			String imageName = String.format("%d_qr.png", this.getUser().getId());
+	        File qrFile = new File(qrcodeDir, imageName);
+	        qrCodeService.encode(data, width, height, qrFile);
+	        
+	        logger.info("生成的二维码文件:{}", qrFile.getAbsolutePath());
+	        
+	        File logoFile = new File(uploadDir, "logo.png");
+	        imageName = String.format("%s_qr_logo.png", this.getUser().getId());
+	        File logoQrFile = new File(qrcodeDir, imageName);
+	        qrCodeService.encodeWithLogo(qrFile, logoFile, logoQrFile);
+	        logger.info("生成的带logo二维码文件:{}", logoQrFile.getAbsolutePath());
+	        
+	        promo_filename = logoQrFile.getName();
+	        user.setPromoQrcode(promo_filename);
+	        memberInfoService.modify(user);
+		}
+		
+		JSONObject jRet = this.getJUser();
+		jRet.put("promo_top", 		app_config.getPromoTop());
+		jRet.put("promo_tips", 		app_config.getPromoTips());
+		jRet.put("promo_qrcode", 	promo_filename);
+		jRet.put("promo_links", 	app_config.getPromoLinks()
+				.replace("\\[code\\]", this.getUser().getPromoCode()));
+		
+		return success(jRet);
+	}
+	
+	/**
+	 * 用户主页
+	 * @return
+	 */
+	@RequestMapping(value="index", method=RequestMethod.POST)
+	public ReturnT<?> index(){
+		
+		JSONObject juser 	= this.getJUser();
+		MemberInfo user 	= this.getUser();
+		
+		Map<String, Object> eq = new HashMap<>();
+		eq.put("memberId", user.getId());
+		eq.put("isRead", 1);
+		
+		//用户界面广告列表
+		List<AppAdv> member_adv_list = this.getAdvMap().get("member");
+		juser.put("adv", member_adv_list.get(new Random().nextInt(member_adv_list.size())));
+		
+		//检查是否有新的通知
+		juser.put("is_new_message", 2);
+		int user_message_count = memberMessageService.count(eq);
+		if (user_message_count > 0){
+			juser.put("is_new_message", 1);
+		}
+		
+		//检查是否有新的反馈
+		eq.put("adminIsRead", 2);
+		juser.put("is_new_feedback", 2);
+		int user_feedback_count = memberFeedbackService.count(eq);
+		if (user_feedback_count > 0){
+			juser.put("user_feedback_count", 1);
+		}
+		Map<Integer, AppLevel> app_level = FixedCache.appLevelCache();
+		AppLevel current_level = app_level.get(user.getLevelId());
+		Integer next_level_id = user.getLevelId() + 1;
+		next_level_id = next_level_id<7 ? next_level_id : 6;
+		AppLevel next_level = app_level.get(next_level_id);
+		String next_icon = CommUtil.getHost(current_level.getIcon());
+		int next_per = 0;
+		if (null != next_level){
+			next_icon = CommUtil.getHost(next_level.getIcon());
+			if (current_level.getPromoLimit() < next_level.getPromoLimit()){
+				int promo_per = memberPromoService.count("memberId",user.getId());
+				next_per = next_level.getPromoLimit() - promo_per;
+			} 
+		}
+		
+		//我的等级信息
+		AppConfig app_config = FixedCache.appConfigCache();
+		JSONObject user_current_level = new JSONObject(){
+
+			private static final long serialVersionUID = 1L;
+			{
+				this.put("title", 	current_level.getTitle());
+				this.put("code", 	current_level.getCode());
+				this.put("grade", 	current_level.getGrade());
+				this.put("icon", 	CommUtil.getHost(current_level.getIcon()));
+			}
+		};
+		user_current_level.put("next_icon", next_icon);
+		user_current_level.put("next_per", 	next_per);
+		
+		juser.put("level", user_current_level);
+		juser.put("chart_url", app_config.getChartUrl());
+		
+		//我的历史记录
+		String 
+		sql = "select count(1) from member_history history "
+			+ "join app_movie movie on history.movie_id=movie.id "
+			+ "where member_id = ?1 ";
+		int user_history_count = memberHistoryService.countNative(sql, user.getId());
+		if (user_history_count > 0 && user.getIsVisitor() == 2){
+			JSONObject jo = new JSONObject();
+			jo.put("total_num", user_history_count);
+			sql = "select movie.id,movie.title,movie.cover "
+				+ "from member_history history "
+				+ "join app_movie movie on history.movie_id=movie.id "
+				+ "where member_id = ?1 "
+				+ "order by history.create_time desc";
+			List<Map<String, Object>> user_history = 
+					memberHistoryService.getPageListMap(sql, 1, 20, user.getId());
+			for (Map<String, Object> one : user_history){
+				one.put("cover", CommUtil.getHost(one.get("cover").toString()));
+			}
+			jo.put("movie_list", user_history);
+			juser.put("history", jo);
+		}
+		
+		//我的缓存
+		return success(juser);
 	}
 }

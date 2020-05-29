@@ -168,6 +168,12 @@ public abstract class AbstractBaseService<T> {
 	}
 	
 	@Transactional(propagation = Propagation.SUPPORTS)
+	public int count(Map<String, Object> eq){
+		
+		return baseDao.findCount(eq, null, null, null, null, null, null, null, null, null, null);
+	}
+	
+	@Transactional(propagation = Propagation.SUPPORTS)
 	public Page<?> pageRetListMap(String nativeSql,int page, int pageSize, Object... params){
 		return baseDao.findPage(nativeSql, page, pageSize, params);
 	}

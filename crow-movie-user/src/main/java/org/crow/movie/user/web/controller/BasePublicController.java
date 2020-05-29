@@ -5,11 +5,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.crow.movie.user.common.cache.FixedCache;
 import org.crow.movie.user.common.constant.Const;
+import org.crow.movie.user.common.db.entity.AppAdv;
 import org.crow.movie.user.common.db.entity.MemberInfo;
 import org.crow.movie.user.common.db.model.ReturnT;
 import org.crow.movie.user.common.db.service.MemberInfoService;
@@ -161,4 +166,22 @@ public abstract class BasePublicController {
         }
 
     }
+	
+	protected Map<String, List<AppAdv>> getAdvMap(){
+		
+		List<AppAdv> adv_list = FixedCache.appAdvCache();
+		Map<String, List<AppAdv>> adv_map = new HashMap<>();
+		for (AppAdv one : adv_list){
+			List<AppAdv> tmpAdvList = adv_map.get(one.getBelongArea());
+			if (null == tmpAdvList){
+				tmpAdvList = new ArrayList<AppAdv>();
+				tmpAdvList.add(one);
+				adv_map.put(one.getBelongArea(), tmpAdvList);
+			} else {
+				tmpAdvList.add(one);
+			}
+		}
+		
+		return adv_map;
+	}
 }

@@ -12,6 +12,10 @@ public class ApplicationProperties {
 	// referer白名单域名
     private List<String> refererDomain;
 
+    private String uploadDir;
+    
+    private String qrcodeDir;
+    
 	public List<String> getRefererDomain() {
 		return refererDomain;
 	}
@@ -19,6 +23,21 @@ public class ApplicationProperties {
 	public void setRefererDomain(List<String> refererDomain) {
 		this.refererDomain = refererDomain;
 	}
+
+	public String getUploadDir() {
+		return uploadDir;
+	}
+
+	public void setUploadDir(String uploadDir) {
+		this.uploadDir = uploadDir;
+	}
+
+	public String getQrcodeDir() {
+		return qrcodeDir;
+	}
+
+	public void setQrcodeDir(String qrcodeDir) {
+		this.qrcodeDir = qrcodeDir;
+	}
 	
-    
 }

@@ -45,6 +45,7 @@ public interface Const {
 	Long TS_AUTO_FIND_APP_CONFIG = (long) (60 * 1000);
 	Long TS_AUTO_FIND_APPLEVEL = (long) (60 * 1000);
 	Long TS_AUTO_FIND_APPLEVEL_LIST = (long) (60 * 1000);
+	Long TS_AUTO_FIND_APPADV = (long) (60 * 1000);
 	
 	String FILE_UPLOADED_FOLDER = "/uploads/feedback/";
 	

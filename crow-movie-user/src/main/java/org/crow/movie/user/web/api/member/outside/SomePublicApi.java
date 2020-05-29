@@ -1,6 +1,7 @@
 package org.crow.movie.user.web.api.member.outside;
 
 import java.io.File;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -343,5 +344,29 @@ public class SomePublicApi extends BasePublicController{
 		} else {
 			return fail("删除失败");
 		}
+	}
+	
+	@RequestMapping(value="history", method=RequestMethod.POST)
+	public ReturnT<?> history(HttpServletRequest request,
+			@RequestParam Map<String,Object> allParams){
+
+		logger.info("mbrcache.cache>>>enter,recive data="+allParams.entrySet());
+		
+		final List<Map<String, Object>> list;
+		try {
+			list = memberHistoryService.history(
+					Integer.valueOf(allParams.getOrDefault("page", 1).toString()), 
+					Integer.valueOf(allParams.getOrDefault("pageSize", 20).toString()), 
+					allParams,this.getUser().getId());
+		} catch (NumberFormatException | ParseException e) {
+			e.printStackTrace();
+			return fail(e.getMessage());
+		} 
+		
+		for (Map<String, Object> one : list){
+			one.put("cover", CommUtil.getHost(String.valueOf(one.get("cover"))));
+		}
+		
+		return success(list);
 	}
 }

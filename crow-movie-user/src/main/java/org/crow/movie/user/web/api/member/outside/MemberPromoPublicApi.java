@@ -68,4 +68,5 @@ public class MemberPromoPublicApi extends BasePublicController{
 		
 		return success(allList);
 	}
+	
 }
