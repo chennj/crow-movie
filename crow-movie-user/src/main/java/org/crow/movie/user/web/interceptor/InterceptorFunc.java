@@ -1,10 +1,14 @@
 package org.crow.movie.user.web.interceptor;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.crow.movie.user.common.constant.Const;
+import org.crow.movie.user.common.util.PropertyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,5 +49,15 @@ public final class InterceptorFunc {
 			}
 		}
 		return false;
+	}
+	
+	public static String getUrlWhiteList() throws IOException{
+		
+		String dir = System.getProperty("user.dir");
+		dir = dir.substring(0,dir.lastIndexOf(File.separator));
+		String excludeUrl = PropertyUtil.instance()
+				.getValueByDefaultFileKey(dir,Const.CONFIG_COMMON_FILE, Const.EXCLUDE_URL);
+		return excludeUrl;
+
 	}
 }

@@ -1,5 +1,6 @@
 package org.crow.movie.user.web.interceptor;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.List;
 
@@ -8,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.assertj.core.util.Arrays;
 import org.crow.movie.user.common.ApplicationProperties;
+import org.crow.movie.user.common.constant.Const;
 import org.crow.movie.user.common.util.IPUtil;
 import org.crow.movie.user.web.annotation.Permission;
 import org.slf4j.Logger;
@@ -46,8 +48,8 @@ public class ManagerPermissionInterceptor extends HandlerInterceptorAdapter{
 	/**
 	 * 方法白名单
 	 */
-	@Value("${movie.user.excludeUrl}")
-	private String excludeUrl;
+	//@Value("${movie.user.excludeUrl}")
+	//private String excludeUrl;
 	
 	private static String[] excludeUrls;
 
@@ -67,7 +69,12 @@ public class ManagerPermissionInterceptor extends HandlerInterceptorAdapter{
 		}
 		
 		if (null == excludeUrls){
-			excludeUrls = excludeUrl.split(",");
+			try {
+				String excludeUrl = InterceptorFunc.getUrlWhiteList();
+				excludeUrls = excludeUrl.split(",");
+			} catch (IOException e){
+				throw new Exception( Const.CONFIG_COMMON_FILE + " 没有找到！");
+			}
 		}
 
 		/**

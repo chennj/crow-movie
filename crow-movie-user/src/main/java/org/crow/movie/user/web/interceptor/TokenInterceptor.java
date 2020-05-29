@@ -1,29 +1,37 @@
 package org.crow.movie.user.web.interceptor;
 
+import java.io.IOException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.crow.movie.user.common.constant.Const;
 import org.crow.movie.user.common.util.TokenUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 @Component
-public class TokenInterceptor extends HandlerInterceptorAdapter{
+public class TokenInterceptor extends HandlerInterceptorAdapter implements InitializingBean {
 
 	protected static final Logger logger = LoggerFactory.getLogger(TokenInterceptor.class.getClass());
-
-	/**
-	 * 方法白名单
-	 */
-	@Value("${movie.user.excludeUrl}")
-	private String excludeUrl;
 	
 	private static String[] excludeUrls;
+	
+	@Override
+	public void afterPropertiesSet() throws Exception {
 
+		try {
+			String excludeUrl = InterceptorFunc.getUrlWhiteList();
+			excludeUrls = excludeUrl.split(",");
+		} catch (IOException e){
+			throw new Exception( Const.CONFIG_COMMON_FILE + " 没有找到！");
+		}
+
+	}
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {
@@ -34,14 +42,7 @@ public class TokenInterceptor extends HandlerInterceptorAdapter{
 
 		response.setCharacterEncoding("utf-8");
 		request.setCharacterEncoding("UTF-8");
-		
-		/**
-		 * 在请求方法(requestMethod)白名单中不进行拦截(例如isAlive)
-		 */		
-		if (null == excludeUrls){
-			excludeUrls = excludeUrl.split(",");
-		}
-		
+				
 		if (InterceptorFunc.IsUrlWhiteList(request, response, excludeUrls)){
 			return true;
 		}

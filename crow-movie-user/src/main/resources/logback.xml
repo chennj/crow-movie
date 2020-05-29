@@ -2,7 +2,7 @@
 <configuration debug="false" scan="true" scanPeriod="1 seconds">
 
     <contextName>logback</contextName>
-    <property name="log.path" value="crow-movie-log/crow-movie-user.log"/>
+    <property name="log.path" value="${user.dir}/../crow-movie-log/crow-movie-user.log"/>
 
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>

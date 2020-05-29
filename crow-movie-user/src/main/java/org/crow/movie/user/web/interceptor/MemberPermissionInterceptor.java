@@ -1,5 +1,6 @@
 package org.crow.movie.user.web.interceptor;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 
@@ -16,7 +17,6 @@ import org.crow.movie.user.common.util.SessionUtil;
 import org.crow.movie.user.web.annotation.Permission;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.WebApplicationContext;
@@ -30,44 +30,16 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
  *
  */
 @Component
-public class MemberPermissionInterceptor extends HandlerInterceptorAdapter implements InitializingBean {
+public class MemberPermissionInterceptor extends HandlerInterceptorAdapter{
 
 	protected static final Logger logger = LoggerFactory.getLogger(MemberPermissionInterceptor.class.getClass());
 	
-	/**
-	 * 方法白名单
-	 */
-	@Value("${movie.user.excludeUrl}")
-	private String excludeUrl;
-	
 	private static String[] excludeUrls;
 
-	/**
-	 * 密码加盐
-	 */
 	@Value("${movie.user.salt}")
-	private String salt;
-	
 	private static String pwdSalt;
 			
 	private static MemberInfoService memberInfoService;
-	
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		
-		if (salt == null || salt.trim().length() == 0){
-			throw new RuntimeException("Salt Cann't Be Empty! In Application Property File");
-		}	
-
-		pwdSalt = salt;
-
-		if (excludeUrl == null || excludeUrl.trim().length() == 0){
-			excludeUrls = new String[]{};
-		} else {
-			excludeUrls = excludeUrl.split(",");
-		}
-
-	}
 	
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
@@ -76,7 +48,20 @@ public class MemberPermissionInterceptor extends HandlerInterceptorAdapter imple
 		if (!(handler instanceof HandlerMethod)) {
 			return super.preHandle(request, response, handler);
 		}
-		
+
+		/**
+		 * 在请求方法(requestMethod)白名单中不进行拦截(例如isAlive)
+		 */		
+		if (null == excludeUrls){
+			try {
+				String excludeUrl = InterceptorFunc.getUrlWhiteList();
+				excludeUrls = excludeUrl.split(",");
+			} catch (IOException e){
+				throw new Exception( Const.CONFIG_COMMON_FILE + " 没有找到！");
+			}
+			
+		}
+
 		/**
 		 * 在请求方法(requestMethod)白名单中不进行拦截(例如isAlive)
 		 */
