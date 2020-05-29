@@ -16,6 +16,12 @@ public final class InterceptorFunc {
 
 	protected static final Logger logger = LoggerFactory.getLogger(InterceptorFunc.class.getClass());
 	
+	protected static String dir;
+	static {
+		dir = System.getProperty("user.dir");
+		dir = dir.substring(0,dir.lastIndexOf(File.separator));
+	}
+	
 	public static boolean FAIL(HttpServletResponse response,String message){
 		
 		PrintWriter writer = null;
@@ -52,9 +58,7 @@ public final class InterceptorFunc {
 	}
 	
 	public static String getUrlWhiteList() throws IOException{
-		
-		String dir = System.getProperty("user.dir");
-		dir = dir.substring(0,dir.lastIndexOf(File.separator));
+
 		String excludeUrl = PropertyUtil.instance()
 				.getValueByDefaultFileKey(dir,Const.CONFIG_COMMON_FILE, Const.EXCLUDE_URL);
 		return excludeUrl;

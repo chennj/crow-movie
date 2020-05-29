@@ -4,7 +4,7 @@
 
 	<groupId>net.crow</groupId>
 	<artifactId>crow-movie</artifactId>
-	<version>1.0</version>
+	<version>1.0-snapshot</version>
 	<packaging>pom</packaging>
 	
 	<name>crow-movie</name>

@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>net.crow</groupId>
 		<artifactId>crow-movie</artifactId>
-		<version>1.0</version>
+		<version>1.0-snapshot</version>
 	</parent>
 	<artifactId>crow-movie-user</artifactId>
 	<name>crow-movie-user</name>
