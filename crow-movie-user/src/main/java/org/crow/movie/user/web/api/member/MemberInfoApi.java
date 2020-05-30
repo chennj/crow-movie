@@ -18,7 +18,6 @@ import org.crow.movie.user.common.util.DigestUtils;
 import org.crow.movie.user.common.util.Php2JavaUtil;
 import org.crow.movie.user.common.util.CommUtil;
 import org.crow.movie.user.common.util.StrUtil;
-import org.crow.movie.user.common.util.TokenUtil;
 import org.crow.movie.user.web.controller.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -246,7 +245,7 @@ public class MemberInfoApi  extends BaseController{
 		
 		mbr = memberInfoService.getUnique("account", account);
 		if (null != mbr){
-			return new ReturnT<String>(500, "user exist");
+			return fail("用户已存在");
 		}
 		
 		mbr = JSON.parseObject(jdata.toJSONString(), new TypeReference<MemberInfo>(){});
@@ -255,16 +254,14 @@ public class MemberInfoApi  extends BaseController{
 			return fail("data trans bean exception");
 		}
 		
-		String pwd = DigestUtils.encryptMd5(DigestUtils.encryptMd5(password)+salt);
-		Long ts = System.currentTimeMillis(); 
 		mbr.setNickName(account);
 		mbr.setIsVisitor(2);
-		mbr.setPassword(pwd);
-		mbr.setToken(TokenUtil.genToken("demo", 1));
+		mbr.setPassword(DigestUtils.encryptPwd(password));
+		mbr.setToken("");
 		mbr.setCreateDate(new Date());
-		mbr.setCreateTime(Php2JavaUtil.transTimeJ2P(ts));
-		mbr.setUpdateTime(Php2JavaUtil.transTimeJ2P(ts));
-		mbr.setCreateUser(1);
+		mbr.setCreateTime(now());
+		mbr.setUpdateTime(now());
+		mbr.setCreateUser(this.getAdminId(request));
 
 		memberInfoService.add(mbr);
 		
