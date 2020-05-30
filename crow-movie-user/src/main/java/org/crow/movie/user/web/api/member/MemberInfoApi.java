@@ -137,9 +137,10 @@ public class MemberInfoApi  extends BaseController{
 	 * @param password2
 	 * @return
 	 */
-	@RequestMapping(value="changpwd", method=RequestMethod.POST)
+	@RequestMapping(value="change-password", method=RequestMethod.POST)
 	public ReturnT<?> changPwd(
 			HttpServletRequest request,
+			@RequestParam(required = true) String memberId,
 			@RequestParam(required = true) String password,
 			@RequestParam(required = true) String password2){
 		
@@ -151,7 +152,7 @@ public class MemberInfoApi  extends BaseController{
 			return fail("twice password is not same");
 		}
 		
-		MemberInfo mbr = memberInfoService.getById(getMemberInfo(request).getId());
+		MemberInfo mbr = getMemberInfo(request);
 		if (null == mbr){
 			return fail("user is not exists");
 		}

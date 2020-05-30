@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.crow.movie.user.common.db.entity.MemberInfo;
 import org.crow.movie.user.common.db.model.ReturnT;
 import org.crow.movie.user.common.db.service.MemberInfoService;
+import org.crow.movie.user.common.plugin.verifycode.VerifyCode;
 import org.crow.movie.user.common.util.DigestUtils;
 import org.crow.movie.user.common.util.CommUtil;
 import org.crow.movie.user.common.util.StrUtil;
@@ -123,5 +124,26 @@ public class MemberPermission extends BaseController{
 		return success();
 	}
 
-
+	// 生成验证码图片
+    @RequestMapping("/getVerifyCode")
+    @ResponseBody
+    public void getCaptcha(HttpServletRequest request, HttpServletResponse response) {
+        
+        try {
+            
+            response.setContentType("image/png");
+            response.setHeader("Cache-Control", "no-cache");
+            response.setHeader("Expire", "0");
+            response.setHeader("Pragma", "no-cache");
+            
+            VerifyCode validateCode = new VerifyCode();
+            
+            // 直接返回图片
+            validateCode.getRandomCodeImage(request, response);
+            
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        
+    }
 }

@@ -43,6 +43,17 @@
             <artifactId>spring-boot-starter-test</artifactId>
         </dependency>
       
+      	<!-- 分布式缓存集群 -->
+		<dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+        <!-- 分布式缓存集群客户端连接池 -->
+		<dependency>
+		    <groupId>org.apache.commons</groupId>
+		    <artifactId>commons-pool2</artifactId>
+		</dependency> 
+		     
         <!-- 监控 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.crow.movie.user.common.ApplicationProperties;
@@ -20,19 +21,23 @@ import org.crow.movie.user.common.db.entity.AppAdv;
 import org.crow.movie.user.common.db.entity.AppConfig;
 import org.crow.movie.user.common.db.entity.AppLevel;
 import org.crow.movie.user.common.db.entity.MemberInfo;
-import org.crow.movie.user.common.db.entity.MemberMessage;
-import org.crow.movie.user.common.db.entity.MemberPromo;
+import org.crow.movie.user.common.db.entity.MemberSms;
 import org.crow.movie.user.common.db.model.ReturnT;
 import org.crow.movie.user.common.db.service.MemberFeedbackService;
 import org.crow.movie.user.common.db.service.MemberHistoryService;
 import org.crow.movie.user.common.db.service.MemberInfoService;
 import org.crow.movie.user.common.db.service.MemberMessageService;
 import org.crow.movie.user.common.db.service.MemberPromoService;
+import org.crow.movie.user.common.db.service.MemberSmsService;
 import org.crow.movie.user.common.plugin.qrcode.QRCodeService;
+import org.crow.movie.user.common.plugin.redis.RedisService;
+import org.crow.movie.user.common.plugin.sms.Sms;
 import org.crow.movie.user.common.util.MapUtil;
 import org.crow.movie.user.common.util.Php2JavaUtil;
+import org.crow.movie.user.common.util.RegexUtil;
 import org.crow.movie.user.common.util.StrUtil;
 import org.crow.movie.user.common.util.CommUtil;
+import org.crow.movie.user.common.util.DigestUtils;
 import org.crow.movie.user.web.annotation.Permission;
 import org.crow.movie.user.web.controller.BasePublicController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +47,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
@@ -50,6 +56,9 @@ import com.alibaba.fastjson.JSONObject;
 @Permission(managerLimit=false)
 public class MemberInfoPublicApi extends BasePublicController{
 
+	@Resource
+	RedisService redisService;
+	
 	@Autowired
 	private MemberInfoService memberInfoService;
 	
@@ -67,6 +76,9 @@ public class MemberInfoPublicApi extends BasePublicController{
 	
 	@Autowired
 	private MemberFeedbackService memberFeedbackService;
+	
+	@Autowired
+	private MemberSmsService memberSmsService;
 	
 	@Autowired
     private ApplicationProperties appProperties;
@@ -366,18 +378,24 @@ public class MemberInfoPublicApi extends BasePublicController{
 		eq.put("memberId", user.getId());
 		eq.put("isRead", 1);
 		
-		//用户界面广告列表
+		/**
+		 * 用户界面广告列表
+		 */
 		List<AppAdv> member_adv_list = this.getAdvMap().get("member");
 		juser.put("adv", member_adv_list.get(new Random().nextInt(member_adv_list.size())));
 		
-		//检查是否有新的通知
+		/**
+		 * 检查是否有新的通知
+		 */
 		juser.put("is_new_message", 2);
 		int user_message_count = memberMessageService.count(eq);
 		if (user_message_count > 0){
 			juser.put("is_new_message", 1);
 		}
 		
-		//检查是否有新的反馈
+		/**
+		 * 检查是否有新的反馈
+		 */
 		eq.put("adminIsRead", 2);
 		juser.put("is_new_feedback", 2);
 		int user_feedback_count = memberFeedbackService.count(eq);
@@ -399,7 +417,9 @@ public class MemberInfoPublicApi extends BasePublicController{
 			} 
 		}
 		
-		//我的等级信息
+		/**
+		 * 我的等级信息
+		 */
 		AppConfig app_config = FixedCache.appConfigCache();
 		JSONObject user_current_level = new JSONObject(){
 
@@ -417,18 +437,20 @@ public class MemberInfoPublicApi extends BasePublicController{
 		juser.put("level", user_current_level);
 		juser.put("chart_url", app_config.getChartUrl());
 		
-		//我的历史记录
+		/**
+		 * 我的历史记录
+		 */
 		String 
-		sql = "select count(1) from member_history history "
-			+ "join app_movie movie on history.movie_id=movie.id "
+		sql = "select count(1) from hg_member_history history "
+			+ "join hg_app_movie movie on history.movie_id=movie.id "
 			+ "where member_id = ?1 ";
 		int user_history_count = memberHistoryService.countNative(sql, user.getId());
 		if (user_history_count > 0 && user.getIsVisitor() == 2){
 			JSONObject jo = new JSONObject();
 			jo.put("total_num", user_history_count);
 			sql = "select movie.id,movie.title,movie.cover "
-				+ "from member_history history "
-				+ "join app_movie movie on history.movie_id=movie.id "
+				+ "from hg_member_history history "
+				+ "join hg_app_movie movie on history.movie_id=movie.id "
 				+ "where member_id = ?1 "
 				+ "order by history.create_time desc";
 			List<Map<String, Object>> user_history = 
@@ -440,7 +462,199 @@ public class MemberInfoPublicApi extends BasePublicController{
 			juser.put("history", jo);
 		}
 		
-		//我的缓存
+		/**
+		 * 我的缓存
+		 */
+		sql = "select count(1) from hg_member_cache cache "
+			+ "join hg_app_movie movie on cache.movie_id=movie.id "
+			+ "where member_id = ?1 and device_id = ?2";
+		user_history_count = memberHistoryService.countNative(sql, user.getId(),user.getDeviceId());
+		if (user_history_count > 0){
+			JSONObject jo = new JSONObject();
+			jo.put("total_num", user_history_count);
+			sql = "select movie.id,movie.title,movie.cover "
+				+ "from hg_member_cache cache "
+				+ "join hg_app_movie movie on cache.movie_id=movie.id "
+				+ "where member_id = ?1 and device_id = ?2 "
+				+ "order by cache.create_time desc";
+			List<Map<String, Object>> user_history = 
+					memberHistoryService.getPageListMap(sql, 1, 20, user.getId(), user.getDeviceId());
+			for (Map<String, Object> one : user_history){
+				one.put("cover", CommUtil.getHost(one.get("cover").toString()));
+			}
+			jo.put("movie_list", user_history);
+			juser.put("cache", jo);
+		}
+		
+		/**
+		 * 我的喜欢
+		 */
+		sql = "select count(1) from hg_member_like mlike "
+			+ "join hg_app_movie movie movie on mlike.movie_id=movie.id "
+			+ "where member_id = ?1 ";
+		user_history_count = memberHistoryService.countNative(sql, user.getId());
+		if (user_history_count > 0){
+			JSONObject jo = new JSONObject();
+			jo.put("total_num", user_history_count);
+			sql = "select movie.id,movie.title,movie.cover "
+				+ "from hg_member_like mlike "
+				+ "join hg_app_movie movie on mlike.movie_id=movie.id "
+				+ "where member_id = ?1 "
+				+ "order by mlike.create_time desc";
+			List<Map<String, Object>> user_history = 
+					memberHistoryService.getPageListMap(sql, 1, 20, user.getId());
+			for (Map<String, Object> one : user_history){
+				one.put("cover", CommUtil.getHost(one.get("cover").toString()));
+			}
+			jo.put("movie_list", user_history);
+			juser.put("like", jo);
+		}
+		
 		return success(juser);
 	}
+	
+	@RequestMapping(value="info", method=RequestMethod.POST)
+	public ReturnT<?> info(){
+		
+		return success(this.getJUser());
+	}
+	
+	@RequestMapping(value="change-password", method=RequestMethod.POST)
+	public ReturnT<?> changPassword(
+			@RequestParam(required = true) String password){
+		
+		MemberInfo user = this.getUser();
+		if (StrUtil.isEmpty(user.getMobile()) || StrUtil.isEmpty(user.getGlobalAreaCode())){
+			return fail("请先绑定手机号码");
+		}
+		// param
+		if (StrUtil.isEmpty(password)){
+			return fail("密码不能为空");
+		}
+		if (password.length() < 6 || password.length() > 20){
+			return fail("密码长度有误");
+		}
+		if (RegexUtil.isNotNumOrChar(password)){
+			return fail("密码只能是数字、字母");
+		}
+		
+		user.setPassword(DigestUtils.encryptPwd(password));
+		user.setUpdateTime(now());
+		memberInfoService.modify(user);
+		
+		return success();
+	}
+	
+	@RequestMapping(value="send-sms-code-by-change-password", method=RequestMethod.POST)
+	public ReturnT<?> smsChangePassword(
+			@RequestParam(required = true) String password){
+		
+		MemberInfo user = this.getUser();
+		if (StrUtil.isEmpty(user.getMobile()) || StrUtil.isEmpty(user.getGlobalAreaCode())){
+			return fail("请先绑定手机号码");
+		}
+		// param
+		if (StrUtil.isEmpty(password)){
+			return fail("密码不能为空");
+		}
+		if (password.length() < 6 || password.length() > 20){
+			return fail("密码长度有误");
+		}
+		if (RegexUtil.isNotNumOrChar(password)){
+			return fail("密码只能是数字、字母");
+		}
+		
+		int now = now();
+		Map<String, Object> eq = new HashMap<>();
+		eq.put("memberId", user.getId());
+		eq.put("mobile", user.getMobile());
+		
+		MemberSms mmsms = memberSmsService.getSingle("", eq);
+		if (null != mmsms && now - mmsms.getSendTime() <= 60){
+			return fail("60秒内只能发送一次验证码");
+		}
+		String code = Sms.getRandomCode(4);
+		String content = "你本次的验证码为" + code;
+		String res = Sms.send(user.getMobile(), content);
+		JSONObject jres = JSON.parseObject(res);
+		if ("0".equals(jres.getString("code"))){
+			if (null != mmsms){
+				mmsms.setSendTime(now);
+				memberSmsService.modify(mmsms);
+			} else {
+				mmsms = new MemberSms();
+				mmsms.setMemberId(user.getId());
+				mmsms.setMobile(user.getMobile());
+				mmsms.setSendTime(now);
+				memberSmsService.add(mmsms);
+			}
+			String cache_mobile 	= user.getDeviceId()+"_mobile";
+			String cache_sms_code 	= user.getDeviceId()+"_sms_code";
+			
+			redisService.set(cache_mobile, user.getMobile(), 600);
+			redisService.set(cache_sms_code, code, 600);
+			
+			return success();
+		}
+		
+		return fail(jres.getString("msg"));
+		
+	}
+	
+	@RequestMapping(value="forget-password", method=RequestMethod.POST)
+	public ReturnT<?> forgetPassword(
+			@RequestParam(required = true) String password){
+		
+		MemberInfo user = this.getUser();
+		if (StrUtil.isEmpty(user.getMobile()) || StrUtil.isEmpty(user.getGlobalAreaCode())){
+			return fail("请先绑定手机号码");
+		}
+		// param
+		if (StrUtil.isEmpty(password)){
+			return fail("密码不能为空");
+		}
+		if (password.length() < 6 || password.length() > 20){
+			return fail("密码长度有误");
+		}
+		if (RegexUtil.isNotNumOrChar(password)){
+			return fail("密码只能是数字、字母");
+		}
+		
+		int now = now();
+		Map<String, Object> eq = new HashMap<>();
+		eq.put("memberId", user.getId());
+		eq.put("mobile", user.getMobile());
+		
+		MemberSms mmsms = memberSmsService.getSingle("", eq);
+		if (null != mmsms && now - mmsms.getSendTime() <= 60){
+			return fail("60秒内只能发送一次验证码");
+		}
+		String code = Sms.getRandomCode(4);
+		String content = "你本次的验证码为" + code;
+		String res = Sms.send(user.getMobile(), content);
+		JSONObject jres = JSON.parseObject(res);
+		if ("0".equals(jres.getString("code"))){
+			if (null != mmsms){
+				mmsms.setSendTime(now);
+				memberSmsService.modify(mmsms);
+			} else {
+				mmsms = new MemberSms();
+				mmsms.setMemberId(user.getId());
+				mmsms.setMobile(user.getMobile());
+				mmsms.setSendTime(now);
+				memberSmsService.add(mmsms);
+			}
+			String cache_mobile 	= user.getDeviceId()+"_mobile";
+			String cache_sms_code 	= user.getDeviceId()+"_sms_code";
+			
+			redisService.set(cache_mobile, user.getMobile(), 600);
+			redisService.set(cache_sms_code, code, 600);
+			
+			return success();
+		}
+		
+		return fail(jres.getString("msg"));
+		
+	}
+
 }

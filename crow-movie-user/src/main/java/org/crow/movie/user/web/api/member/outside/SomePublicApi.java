@@ -369,4 +369,5 @@ public class SomePublicApi extends BasePublicController{
 		
 		return success(list);
 	}
+	
 }

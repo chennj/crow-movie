@@ -8,7 +8,6 @@ import org.crow.movie.user.common.db.model.ReturnT;
 import org.crow.movie.user.common.db.service.AdminInfoService;
 import org.crow.movie.user.common.db.service.MemberInfoService;
 import org.crow.movie.user.common.util.MapUtil;
-import org.crow.movie.user.common.util.Php2JavaUtil;
 import org.crow.movie.user.common.util.StrUtil;
 import org.crow.movie.user.common.util.TokenUtil;
 import org.slf4j.Logger;
@@ -39,17 +38,8 @@ public abstract class BaseController {
 	 */
 	protected MemberInfo getMemberInfo(HttpServletRequest request){
 		
-		//HttpSession session = request.getSession();
-		//return (MemberInfo) session.getAttribute(Const.SESSION_USER_INFO_KEY);
-		String token = request.getHeader("accessToken");
-		Integer id = TokenUtil.getUserID(token);
-		MemberInfo m = memberInfoService.getById(id);
-		if (m.getExpireTime() > Php2JavaUtil.transTimeJ2P(System.currentTimeMillis())){
-			isVip = 1;
-		} else {
-			m.setExpireTime(0);
-		}
-		return memberInfoService.getById(id);
+		String id = request.getParameter("memberId");
+		return memberInfoService.getById(Integer.valueOf(id));
 	}
 	
 	protected JSONObject getMemberInfoJson(HttpServletRequest request){
@@ -64,11 +54,6 @@ public abstract class BaseController {
 			}
 		}
 		return null;
-	}
-	protected int getMemberId(HttpServletRequest request){
-		
-		String token = request.getHeader("accessToken");
-		return TokenUtil.getUserID(token);
 	}
 	
 	/**
