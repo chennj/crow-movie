@@ -10,8 +10,10 @@ import org.crow.movie.user.common.db.model.ReturnT;
 import org.crow.movie.user.common.db.service.MemberInfoService;
 import org.crow.movie.user.common.plugin.verifycode.VerifyCode;
 import org.crow.movie.user.common.util.DigestUtils;
+import org.crow.movie.user.common.util.RegexUtil;
 import org.crow.movie.user.common.util.CommUtil;
 import org.crow.movie.user.common.util.StrUtil;
+import org.crow.movie.user.common.util.TokenUtil;
 import org.crow.movie.user.web.annotation.Permission;
 import org.crow.movie.user.web.controller.BaseController;
 import org.crow.movie.user.web.interceptor.MemberPermissionInterceptor;
@@ -146,4 +148,65 @@ public class MemberPermission extends BaseController{
         }
         
     }
+    
+	@RequestMapping(value="forget-password", method=RequestMethod.POST)
+	public ReturnT<?> forgetPassword(
+			HttpServletRequest request,
+			@RequestParam(required = true) String mobile,
+			@RequestParam(required = true) String password,
+			@RequestParam(required = true) String verify_code){
+		
+		if (StrUtil.isEmpty(mobile) ){
+			return fail("手机号不能为空");
+		}
+		if (mobile.length()<6 || mobile.length()>32){
+			return fail("手机号长度有误");
+		}
+		if (RegexUtil.isNotNum(mobile)){
+			return fail("手机号只能是数字");
+		}
+		
+		if (StrUtil.isEmpty(password) ){
+			return fail("密码不能为空");
+		}
+		if (password.length()<6 || password.length()>20){
+			return fail("密码长度有误");
+		}
+		if (RegexUtil.isNotNumOrChar(password)){
+			return fail("密码只能是数字、字母");
+		}
+		
+		if (StrUtil.isEmpty(verify_code) ){
+			return fail("验证码不能为空");
+		}
+		if (verify_code.length()<1 || verify_code.length()>10){
+			return fail("验证码长度有误");
+		}
+		if (RegexUtil.isNotNum(verify_code)){
+			return fail("验证码只能是数字");
+		}
+		
+		String deviceid = request.getHeader("deviceid");
+		if (StrUtil.isEmpty(deviceid)){
+			return fail("请求头缺少设备ID");
+		}
+		
+		if (!this.checkSmsCode(mobile, deviceid, verify_code)){
+			return fail("短信验证码错误");
+		}
+		
+		MemberInfo member = memberInfoService.getUnique("mobile", mobile);
+		if (null == member ){
+			return fail("未找到当前用户,请先注册");
+		}
+		
+		member.setUpdateTime(now());
+		member.setPassword(DigestUtils.encryptPwd(password));
+		memberInfoService.modify(member);
+		this.delSmsCode(deviceid);
+		String token = TokenUtil.genToken(member.getAccount(), member.getId());
+		
+		return success(token);
+		
+	}
 }

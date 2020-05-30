@@ -12,7 +12,7 @@ public final class RegexUtil {
 	}
 	
 	public static boolean isNotNum(String s){
-		String regex = "/^[0-9]*$/i";
+		String regex = "^[0-9]*$";
 		return isNotMatch(regex,s);
 	}
 	

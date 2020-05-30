@@ -140,7 +140,7 @@ public class MemberInfoApi  extends BaseController{
 	@RequestMapping(value="change-password", method=RequestMethod.POST)
 	public ReturnT<?> changPwd(
 			HttpServletRequest request,
-			@RequestParam(required = true) String memberId,
+			@RequestParam(required = true) String memberid,
 			@RequestParam(required = true) String password,
 			@RequestParam(required = true) String password2){
 		
@@ -152,7 +152,7 @@ public class MemberInfoApi  extends BaseController{
 			return fail("twice password is not same");
 		}
 		
-		MemberInfo mbr = getMemberInfo(request);
+		MemberInfo mbr = memberInfoService.getById(memberid);
 		if (null == mbr){
 			return fail("user is not exists");
 		}
@@ -174,24 +174,21 @@ public class MemberInfoApi  extends BaseController{
 	@RequestMapping(value="edit", method=RequestMethod.POST)
 	public ReturnT<?> edit(
 			HttpServletRequest request,
-			@RequestParam(required=true) String data){
+			@RequestParam Map<String,Object> allParams){
 		
-		logger.info("mbrinfo.edit>>>enter,recive data="+data);
+		logger.info("mbrinfo.edit>>>enter,recive data="+allParams.entrySet());
 		
 		// param
-		if (StrUtil.isEmpty(data)){
+		if (allParams.isEmpty()){
 			return fail("data is empty");
 		}
 				
-		JSONObject jo = null;
-		try {
-			jo = JSON.parseObject(data);
-		} catch (Exception e){
-			logger.error("mbrinfo.edit>>>"+e.getMessage());
-			return fail(e.getMessage());
+		JSONObject jo = new JSONObject(allParams);
+		if (StrUtil.isEmpty(jo.getInteger("memberid"))){
+			return fail("没有用户ID");
 		}
 		
-		MemberInfo entity = memberInfoService.getById(getMemberInfo(request).getId());
+		MemberInfo entity = memberInfoService.getById(jo.getInteger("memberid"));
 		if (null == entity){
 			return fail("member is not exists");
 		}

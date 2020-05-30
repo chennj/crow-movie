@@ -1,13 +1,13 @@
 package org.crow.movie.user.web.controller;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.crow.movie.user.common.db.entity.AdminInfo;
-import org.crow.movie.user.common.db.entity.MemberInfo;
 import org.crow.movie.user.common.db.model.ReturnT;
 import org.crow.movie.user.common.db.service.AdminInfoService;
-import org.crow.movie.user.common.db.service.MemberInfoService;
-import org.crow.movie.user.common.util.MapUtil;
+import org.crow.movie.user.common.plugin.redis.RedisService;
+import org.crow.movie.user.common.util.Php2JavaUtil;
 import org.crow.movie.user.common.util.StrUtil;
 import org.crow.movie.user.common.util.TokenUtil;
 import org.slf4j.Logger;
@@ -15,12 +15,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-import com.alibaba.fastjson.JSONObject;
-
 public abstract class BaseController {
 
-	@Autowired
-	private MemberInfoService memberInfoService;
+	@Resource
+	private RedisService redisService;
+	
 	@Autowired
 	private AdminInfoService adminInfoService;
 
@@ -30,31 +29,6 @@ public abstract class BaseController {
 	protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	protected int isVip = 2;
-	
-	/**
-	 * 根据token获取member
-	 * @param request
-	 * @return
-	 */
-	protected MemberInfo getMemberInfo(HttpServletRequest request){
-		
-		String id = request.getParameter("memberId");
-		return memberInfoService.getById(Integer.valueOf(id));
-	}
-	
-	protected JSONObject getMemberInfoJson(HttpServletRequest request){
-		MemberInfo m = getMemberInfo(request);
-		if (null != m){
-			try {
-				return new JSONObject(MapUtil.objectToMap1(m));
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return null;
-			}
-		}
-		return null;
-	}
 	
 	/**
 	 * 用于根据token获取admin用户
@@ -115,5 +89,27 @@ public abstract class BaseController {
 		} catch (Exception e){
 			return "null";
 		}
+	}
+	
+	protected boolean checkSmsCode(String mobile, String deviceid, String verifyCode){
+		
+		String cache_mobile 	= deviceid+"_mobile";
+		String cache_sms_code 	= deviceid+"_sms_code";
+		if(mobile.equals(redisService.get(cache_mobile)) && verifyCode.equals(redisService.get(cache_sms_code))){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	protected void delSmsCode(String deviceid){
+		
+		String cache_mobile 	= deviceid+"_mobile";
+		String cache_sms_code 	= deviceid+"_sms_code";
+		redisService.del(cache_mobile,cache_sms_code);
+	}
+	
+	protected int now(){
+		return Php2JavaUtil.transTimeJ2P(System.currentTimeMillis());
 	}
 }
