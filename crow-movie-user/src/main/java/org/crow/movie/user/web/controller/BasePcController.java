@@ -13,14 +13,18 @@ import org.crow.movie.user.common.util.TokenUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
-public abstract class BaseController {
+public abstract class BasePcController {
 
 	@Resource
 	private RedisService redisService;
 	
 	@Autowired
 	private AdminInfoService adminInfoService;
+
+	@Value("${movie.user.salt}")
+	protected String salt;
 
 	protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 	

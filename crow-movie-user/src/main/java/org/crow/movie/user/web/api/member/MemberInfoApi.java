@@ -156,7 +156,7 @@ public class MemberInfoApi  extends BaseController{
 			return fail("user is not exists");
 		}
 		
-		String pwd = DigestUtils.encryptMd5(DigestUtils.encryptMd5(password)+salt);
+		String pwd = DigestUtils.encryptMd5(password);
 		mbr.setPassword(pwd);
 		mbr.setCreateIp(getIp(request));
 		mbr = memberInfoService.modify(mbr);

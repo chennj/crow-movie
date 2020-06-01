@@ -1,18 +1,25 @@
 package org.crow.movie.user.web.api.member.pc;
 
 import java.io.UnsupportedEncodingException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.crow.movie.user.common.db.entity.MemberInfo;
+import org.crow.movie.user.common.db.entity.MemberOpen;
 import org.crow.movie.user.common.db.model.ReturnT;
 import org.crow.movie.user.common.db.service.MemberInfoService;
+import org.crow.movie.user.common.db.service.MemberOpenService;
 import org.crow.movie.user.common.util.DigestUtils;
+import org.crow.movie.user.common.util.IPUtil;
 import org.crow.movie.user.common.util.RegexUtil;
 import org.crow.movie.user.common.util.StrUtil;
 import org.crow.movie.user.common.util.TokenUtil;
-import org.crow.movie.user.web.controller.BasePublicController;
+import org.crow.movie.user.web.controller.BasePcController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -23,11 +30,15 @@ import com.alibaba.fastjson.JSONObject;
 
 @RestController
 @RequestMapping(value="pc")
-public class MemberPcApi extends BasePublicController{
+public class MemberPcApi extends BasePcController{
 
 	@Autowired
 	private MemberInfoService memberInfoService;
 	
+	@Autowired
+	private MemberOpenService memberOpenService;
+	
+	@SuppressWarnings("deprecation")
 	@RequestMapping(value="login-account", method=RequestMethod.POST)
 	public ReturnT<?> loginAccount(
 			HttpServletRequest request, 
@@ -77,14 +88,21 @@ public class MemberPcApi extends BasePublicController{
 		
 		member.setToken(DigestUtils.random(32));
 		member.setUpdateTime(now());
-		if (StrUtil.isEmpty(member.getDeviceId())){
-			String 
-			sql = "insert into hg_member_message (message_type,member_id,title,content,is_read,create_time)  select '2',"
-				+ member.getId()+","
-				+ "title,content,'1',create_time from hg_app_notice where status=1";
-			memberInfoService.execNativeSql(sql, new Object[]{});
-		}
+		member.setUpdateTime(now());
 		memberInfoService.modify(member);
+		
+		MemberOpen memberOpen = new MemberOpen();
+		memberOpen.setMemberId(member.getId());
+		memberOpen.setDeviceId(null);
+		memberOpen.setDeviceType("PC");
+		memberOpen.setCreateIp(IPUtil.getClientIp(request));
+		memberOpen.setCreateTime(now());
+		try {
+			memberOpen.setCreateDate(new SimpleDateFormat().parse("yyyy-MM-dd"));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		memberOpenService.add(memberOpen);
 		
 		JSONObject jRet = new JSONObject();
 		jRet.put("user_id", member.getId());
