@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class MemberPromoPublicApi extends BasePublicController{
 
 	@Autowired
-	MemberPromoService memberPromoService;
+	private MemberPromoService memberPromoService;
 	
 	@RequestMapping(value="action", method=RequestMethod.POST)
 	public ReturnT<?> action(HttpServletRequest request,

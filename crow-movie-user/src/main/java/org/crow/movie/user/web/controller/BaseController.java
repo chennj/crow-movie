@@ -28,8 +28,6 @@ public abstract class BaseController {
 
 	protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
-	protected int isVip = 2;
-	
 	/**
 	 * 用于根据token获取admin用户
 	 * @param request
@@ -107,6 +105,22 @@ public abstract class BaseController {
 		String cache_mobile 	= deviceid+"_mobile";
 		String cache_sms_code 	= deviceid+"_sms_code";
 		redisService.del(cache_mobile,cache_sms_code);
+	}
+	
+	protected boolean checkRandomCode(String deviceid, String verifyCode){
+		
+		String cache_random_code = deviceid+"_random_code";
+		if (verifyCode.equals(redisService.get(cache_random_code))){
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	protected void delRandomCode(String deviceid){
+		
+		String cache_random_code = deviceid+"_random_code";
+		redisService.del(cache_random_code);
 	}
 	
 	protected int now(){

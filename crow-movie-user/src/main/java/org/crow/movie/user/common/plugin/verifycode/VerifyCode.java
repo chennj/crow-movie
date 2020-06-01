@@ -6,10 +6,10 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.Random;
 
-import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+
+import org.crow.movie.user.common.db.model.BaseTypeWrapper;
 
 public class VerifyCode {
 
@@ -21,7 +21,7 @@ public class VerifyCode {
     
     private String randomString = "0123456789abcdefghijklmnopqrstuvwxyz";
     
-    private final String sessionKey = "VERIFYCODE-KEY";
+    //private final String sessionKey = "VERIFYCODE-KEY";
     
     
     /*
@@ -82,8 +82,8 @@ public class VerifyCode {
     /*
      *  生成随机图片
      */
-     public void getRandomCodeImage(HttpServletRequest request, HttpServletResponse response) {
-        HttpSession session = request.getSession();
+     public BufferedImage getRandomCodeImage(HttpServletRequest request, HttpServletResponse response, BaseTypeWrapper<String> returnObj) {
+        //HttpSession session = request.getSession();
         // BufferedImage类是具有缓冲区的Image类,Image类是用于描述图像信息的类
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_BGR);
         Graphics g = image.getGraphics();
@@ -102,20 +102,21 @@ public class VerifyCode {
             random_string = drawString(g, random_string, i);
         }
         
+        returnObj.setT(random_string);
         System.out.println(random_string);
         
         g.dispose();
         
-        session.removeAttribute(sessionKey);
-        session.setAttribute(sessionKey, random_string);
+        //session.removeAttribute(sessionKey);
+        //session.setAttribute(sessionKey, random_string);
         
         //String base64String = "";
-        try {
-            //  直接返回图片
-           ImageIO.write(image, "PNG", response.getOutputStream());   
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        //try {
+        //    //  直接返回图片
+        //   ImageIO.write(image, "PNG", response.getOutputStream());            
+        //} catch (Exception e) {
+        //    e.printStackTrace();
+        //}
+        return image;
     }
 }

@@ -1,6 +1,7 @@
 package org.crow.movie.user.common;
 
 import java.io.FileNotFoundException;
+import java.util.UUID;
 
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ResourceUtils;
@@ -33,6 +34,7 @@ public class SomeTest {
 		//String ts = String.valueOf(l);
 		//int i = Integer.valueOf(ts.substring(0,ts.length()-3));
 		//long l1 = Long.valueOf(String.valueOf(i)+"000");
-		//System.out.println("long<=>string<=>int<=>long："+l+"<=>"+ts+"<=>"+i+"<=>"+l1);		
+		//System.out.println("long<=>string<=>int<=>long："+l+"<=>"+ts+"<=>"+i+"<=>"+l1);	
+		System.out.println("uuid:"+UUID.randomUUID().toString().replace("-", ""));
 	}
 }

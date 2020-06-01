@@ -26,7 +26,7 @@ import com.alibaba.fastjson.JSONObject;
 public class MemberLikeApi extends BaseController{
 
 	@Autowired
-	MemberLikeService memberLikeService;
+	private MemberLikeService memberLikeService;
 	
 	/**
 	 * 搜索统计

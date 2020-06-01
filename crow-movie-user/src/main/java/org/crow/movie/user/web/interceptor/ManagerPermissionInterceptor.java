@@ -91,12 +91,16 @@ public class ManagerPermissionInterceptor extends HandlerInterceptorAdapter{
 		Permission permission 	= method.getMethodAnnotation(Permission.class);
 		if (permission == null || permission.managerLimit()){
 			
+			String referer 	= request.getHeader("Referer");
+			String host 	= request.getServerName();
+			
 			// 检查ip地址白名单
 			boolean ajaxFlag 	= "XMLHttpRequest".equalsIgnoreCase(request.getHeader("x-requested-with"));
 			String clientIp 	= IPUtil.getClientIp(request);
+			//String clientIp		= host.substring(host.indexOf("://")+3);
 			if (!ipAddrs.contains(clientIp)){
 				
-				return InterceptorFunc.FAIL(response,"{\"code\":\"404\",\"msg\":\"ip:"+clientIp+" 不在白名单内\"}");
+				return InterceptorFunc.FAIL(response,"{\"code\":\"404\",\"msg\":\"host:"+clientIp+" 不在白名单内\"}");
 			}
 
 			// referer 拦截器防御CSRF攻击
@@ -114,8 +118,6 @@ public class ManagerPermissionInterceptor extends HandlerInterceptorAdapter{
 			// 登录受信任站点 A，并在本地生成cookie；
 			// 在不登出站点A（清除站点A的cookie）的情况下，访问恶意站点B。
 			
-			String referer 	= request.getHeader("Referer");
-			String host 	= request.getServerName();
 			if (referer == null){
 				if (!"yes".equalsIgnoreCase(allowEmpty)){
 					if (ajaxFlag){

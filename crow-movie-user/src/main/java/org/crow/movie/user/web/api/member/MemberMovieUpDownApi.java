@@ -27,7 +27,7 @@ import com.alibaba.fastjson.JSONObject;
 public class MemberMovieUpDownApi extends BaseController{
 
 	@Autowired
-	MemberMovieUpDownService memberMovieUpDownService;
+	private MemberMovieUpDownService memberMovieUpDownService;
 	
 	/**
 	 * 搜索统计

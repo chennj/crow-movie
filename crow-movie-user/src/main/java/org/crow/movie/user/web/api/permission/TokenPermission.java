@@ -16,16 +16,15 @@ import org.crow.movie.user.web.annotation.Permission;
 import org.crow.movie.user.web.controller.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSONObject;
 
 
-@Controller
+@RestController
 @RequestMapping("/token")
 @Permission(memberLimit=false,managerLimit=false)
 public class TokenPermission extends BaseController{
@@ -37,13 +36,12 @@ public class TokenPermission extends BaseController{
 	private String salt;
 
 	@Autowired
-	MemberInfoService memberInfoService;
+	private MemberInfoService memberInfoService;
 	
 	@Autowired
-	AdminInfoService adminInfoService;
+	private AdminInfoService adminInfoService;
 	
 	@RequestMapping(value="/private", method=RequestMethod.POST)
-	@ResponseBody
 	public ReturnT<?> getToken(
 			HttpServletRequest request, 
 			HttpServletResponse response,
@@ -68,15 +66,13 @@ public class TokenPermission extends BaseController{
 			return fail("密码错误");
 		}
 		
-		String token = TokenUtil.genToken(admin.getUsername(), admin.getId());
-		
-		JSONObject jret = new JSONObject();
-		jret.put("accessToken", token);
-		return success(jret);
+		JSONObject jRet = new JSONObject();
+		jRet.put("user_id", admin.getId());
+		jRet.put("accessToken", TokenUtil.genToken(admin.getUsername(), admin.getId()));
+		return success(jRet);
 	}
 
 	@RequestMapping(value="/public", method=RequestMethod.POST)
-	@ResponseBody
 	public ReturnT<?> getPublicToken(
 			@RequestParam(required = true) String username,
 			@RequestParam(required = true) String password){
@@ -105,10 +101,9 @@ public class TokenPermission extends BaseController{
 			return fail("密码错误");
 		}
 		
-		String token = TokenUtil.genToken(userInfo.getAccount(), userInfo.getId());
-		
-		JSONObject jret = new JSONObject();
-		jret.put("accessToken", token);
-		return success(jret);
+		JSONObject jRet = new JSONObject();
+		jRet.put("user_id", userInfo.getId());
+		jRet.put("accessToken", TokenUtil.genToken(userInfo.getAccount(), userInfo.getId()));
+		return success(jRet);
 	}
 }

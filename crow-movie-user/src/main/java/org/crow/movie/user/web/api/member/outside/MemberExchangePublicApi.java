@@ -11,8 +11,6 @@ import org.crow.movie.user.common.db.model.ReturnT;
 import org.crow.movie.user.common.db.service.AppExchangeService;
 import org.crow.movie.user.common.db.service.AppVipService;
 import org.crow.movie.user.common.db.service.MemberExchangeService;
-import org.crow.movie.user.common.db.service.MemberInfoService;
-import org.crow.movie.user.common.db.service.MemberVipService;
 import org.crow.movie.user.common.util.RegexUtil;
 import org.crow.movie.user.common.util.StrUtil;
 import org.crow.movie.user.web.controller.BasePublicController;
@@ -29,19 +27,13 @@ import com.alibaba.fastjson.JSONObject;
 public class MemberExchangePublicApi extends BasePublicController{
 
 	@Autowired
-	MemberExchangeService memberExchangeService;
+	private MemberExchangeService memberExchangeService;
 	
 	@Autowired
-	MemberVipService memberVipService;
+	private AppVipService appVipService;
 	
 	@Autowired
-	MemberInfoService memberInfoService;
-	
-	@Autowired
-	AppVipService appVipService;
-	
-	@Autowired
-	AppExchangeService appExchangeService;
+	private AppExchangeService appExchangeService;
 	
 	/**
 	 * 兑换

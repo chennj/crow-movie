@@ -22,7 +22,7 @@ import com.alibaba.fastjson.JSONObject;
 public class MemberExchangeApi extends BaseController{
 
 	@Autowired
-	MemberExchangeService memberExchangeService;
+	private MemberExchangeService memberExchangeService;
 	
 	/**
 	 * 搜索统计

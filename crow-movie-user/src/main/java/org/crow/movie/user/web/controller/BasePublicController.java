@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.crow.movie.user.common.cache.FixedCache;
@@ -18,6 +19,7 @@ import org.crow.movie.user.common.db.entity.AppAdv;
 import org.crow.movie.user.common.db.entity.MemberInfo;
 import org.crow.movie.user.common.db.model.ReturnT;
 import org.crow.movie.user.common.db.service.MemberInfoService;
+import org.crow.movie.user.common.plugin.redis.RedisService;
 import org.crow.movie.user.common.util.MapUtil;
 import org.crow.movie.user.common.util.Php2JavaUtil;
 import org.crow.movie.user.common.util.CommUtil;
@@ -35,6 +37,9 @@ public abstract class BasePublicController {
 
 	@Autowired
 	private MemberInfoService memberInfoService;
+
+	@Resource
+	private RedisService redisService;
 
 	protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
@@ -184,4 +189,48 @@ public abstract class BasePublicController {
 		
 		return adv_map;
 	}
+	
+	protected void setSmsCode(String mobile, String deviceid, String code){
+		
+		String cache_mobile 	= deviceid+"_mobile";
+		String cache_sms_code 	= deviceid+"_sms_code";
+		redisService.set(cache_mobile, mobile, 600);
+		redisService.set(cache_sms_code, code, 600);
+	}
+	
+	protected boolean checkSmsCode(String mobile, String deviceid, String verifyCode){
+		
+		String cache_mobile 	= deviceid+"_mobile";
+		String cache_sms_code 	= deviceid+"_sms_code";
+		
+		if(mobile.equals(redisService.get(cache_mobile)) && verifyCode.equals(redisService.get(cache_sms_code))){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	protected void delSmsCode(String deviceid){
+		
+		String cache_mobile 	= deviceid+"_mobile";
+		String cache_sms_code 	= deviceid+"_sms_code";
+		redisService.del(cache_mobile,cache_sms_code);
+	}
+	
+	protected boolean checkRandomCode(String deviceid, String verifyCode){
+		
+		String cache_random_code = deviceid+"_random_code";
+		if (verifyCode.equals(redisService.get(cache_random_code))){
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	protected void delRandomCode(String deviceid){
+		
+		String cache_random_code = deviceid+"_random_code";
+		redisService.del(cache_random_code);
+	}
+
 }

@@ -22,7 +22,7 @@ import com.alibaba.fastjson.JSONObject;
 public class MemberClickAdvApi extends BaseController{
 
 	@Autowired
-	MemberClickAdvService memberClickAdvService;
+	private MemberClickAdvService memberClickAdvService;
 	
 	/**
 	 * 搜索统计

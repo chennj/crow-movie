@@ -27,7 +27,7 @@ import com.alibaba.fastjson.JSONObject;
 public class MemberPromoApi extends BaseController{
 
 	@Autowired
-	MemberPromoService memberPromoService;
+	private MemberPromoService memberPromoService;
 	
 	/**
 	 * 搜索统计

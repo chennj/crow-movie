@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class MemberSearchPublicApi extends BasePublicController{
 
 	@Autowired
-	MemberSearchService memberSearchService;
+	private MemberSearchService memberSearchService;
 	
 	/**
 	 * 新增搜索关键字

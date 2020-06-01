@@ -27,7 +27,7 @@ import com.alibaba.fastjson.JSONObject;
 public class MemberHistoryApi extends BaseController{
 
 	@Autowired
-	MemberHistoryService memberHistoryService;
+	private MemberHistoryService memberHistoryService;
 	
 	/**
 	 * 搜索统计

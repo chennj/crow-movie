@@ -26,7 +26,7 @@ import com.alibaba.fastjson.JSONObject;
 public class MemberCacheApi extends BaseController{
 
 	@Autowired
-	MemberCacheService memberCacheService;
+	private MemberCacheService memberCacheService;
 	
 	/**
 	 * 搜索统计

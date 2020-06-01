@@ -230,4 +230,9 @@ public abstract class AbstractBaseService<T> {
 	public void modifyList(List<T> list){
 		baseDao.batchUpdate(list);
 	}
+	
+	public void execNativeSql(String sql, Object...objects){
+		
+		baseDao.executeNative(sql, objects);
+	}
 }

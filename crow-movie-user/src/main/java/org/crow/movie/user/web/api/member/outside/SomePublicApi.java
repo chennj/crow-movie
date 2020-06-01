@@ -43,19 +43,19 @@ import com.alibaba.fastjson.JSONObject;
 public class SomePublicApi extends BasePublicController{
 	
 	@Autowired
-	AppQuestionsService appQuestionsService;
+	private AppQuestionsService appQuestionsService;
 	
 	@Autowired
-	MemberMessageService memberMessageService;
+	private MemberMessageService memberMessageService;
 
 	@Autowired
-	MemberLikeService memberLikeService;
+	private MemberLikeService memberLikeService;
 	
 	@Autowired
-	MemberCacheService memberCacheService;
+	private MemberCacheService memberCacheService;
 	
 	@Autowired
-	MemberHistoryService memberHistoryService;
+	private MemberHistoryService memberHistoryService;
 	
 	@RequestMapping(value="question-show", method=RequestMethod.POST)
 	public ReturnT<?> questionShow(HttpServletRequest request,

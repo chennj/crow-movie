@@ -37,7 +37,7 @@ import com.alibaba.fastjson.JSONObject;
 public class MemberFeedbackPublicApi extends BasePublicController{
 
 	@Autowired
-	MemberFeedbackService memberFeedbackService;
+	private MemberFeedbackService memberFeedbackService;
 	
 	@RequestMapping(value="feedback-add", method=RequestMethod.POST)
 	public ReturnT<?> add(HttpServletRequest request,

@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.crow.movie.user.common.ApplicationProperties;
@@ -30,7 +29,6 @@ import org.crow.movie.user.common.db.service.MemberMessageService;
 import org.crow.movie.user.common.db.service.MemberPromoService;
 import org.crow.movie.user.common.db.service.MemberSmsService;
 import org.crow.movie.user.common.plugin.qrcode.QRCodeService;
-import org.crow.movie.user.common.plugin.redis.RedisService;
 import org.crow.movie.user.common.plugin.sms.Sms;
 import org.crow.movie.user.common.util.MapUtil;
 import org.crow.movie.user.common.util.Php2JavaUtil;
@@ -55,9 +53,6 @@ import com.alibaba.fastjson.JSONObject;
 @RequestMapping("/public/mbrinfo")
 @Permission(managerLimit=false)
 public class MemberInfoPublicApi extends BasePublicController{
-
-	@Resource
-	RedisService redisService;
 	
 	@Autowired
 	private MemberInfoService memberInfoService;
@@ -588,17 +583,82 @@ public class MemberInfoPublicApi extends BasePublicController{
 				mmsms.setSendTime(now);
 				memberSmsService.add(mmsms);
 			}
-			String cache_mobile 	= user.getDeviceId()+"_mobile";
-			String cache_sms_code 	= user.getDeviceId()+"_sms_code";
-			
-			redisService.set(cache_mobile, user.getMobile(), 600);
-			redisService.set(cache_sms_code, code, 600);
+			this.setSmsCode(user.getMobile(), user.getDeviceId(), code);
 			
 			return success();
 		}
 		
 		return fail(jres.getString("msg"));
 		
+	}
+
+	@RequestMapping(value="bind-mobile", method=RequestMethod.POST)
+	public ReturnT<?> bindMobile(
+			HttpServletRequest request,
+			@RequestParam(required = true) String mobile,
+			@RequestParam(required = true) String global_area_code,
+			@RequestParam(required = true) String verify_code){
+		
+		String deviceid = request.getHeader("deviceid");
+		if (StrUtil.isEmpty(deviceid)){
+			return fail("请求头没有设备ID");
+		}
+		
+		if (StrUtil.isEmpty(global_area_code)){
+			return fail("区号不能为空");
+		}
+		if (global_area_code.length()<1 || global_area_code.length()>32){
+			return fail("区号长度有误");
+		}
+		if (RegexUtil.isNotNum(global_area_code)){
+			return fail("区号只能是数字");
+		}
+		
+		if (StrUtil.isEmpty(mobile)){
+			return fail("手机号不能为空");
+		}
+		if (mobile.length()<6 || mobile.length()>32){
+			return fail("手机号长度有误");
+		}
+		if (RegexUtil.isNotNum(mobile)){
+			return fail("手机号只能是数字");
+		}
+		
+		if (StrUtil.isEmpty(verify_code)){
+			return fail("验证码不能为空");
+		}
+		if (verify_code.length()<1 || verify_code.length()>10){
+			return fail("验证码长度有误");
+		}
+		if (RegexUtil.isNotNum(verify_code)){
+			return fail("验证码只能是数字");
+		}
+		
+		if (!this.checkSmsCode(mobile, deviceid, verify_code)){
+			return fail("验证码错误");
+		}
+		
+		MemberInfo member = this.getUser();
+		int count = memberInfoService.count("account",mobile);
+		if (count > 0){
+			return fail("手机号已经存在,请直接登录");
+		}
+
+		if (StrUtil.isEmpty(member.getMobile())){
+			AppConfig app_config = FixedCache.appConfigCache();
+			int bind_phone_view_times = app_config.getBindPhoneViewTimes();
+			member.setDayViewTimes(member.getDayViewTimes()+bind_phone_view_times);
+			member.setTodayViewTimes(member.getTodayViewTimes()+bind_phone_view_times);
+			member.setReTodayViewTimes(member.getReTodayViewTimes()+bind_phone_view_times);
+			member.setGlobalAreaCode(global_area_code);
+			member.setMobile(mobile);
+			member.setUpdateTime(now());
+			memberInfoService.modify(member);
+		}
+		
+		this.delSmsCode(deviceid);
+		
+		return success();
 	}
 
 }

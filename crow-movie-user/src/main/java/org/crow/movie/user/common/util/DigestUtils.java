@@ -7,6 +7,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 //import org.apache.commons.codec.binary.Base64;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -129,6 +132,43 @@ public class DigestUtils {
 			//return keyc + new String(Base64.encodeBase64(result.toString().getBytes())).replaceAll("=", "");
 			return keyc + new String(Base64.getEncoder().encode(bsencode)).replaceAll("=", "");
 		}
+	}
+	
+	public static String random(Object...objects){
+		
+		int length = 6;
+		String type = "string";
+		
+		if (objects.length == 1){
+			length = CommUtil.o2i(objects[0]);
+		}
+		
+		if (objects.length == 2){
+			length = CommUtil.o2i(objects[0]);
+			type = objects[1].toString();
+		}
+		
+		Map<String, String> config = new HashMap<String, String>(){
+			private static final long serialVersionUID = 1L;
+			{
+				this.put("number", "1234567890");
+				this.put("lower", "abcdefghijklmnopqrstuvwxyz");
+				this.put("upper", "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+				this.put("upper_number", "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890");
+				this.put("letter", "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+				this.put("string", "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890");
+			}
+		};
+		
+		String str = config.get(type);
+		StringBuilder code = new StringBuilder();
+		Random rand = new Random();
+		int len = str.length() - 1;
+		for (int i = 0; i < length; i++) {
+			code.append(str.charAt(rand.nextInt(len)));
+		}
+		
+		return code.toString();
 	}
 	
 	public static void main(String[] args) throws UnsupportedEncodingException{

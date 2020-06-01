@@ -25,7 +25,7 @@ import com.alibaba.fastjson.JSONObject;
 public class MemberFeedbackApi extends BaseController{
 
 	@Autowired
-	MemberFeedbackService memberFeedbackService;
+	private MemberFeedbackService memberFeedbackService;
 	
 	/**
 	 * 搜索统计

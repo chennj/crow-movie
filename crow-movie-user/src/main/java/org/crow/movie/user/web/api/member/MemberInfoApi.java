@@ -39,10 +39,10 @@ import com.alibaba.fastjson.TypeReference;
 public class MemberInfoApi  extends BaseController{
 
 	@Autowired
-	MemberInfoService memberInfoService;
+	private MemberInfoService memberInfoService;
 	
 	@Autowired
-	AppLevelService appLevelService;
+	private AppLevelService appLevelService;
 	
 	/**
 	 * 搜索-统计
