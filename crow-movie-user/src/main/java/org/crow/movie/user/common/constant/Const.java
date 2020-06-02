@@ -47,8 +47,6 @@ public interface Const {
 	Long TS_AUTO_FIND_APPLEVEL_LIST = (long) (60 * 1000);
 	Long TS_AUTO_FIND_APPADV = (long) (60 * 1000);
 	
-	String FILE_UPLOADED_FOLDER = "/uploads/feedback/";
-	
 	/*****************配置文件************************/
 	String CONFIG_COMMON_FILE = "appCfg/movie-user-common.properties";
 	String EXCLUDE_URL = "movie.user.excludeUrl";

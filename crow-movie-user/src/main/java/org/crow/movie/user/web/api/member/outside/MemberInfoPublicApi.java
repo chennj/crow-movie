@@ -14,7 +14,6 @@ import java.util.Random;
 import javax.servlet.http.HttpServletRequest;
 
 import org.crow.movie.user.common.cache.FixedCache;
-import org.crow.movie.user.common.constant.Const;
 import org.crow.movie.user.common.db.entity.AppAdv;
 import org.crow.movie.user.common.db.entity.AppConfig;
 import org.crow.movie.user.common.db.entity.AppLevel;
@@ -278,9 +277,9 @@ public class MemberInfoPublicApi extends BasePublicController{
 		try {
             // Get the file and save it somewhere
             byte[] bytes = file.getBytes();
-            Path path = Paths.get(Const.FILE_UPLOADED_FOLDER + "/avatar/" + file.getOriginalFilename());
+            Path path = Paths.get(appProperties.getFeedback()+ File.separator + file.getOriginalFilename());
             Files.write(path, bytes);
-            user.setAvatar(Const.FILE_UPLOADED_FOLDER + "/avatar/" + file.getOriginalFilename());
+            user.setAvatar(file.getOriginalFilename());
             user.setIsAvatar(1);
             user.setUpdateTime(now());
             memberInfoService.modify(user);

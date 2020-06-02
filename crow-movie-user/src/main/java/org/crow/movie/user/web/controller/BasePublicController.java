@@ -1,5 +1,6 @@
 package org.crow.movie.user.web.controller;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -9,7 +10,6 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.crow.movie.user.common.constant.Const;
 import org.crow.movie.user.common.db.entity.MemberInfo;
 import org.crow.movie.user.common.db.service.MemberInfoService;
 import org.crow.movie.user.common.util.MapUtil;
@@ -92,7 +92,7 @@ public abstract class BasePublicController extends BaseController{
             }
 
             byte[] bytes = file.getBytes();
-            Path path = Paths.get(Const.FILE_UPLOADED_FOLDER + file.getOriginalFilename());
+            Path path = Paths.get(appProperties.getUploadDir() + File.separator + file.getOriginalFilename());
             Files.write(path, bytes);
         }
 

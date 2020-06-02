@@ -1,5 +1,6 @@
 package org.crow.movie.user.web.api.member.outside;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,7 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.assertj.core.util.Arrays;
 import org.crow.movie.user.common.constant.CC;
-import org.crow.movie.user.common.constant.Const;
 import org.crow.movie.user.common.db.Page;
 import org.crow.movie.user.common.db.entity.MemberFeedback;
 import org.crow.movie.user.common.db.entity.MemberInfo;
@@ -71,9 +71,9 @@ public class MemberFeedbackPublicApi extends BasePublicController{
 			try {
 	            // Get the file and save it somewhere
 	            byte[] bytes = file.getBytes();
-	            Path path = Paths.get(Const.FILE_UPLOADED_FOLDER + file.getOriginalFilename());
+	            Path path = Paths.get(appProperties.getFeedback()+ File.separator + file.getOriginalFilename());
 	            Files.write(path, bytes);
-	            entity.setPic(Const.FILE_UPLOADED_FOLDER + file.getOriginalFilename());
+	            entity.setPic(file.getOriginalFilename());
 	        } catch (IOException e) {
 	            return fail(e.getMessage());
 	        }
