@@ -11,9 +11,10 @@ import org.crow.movie.user.common.db.model.ReturnT;
 import org.crow.movie.user.common.db.service.AdminInfoService;
 import org.crow.movie.user.common.db.service.MemberInfoService;
 import org.crow.movie.user.common.util.DigestUtils;
+import org.crow.movie.user.common.util.StrUtil;
 import org.crow.movie.user.common.util.TokenUtil;
 import org.crow.movie.user.web.annotation.Permission;
-import org.crow.movie.user.web.controller.BaseController;
+import org.crow.movie.user.web.controller.BaseAdminController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,7 +28,7 @@ import com.alibaba.fastjson.JSONObject;
 @RestController
 @RequestMapping("/token")
 @Permission(memberLimit=false,managerLimit=false)
-public class TokenPermission extends BaseController{
+public class TokenPermission extends BaseAdminController{
 
 	/**
 	 * 密码加盐
@@ -74,12 +75,22 @@ public class TokenPermission extends BaseController{
 
 	@RequestMapping(value="/public", method=RequestMethod.POST)
 	public ReturnT<?> getPublicToken(
+			HttpServletRequest request,
 			@RequestParam(required = true) String username,
 			@RequestParam(required = true) String password){
+		
+		String deviceid = request.getHeader("deviceid");
+		if (StrUtil.isEmpty(deviceid)){
+			return fail("请求头缺少设备ID");
+		}
 		
 		MemberInfo userInfo = memberInfoService.getUnique("account", username);
 		if (null == userInfo){
 			return fail("用户不存在");
+		}
+		
+		if (!deviceid.equals(userInfo.getDeviceId())){
+			return fail("请求设备与预留设备不一致");
 		}
 		
 		//String pwd = DigestUtils.encryptMd5(DigestUtils.encryptMd5(password)+salt);

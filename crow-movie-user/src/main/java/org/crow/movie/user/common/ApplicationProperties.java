@@ -16,6 +16,10 @@ public class ApplicationProperties {
     
     private String qrcodeDir;
     
+    private String avatarDir;
+    
+    private String feedback;
+    
 	public List<String> getRefererDomain() {
 		return refererDomain;
 	}
@@ -38,6 +42,22 @@ public class ApplicationProperties {
 
 	public void setQrcodeDir(String qrcodeDir) {
 		this.qrcodeDir = qrcodeDir;
+	}
+
+	public String getAvatarDir() {
+		return avatarDir;
+	}
+
+	public void setAvatarDir(String avatarDir) {
+		this.avatarDir = avatarDir;
+	}
+
+	public String getFeedback() {
+		return feedback;
+	}
+
+	public void setFeedback(String feedback) {
+		this.feedback = feedback;
 	}
 	
 }

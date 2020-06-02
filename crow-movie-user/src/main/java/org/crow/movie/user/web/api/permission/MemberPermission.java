@@ -1,27 +1,31 @@
 package org.crow.movie.user.web.api.permission;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.annotation.Resource;
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.crow.movie.user.common.cache.FixedCache;
 import org.crow.movie.user.common.db.entity.AppConfig;
-import org.crow.movie.user.common.db.entity.AppLevel;
 import org.crow.movie.user.common.db.entity.MemberInfo;
-import org.crow.movie.user.common.db.entity.MemberPromo;
+import org.crow.movie.user.common.db.entity.MemberOpen;
+import org.crow.movie.user.common.db.entity.WebReg;
 import org.crow.movie.user.common.db.model.BaseTypeWrapper;
 import org.crow.movie.user.common.db.model.ReturnT;
 import org.crow.movie.user.common.db.service.MemberInfoService;
-import org.crow.movie.user.common.db.service.MemberPromoService;
-import org.crow.movie.user.common.plugin.redis.RedisService;
+import org.crow.movie.user.common.db.service.MemberOpenService;
+import org.crow.movie.user.common.db.service.WebRegService;
+import org.crow.movie.user.common.plugin.qrcode.QRCodeService;
 import org.crow.movie.user.common.plugin.verifycode.VerifyCode;
+import org.crow.movie.user.common.util.CommUtil;
 import org.crow.movie.user.common.util.DigestUtils;
 import org.crow.movie.user.common.util.IPUtil;
 import org.crow.movie.user.common.util.RegexUtil;
@@ -46,16 +50,16 @@ public class MemberPermission extends BaseController{
 	private MemberInfoService memberInfoService;
 	
 	@Autowired
-	private MemberPromoService memberPromoService;
-	
-	@Resource
-	private RedisService redisService;
-	
+	private WebRegService webRegService;
+
+	@Autowired
+    private QRCodeService qrCodeService;	
+
+	@Autowired
+	private MemberOpenService memberOpenService;
+
 	@RequestMapping("isAlive")
     public String isAlive() {
-		
-		//Page<MemberInfo> page = memberInfoService.page(1, 10, null);
-		//return page.toJsonString();
 		return "isAlive";
     }
 	
@@ -383,10 +387,9 @@ public class MemberPermission extends BaseController{
 		return success();
 		*/
 		
-		String deviceid = request.getHeader("deviceid");
-		//if (StrUtil.isEmpty(deviceid)){
-		//	return fail("请求头没有设备ID");
-		//}
+		if (!this.checkDeviceid(request)){
+			return fail("缺少设备ID");
+		}
 		
 		if (StrUtil.isEmpty(account)){
 			return fail("账号不能为空");
@@ -420,7 +423,12 @@ public class MemberPermission extends BaseController{
 			e.printStackTrace();
 			return fail(e.getMessage());
 		}
-		
+
+		String deviceid = this.getDid(request);
+		if (!deviceid.equals(member.getDeviceId())){
+			return fail("与预留设备不一致");
+		}
+
 		if (member.getStatus() == 1){
 			return fail("用户已禁止登录");
 		}
@@ -584,7 +592,12 @@ public class MemberPermission extends BaseController{
 			e.printStackTrace();
 			return fail(e.getMessage());
 		}
-		
+
+		String deviceid = this.getDid(request);
+		if (!deviceid.equals(member.getDeviceId())){
+			return fail("与预留设备不一致");
+		}
+
 		if (member.getStatus() == 1){
 			return fail("用户已禁止登录");
 		}
@@ -634,8 +647,7 @@ public class MemberPermission extends BaseController{
             // 直接返回图片
             BaseTypeWrapper<String> randomString = new BaseTypeWrapper<>();
             BufferedImage randomCodeImage = validateCode.getRandomCodeImage(request, response,randomString);
-            String cache_random_code = request.getHeader("deviceid")+"_random_code";
-    		redisService.del(cache_random_code);
+            this.delRandomCode(request.getHeader("deviceid"));
             ImageIO.write(randomCodeImage, "PNG", response.getOutputStream());
             
         } catch (Exception e) {
@@ -714,33 +726,289 @@ public class MemberPermission extends BaseController{
 		return success(jRet);
 		
 	}
+	
+	@RequestMapping(value="pc/login-account", method=RequestMethod.POST)
+	public ReturnT<?> loginPcAccount(
+			HttpServletRequest request, 
+			HttpServletResponse response, 
+			@RequestParam(required=true)String account, 
+			@RequestParam(required=true)String password){
 		
-	private void promoAction(MemberInfo from_member_info, Integer to_member_id){
-		
-		MemberPromo promo = new MemberPromo();
-		promo.setMemberId(from_member_info.getId());
-		promo.setToMemberId(to_member_id);
-		promo.setCreateTime(now());
-		memberPromoService.add(promo);
-		
-		Map<Integer, AppLevel> app_level = FixedCache.appLevelCache();
-		int promo_per = memberPromoService.count("memberId", from_member_info.getId());
-		
-		AppLevel from_member_level 		= app_level.get(from_member_info.getLevelId());
-		AppLevel from_member_next_level = app_level.get(from_member_info.getLevelId() + 1);
-		if (from_member_level.getPromoLimit() < from_member_next_level.getPromoLimit()){
-			int day_view_times = from_member_next_level.getDayViewTimes();
-			from_member_info.setUpdateTime(now());
-			from_member_info.setDayCacheTimes(from_member_info.getDayCacheTimes()+1);
-			from_member_info.setTodayCacheTimes(from_member_info.getTodayCacheTimes()+1);
-			from_member_info.setReTodayCacheTimes(from_member_info.getReTodayCacheTimes()+1);
-			if (promo_per == from_member_next_level.getPromoLimit()){
-				from_member_info.setLevelId(from_member_next_level.getId());
-				from_member_info.setDayViewTimes(from_member_info.getDayViewTimes()+day_view_times);
-				from_member_info.setTodayViewTimes(from_member_info.getTodayViewTimes()+day_view_times);
-				from_member_info.setReTodayViewTimes(from_member_info.getReTodayViewTimes()+day_view_times);
-			}
-			memberInfoService.modify(from_member_info);
+		if (StrUtil.isEmpty(account)){
+			return fail("账号不能为空");
 		}
+		if (account.length()<6 || account.length()>15){
+			return fail("账号长度有误");
+		}
+		if (RegexUtil.isNotNumOrChar(account)){
+			return fail("账号只能是数字、字母");
+		}
+
+		if (StrUtil.isEmpty(password)){
+			return fail("密码不能为空");
+		}
+		if (password.length()<6 || password.length()>15){
+			return fail("密码长度有误");
+		}
+		if (RegexUtil.isNotNumOrChar(password)){
+			return fail("密码只能是数字、字母");
+		}
+		
+		MemberInfo member = memberInfoService.getUnique("account", account);
+		if (null == member){
+			return fail("用户不存在");
+		}
+		try {
+			if (!password.equals(DigestUtils.decryptPwd(member.getPassword()))){
+				return fail("账号或密码错误");
+			}
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			return fail(e.getMessage());
+		}
+		
+		if (member.getStatus() == 1){
+			return fail("用户已禁止登录");
+		}
+		if (member.getIsVisitor() == 1){
+			return fail("游客禁止登录");
+		}
+		
+		member.setToken(DigestUtils.random(32));
+		member.setUpdateTime(now());
+		member.setUpdateTime(now());
+		memberInfoService.modify(member);
+		
+		MemberOpen memberOpen = new MemberOpen();
+		memberOpen.setMemberId(member.getId());
+		memberOpen.setDeviceId(null);
+		memberOpen.setDeviceType("PC");
+		memberOpen.setCreateIp(IPUtil.getClientIp(request));
+		memberOpen.setCreateTime(now());
+		try {
+			memberOpen.setCreateDate(new SimpleDateFormat().parse("yyyy-MM-dd"));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		memberOpenService.add(memberOpen);
+		
+		if (StrUtil.isEmpty(member.getPromoQrcode())){
+			
+			int width 	= 166;
+			int height 	= 166;
+			
+			String qrcodeDir = appProperties.getQrcodeDir();
+			String uploadDir = appProperties.getUploadDir();
+			String promo_url = CommUtil.getDomain()+"?code=";
+	        
+			String data = promo_url+member.getPromoCode();
+			String imageName = String.format("%d_qr.png", member.getId());
+	        File qrFile = new File(qrcodeDir, imageName);
+	        qrCodeService.encode(data, width, height, qrFile);
+	        
+	        logger.info("生成的二维码文件:{}", qrFile.getAbsolutePath());
+	        
+	        File logoFile = new File(uploadDir, "logo.png");
+	        imageName = String.format("%s_qr_logo.png", member.getId());
+	        File logoQrFile = new File(qrcodeDir, imageName);
+	        qrCodeService.encodeWithLogo(qrFile, logoFile, logoQrFile);
+	        logger.info("生成的带logo二维码文件:{}", logoQrFile.getAbsolutePath());
+	        
+	        String promo_filename = logoQrFile.getName();
+	        member.setPromoQrcode(promo_filename);
+	        memberInfoService.modify(member);
+
+		}
+		JSONObject jRet = new JSONObject();
+		jRet.put("user_id", member.getId());
+		jRet.put("nick_name", member.getNickName());
+		jRet.put("is_visitor", member.getIsVisitor());
+		jRet.put("is_vip", 2);
+		jRet.put("promo_code", member.getPromoCode());
+		jRet.put("promo_qrcode", CommUtil.getHost(member.getPromoQrcode()));
+		jRet.put("promo_url", member.getPromoCode());
+		jRet.put("day_view_times", member.getDayViewTimes());
+		jRet.put("today_view_times", member.getTodayViewTimes());
+		jRet.put("re_today_view_times", member.getReTodayViewTimes());
+		jRet.put("accessToken", TokenUtil.genToken(member.getAccount(), member.getId()));
+		
+		if (member.getExpireTime() > now()){
+			jRet.put("is_vip", 1);
+			jRet.put("expire_time", member.getExpireTime());
+			
+			jRet.put("today_view_times", "无限");
+			jRet.put("re_today_view_times", "无限");
+		}
+		return success(jRet);
+	}
+	
+	@RequestMapping(value="pc/reg", method=RequestMethod.POST)
+	public ReturnT<?> reg(
+			HttpServletRequest request, 
+			HttpServletResponse response, 
+			@RequestParam(required=true)String account, 
+			@RequestParam(required=true)String password,
+			@RequestParam String promo_code){
+		
+		if (StrUtil.isEmpty(account)){
+			return fail("账号不能为空");
+		}
+		if (account.length()<6 || account.length()>15){
+			return fail("账号长度有误");
+		}
+		if (RegexUtil.isNotNumOrChar(account)){
+			return fail("账号只能是数字、字母");
+		}
+
+		if (StrUtil.isEmpty(password)){
+			return fail("密码不能为空");
+		}
+		if (password.length()<6 || password.length()>15){
+			return fail("密码长度有误");
+		}
+		if (RegexUtil.isNotNumOrChar(password)){
+			return fail("密码只能是数字、字母");
+		}
+		
+		if (StrUtil.notEmpty(promo_code) && promo_code.length() != 12){
+			return fail("推广码长度有误");
+		}
+		
+		MemberInfo member = memberInfoService.getUnique("account", account);
+		if (null != member){
+			return fail("账号已经存在");
+		}
+		
+		member = new MemberInfo();
+		
+		AppConfig app_config = FixedCache.appConfigCache();
+		int username_reg_view_times = app_config.getUsernameRegViewTimes();
+		int reg_promo_view_times = app_config.getRegPromoViewTimes();
+		int day_view_times = username_reg_view_times;
+		MemberInfo from_member_info = null;
+		if (StrUtil.notEmpty(promo_code)){
+			from_member_info = memberInfoService.getSingle("promoCode", promo_code);
+			if (null == from_member_info){
+				return fail("推广码有误");
+			}
+			day_view_times += reg_promo_view_times;
+			member.setRegPromoCode(promo_code);
+		}
+		
+		WebReg webReg = new WebReg();
+		webReg.setIp(IPUtil.getClientIp(request));
+		try {
+			webReg.setCreateDate(new SimpleDateFormat().parse("yyyy-MM-dd"));
+		} catch (ParseException e1) {
+			e1.printStackTrace();
+			return fail(e1.getMessage());
+		}
+		try {
+			webRegService.add(webReg);
+		} catch (Exception e){
+			return fail("你今日已注册");
+		}
+		
+		member.setAccount(account);
+		member.setNickName(account);
+		member.setPassword(DigestUtils.encryptPwd(password));
+		member.setLevelId(1);
+		member.setDayViewTimes(day_view_times);
+		member.setTodayViewTimes(day_view_times);
+		member.setReTodayViewTimes(day_view_times);
+		member.setDayCacheTimes(0);
+		member.setTodayCacheTimes(0);
+		member.setReTodayCacheTimes(0);
+		member.setIsVisitor(2);
+		member.setToken(DigestUtils.random(32));
+		member.setCreateIp(IPUtil.getClientIp(request));
+		member.setCreateAddr("");
+		member.setCreateTime(now());
+		member.setPromoCode(DigestUtils.random(12,"upper_number"));
+		
+		boolean isReg = false;
+		for(int i=0; i<3; i++){
+			//最多执行三次次
+			try {
+				member = memberInfoService.add(member);
+				isReg = true;
+				break;
+			} catch (Exception e){
+				member.setPromoCode(DigestUtils.random(12,"upper_number"));
+				continue;
+			} 
+		}
+		
+		if (!isReg){
+			return fail("注册失败:系统繁忙，稍后再试");
+		}
+		
+		if (null != from_member_info){
+			this.promoAction(from_member_info, member.getId());
+		}
+
+		if (StrUtil.isEmpty(member.getPromoQrcode())){
+			
+			int width 	= 166;
+			int height 	= 166;
+			
+			String qrcodeDir = appProperties.getQrcodeDir();
+			String uploadDir = appProperties.getUploadDir();
+			String promo_url = CommUtil.getDomain()+"?code=";
+	        
+			String data = promo_url+member.getPromoCode();
+			String imageName = String.format("%d_qr.png", member.getId());
+	        File qrFile = new File(qrcodeDir, imageName);
+	        qrCodeService.encode(data, width, height, qrFile);
+	        
+	        logger.info("生成的二维码文件:{}", qrFile.getAbsolutePath());
+	        
+	        File logoFile = new File(uploadDir, "logo.png");
+	        imageName = String.format("%s_qr_logo.png", member.getId());
+	        File logoQrFile = new File(qrcodeDir, imageName);
+	        qrCodeService.encodeWithLogo(qrFile, logoFile, logoQrFile);
+	        logger.info("生成的带logo二维码文件:{}", logoQrFile.getAbsolutePath());
+	        
+	        String promo_filename = logoQrFile.getName();
+	        member.setPromoQrcode(promo_filename);
+	        memberInfoService.modify(member);
+
+		}
+		JSONObject jRet = new JSONObject();
+		jRet.put("user_id", member.getId());
+		jRet.put("nick_name", member.getNickName());
+		jRet.put("is_visitor", member.getIsVisitor());
+		jRet.put("is_vip", 2);
+		jRet.put("promo_code", member.getPromoCode());
+		jRet.put("promo_qrcode", CommUtil.getHost(member.getPromoQrcode()));
+		jRet.put("promo_url", member.getPromoCode());
+		jRet.put("day_view_times", member.getDayViewTimes());
+		jRet.put("today_view_times", member.getTodayViewTimes());
+		jRet.put("re_today_view_times", member.getReTodayViewTimes());
+		jRet.put("accessToken", TokenUtil.genToken(member.getAccount(), member.getId()));
+		
+		if (member.getExpireTime() > now()){
+			jRet.put("is_vip", 1);
+			jRet.put("expire_time", member.getExpireTime());
+			
+			jRet.put("today_view_times", "无限");
+			jRet.put("re_today_view_times", "无限");
+		}
+		return success(jRet);
+	}
+	
+	@RequestMapping(value="pc/visitor-info", method=RequestMethod.POST)
+	public ReturnT<?> visitorInfo(){
+		
+		AppConfig app_config = FixedCache.appConfigCache();
+		JSONObject jRet = new JSONObject();
+		
+		jRet.put("is_visitor", 1);
+		jRet.put("is_vip", 2);
+		jRet.put("day_view_times", app_config.getPcVisitorRegViewTimes());
+		jRet.put("today_view_times", app_config.getPcVisitorRegViewTimes());
+		jRet.put("re_today_view_times", app_config.getPcVisitorRegViewTimes());
+		
+		return success(jRet);
 	}
 }

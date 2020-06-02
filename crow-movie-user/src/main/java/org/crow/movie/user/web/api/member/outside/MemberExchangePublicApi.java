@@ -13,6 +13,7 @@ import org.crow.movie.user.common.db.service.AppVipService;
 import org.crow.movie.user.common.db.service.MemberExchangeService;
 import org.crow.movie.user.common.util.RegexUtil;
 import org.crow.movie.user.common.util.StrUtil;
+import org.crow.movie.user.web.annotation.Permission;
 import org.crow.movie.user.web.controller.BasePublicController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +25,7 @@ import com.alibaba.fastjson.JSONObject;
 
 @RestController
 @RequestMapping("/public/mbrexchange")
+@Permission(managerLimit=false)
 public class MemberExchangePublicApi extends BasePublicController{
 
 	@Autowired

@@ -8,3 +8,5 @@ my:
             - mxspvip.cn
         uploadDir: ${user.dir}/../uploads
         qrcodeDir: ${user.dir}/../uploads/qrcode
+        avatarDir: ${user.dir}/../uploads/avatar
+        feedbackDir:${user.dir}/../uploads/feedback

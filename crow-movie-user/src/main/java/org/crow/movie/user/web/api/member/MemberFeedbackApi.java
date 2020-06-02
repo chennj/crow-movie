@@ -11,7 +11,7 @@ import org.crow.movie.user.common.db.model.ReturnT;
 import org.crow.movie.user.common.db.service.MemberFeedbackService;
 import org.crow.movie.user.common.util.Php2JavaUtil;
 import org.crow.movie.user.common.util.StrUtil;
-import org.crow.movie.user.web.controller.BaseController;
+import org.crow.movie.user.web.controller.BaseAdminController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -22,7 +22,7 @@ import com.alibaba.fastjson.JSONObject;
 
 @RestController
 @RequestMapping("/mbrfeedback")
-public class MemberFeedbackApi extends BaseController{
+public class MemberFeedbackApi extends BaseAdminController{
 
 	@Autowired
 	private MemberFeedbackService memberFeedbackService;

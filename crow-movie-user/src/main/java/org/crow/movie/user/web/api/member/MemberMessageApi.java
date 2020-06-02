@@ -2,7 +2,7 @@ package org.crow.movie.user.web.api.member;
 
 import org.crow.movie.user.common.constant.CC;
 import org.crow.movie.user.common.db.model.ReturnT;
-import org.crow.movie.user.web.controller.BaseController;
+import org.crow.movie.user.web.controller.BaseAdminController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/mbrmessage")
-public class MemberMessageApi extends BaseController{	
+public class MemberMessageApi extends BaseAdminController{	
 	
 	@RequestMapping(value="feedback-type", method=RequestMethod.POST)
 	public ReturnT<?> feedbackType(){

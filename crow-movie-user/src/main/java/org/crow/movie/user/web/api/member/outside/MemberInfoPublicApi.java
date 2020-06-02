@@ -13,7 +13,6 @@ import java.util.Random;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.crow.movie.user.common.ApplicationProperties;
 import org.crow.movie.user.common.cache.FixedCache;
 import org.crow.movie.user.common.constant.Const;
 import org.crow.movie.user.common.db.entity.AppAdv;
@@ -74,9 +73,6 @@ public class MemberInfoPublicApi extends BasePublicController{
 	
 	@Autowired
 	private MemberSmsService memberSmsService;
-	
-	@Autowired
-    private ApplicationProperties appProperties;
 	
 
 	/**

@@ -21,6 +21,7 @@ import org.crow.movie.user.common.db.service.MemberLikeService;
 import org.crow.movie.user.common.db.service.MemberMessageService;
 import org.crow.movie.user.common.util.CommUtil;
 import org.crow.movie.user.common.util.StrUtil;
+import org.crow.movie.user.web.annotation.Permission;
 import org.crow.movie.user.web.controller.BasePublicController;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,7 @@ import com.alibaba.fastjson.JSONObject;
  */
 @RestController
 @RequestMapping("/public/some")
+@Permission(managerLimit=false)
 public class SomePublicApi extends BasePublicController{
 	
 	@Autowired

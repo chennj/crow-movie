@@ -18,7 +18,7 @@ import org.crow.movie.user.common.util.DigestUtils;
 import org.crow.movie.user.common.util.Php2JavaUtil;
 import org.crow.movie.user.common.util.CommUtil;
 import org.crow.movie.user.common.util.StrUtil;
-import org.crow.movie.user.web.controller.BaseController;
+import org.crow.movie.user.web.controller.BaseAdminController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -36,7 +36,7 @@ import com.alibaba.fastjson.TypeReference;
  */
 @RestController
 @RequestMapping("/mbrinfo")
-public class MemberInfoApi  extends BaseController{
+public class MemberInfoApi  extends BaseAdminController{
 
 	@Autowired
 	private MemberInfoService memberInfoService;

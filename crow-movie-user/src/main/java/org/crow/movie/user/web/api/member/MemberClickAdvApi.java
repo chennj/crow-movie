@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.crow.movie.user.common.db.model.ReturnT;
 import org.crow.movie.user.common.db.service.MemberClickAdvService;
 import org.crow.movie.user.common.util.StrUtil;
-import org.crow.movie.user.web.controller.BaseController;
+import org.crow.movie.user.web.controller.BaseAdminController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -19,7 +19,7 @@ import com.alibaba.fastjson.JSONObject;
 
 @RestController
 @RequestMapping("/mbrclkadv")
-public class MemberClickAdvApi extends BaseController{
+public class MemberClickAdvApi extends BaseAdminController{
 
 	@Autowired
 	private MemberClickAdvService memberClickAdvService;

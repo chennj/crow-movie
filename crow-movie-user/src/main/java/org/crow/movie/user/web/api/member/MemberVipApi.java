@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.crow.movie.user.common.db.model.ReturnT;
 import org.crow.movie.user.common.db.service.MemberVipService;
-import org.crow.movie.user.web.controller.BaseController;
+import org.crow.movie.user.web.controller.BaseAdminController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -23,7 +23,7 @@ import com.alibaba.fastjson.JSONObject;
  */
 @RestController
 @RequestMapping("/mbrvip")
-public class MemberVipApi extends BaseController{
+public class MemberVipApi extends BaseAdminController{
 
 	@Autowired
 	private MemberVipService memberVipService;

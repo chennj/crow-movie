@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.crow.movie.user.common.db.model.ReturnT;
 import org.crow.movie.user.common.db.service.MemberOpenService;
 import org.crow.movie.user.common.util.StrUtil;
-import org.crow.movie.user.web.controller.BaseController;
+import org.crow.movie.user.web.controller.BaseAdminController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -24,7 +24,7 @@ import com.alibaba.fastjson.JSONObject;
  */
 @RestController
 @RequestMapping("/mbropen")
-public class MemberOpenApi extends BaseController{
+public class MemberOpenApi extends BaseAdminController{
 
 	@Autowired
 	private MemberOpenService memberOpenService;

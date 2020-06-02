@@ -12,7 +12,7 @@ import org.crow.movie.user.common.db.model.ReturnT;
 import org.crow.movie.user.common.db.service.MemberCacheService;
 import org.crow.movie.user.common.util.CommUtil;
 import org.crow.movie.user.common.util.StrUtil;
-import org.crow.movie.user.web.controller.BaseController;
+import org.crow.movie.user.web.controller.BaseAdminController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -23,7 +23,7 @@ import com.alibaba.fastjson.JSONObject;
 
 @RestController
 @RequestMapping("/mbrcache")
-public class MemberCacheApi extends BaseController{
+public class MemberCacheApi extends BaseAdminController{
 
 	@Autowired
 	private MemberCacheService memberCacheService;
