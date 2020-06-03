@@ -6,6 +6,8 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
 //@SpringBootApplication
 /**
 * 多数据源配置：
@@ -25,6 +27,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 })
 @ComponentScan(basePackages = {"org.crow.movie.user"})
 @EnableJpaAuditing
+@EnableSwagger2
 public class App 
 {
   public static void main( String[] args )

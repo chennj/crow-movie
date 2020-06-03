@@ -41,9 +41,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSONObject;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
 @RestController
 @RequestMapping("/noAuth")
 @Permission(memberLimit=false,managerLimit=false)
+@Api(tags = "客户注册访问相关接口")
 public class MemberPermission extends BaseController{
 
 	@Autowired
@@ -70,6 +74,7 @@ public class MemberPermission extends BaseController{
 	 * @param allParams
 	 * @return
 	 */
+	@ApiOperation("客户手机注册接口")
 	@RequestMapping(value="register-mobile", method=RequestMethod.POST)
 	public ReturnT<?> registerMobile(HttpServletRequest request, 
 			HttpServletResponse response,
