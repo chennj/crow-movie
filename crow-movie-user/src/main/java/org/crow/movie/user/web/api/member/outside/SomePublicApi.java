@@ -161,6 +161,13 @@ public class SomePublicApi extends BasePublicController{
 		return messageShow(id, 2);
 	}
 	
+	@ApiOperation(value = "客户消息接口", notes="分页查询")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header"),
+		@ApiImplicitParam(name="allParams",value="文档缺陷，不需要填写",required=false,paramType="query"),
+		@ApiImplicitParam(name="page",value="开始页",required=false,paramType="query"),
+		@ApiImplicitParam(name="pageSize",value="页尺寸",required=false,paramType="query")
+	})
 	@RequestMapping(value="message", method=RequestMethod.POST)
 	public ReturnT<?> message(
 			@RequestParam Map<String,Object> allParams){
@@ -185,6 +192,13 @@ public class SomePublicApi extends BasePublicController{
 		return success(jRet);
 	}
 	
+	@ApiOperation(value = "客户通知接口", notes="分页查询")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header"),
+		@ApiImplicitParam(name="allParams",value="文档缺陷，不需要填写",required=false,paramType="query"),
+		@ApiImplicitParam(name="page",value="开始页",required=false,paramType="query"),
+		@ApiImplicitParam(name="pageSize",value="页尺寸",required=false,paramType="query")
+	})
 	@RequestMapping(value="notice", method=RequestMethod.POST)
 	public ReturnT<?> notice(
 			@RequestParam Map<String,Object> allParams){
@@ -209,6 +223,11 @@ public class SomePublicApi extends BasePublicController{
 		return success(jRet);
 	}
 	
+	@ApiOperation(value = "客户通知接口", notes="分页查询")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header"),
+		@ApiImplicitParam(name="ids",value="删除多个用‘，’分隔",required=true,paramType="query")
+	})
 	@RequestMapping(value="like/dels", method=RequestMethod.POST)
 	public ReturnT<?> likeDels(
 			@RequestParam(required = true) String ids){
@@ -247,6 +266,10 @@ public class SomePublicApi extends BasePublicController{
 		}
 	}
 	
+	@ApiOperation(value = "客户爱好接口", notes="分页查询")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header")
+	})
 	@RequestMapping(value="like", method=RequestMethod.POST)
 	public ReturnT<?> like(
 			@RequestParam(required = false,defaultValue = "1") Integer page,
@@ -270,6 +293,11 @@ public class SomePublicApi extends BasePublicController{
 		return success(jRet);
 	}
 	
+	@ApiOperation(value = "客户缓存删除接口", notes="可删除多条")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header"),
+		@ApiImplicitParam(name="ids",value="删除多个用‘，’分隔",required=true,paramType="query")
+	})
 	@RequestMapping(value="cache/dels", method=RequestMethod.POST)
 	public ReturnT<?> cacheDels(
 			@RequestParam(required = true) String ids){
@@ -310,6 +338,11 @@ public class SomePublicApi extends BasePublicController{
 		}
 	}
 	
+	@ApiOperation(value = "客户缓存查询接口", notes="分页查询")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header"),
+		@ApiImplicitParam(name="allParams",value="文档缺陷，不需要填写",required=false,paramType="query")
+	})
 	@RequestMapping(value="cache", method=RequestMethod.POST)
 	public ReturnT<?> cache(HttpServletRequest request,
 			@RequestParam Map<String,Object> allParams){
@@ -343,6 +376,11 @@ public class SomePublicApi extends BasePublicController{
 		return success(jRet);
 	}
 	
+	@ApiOperation(value = "客户历史删除接口", notes="可删除多条")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header"),
+		@ApiImplicitParam(name="ids",value="删除多个用‘，’分隔",required=true,paramType="query")
+	})
 	@RequestMapping(value="history/dels", method=RequestMethod.POST)
 	public ReturnT<?> historyDels(
 			@RequestParam(required = true) String ids){
@@ -379,6 +417,11 @@ public class SomePublicApi extends BasePublicController{
 		}
 	}
 	
+	@ApiOperation(value = "客户历史查询接口", notes="分页查询")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header"),
+		@ApiImplicitParam(name="allParams",value="文档缺陷，不需要填写",required=false,paramType="query")
+	})
 	@RequestMapping(value="history", method=RequestMethod.POST)
 	public ReturnT<?> history(HttpServletRequest request,
 			@RequestParam Map<String,Object> allParams){

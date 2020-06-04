@@ -108,8 +108,8 @@ public class MemberLikeService extends AbstractBaseService<MemberLike> {
 		
 		String
 		sql = 
-			"select like.id,movie.id mid,movie.duration,movie.title,movie.cover from hg_member_like like "
-			+ "inner join hg_app_movie movie on like.movie_id=movie.id "
+			"select mlike.id,movie.id mid,movie.duration,movie.title,movie.cover from hg_member_like mlike "
+			+ "inner join hg_app_movie movie on mlike.movie_id=movie.id "
 			+ "where member_id = ?1";
 		
 		List<Map<String,Object>> list = super.getPageListMap(sql, page, pageSize, memberId);
