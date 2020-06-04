@@ -42,6 +42,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.alibaba.fastjson.JSONObject;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
@@ -74,7 +75,8 @@ public class MemberPermission extends BaseController{
 	 * @param allParams
 	 * @return
 	 */
-	@ApiOperation("客户手机注册接口")
+	@ApiOperation(value = "客户手机注册接口")
+	@ApiImplicitParams({})
 	@RequestMapping(value="register-mobile", method=RequestMethod.POST)
 	public ReturnT<?> registerMobile(HttpServletRequest request, 
 			HttpServletResponse response,
