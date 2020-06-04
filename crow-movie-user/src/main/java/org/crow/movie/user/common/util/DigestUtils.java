@@ -173,7 +173,7 @@ public class DigestUtils {
 	
 	public static void main(String[] args) throws UnsupportedEncodingException{
 		System.out.println("php encode password：\n"+encryptPwd("qqqqqq"));
-		System.out.println("php decode password：\n"+decryptPwd("770e_aAY5aKdE4JNgcgXvpH7Oah5eCYV34OUpKkcbbnDxb9k"));
+		System.out.println("php decode password：\n"+decryptPwd("1b10EyyyC_bqBy2P41l6BVZzWL_bTdJyb22uOnNaEKUtxTxWg"));
 
 		//System.out.println(Php2JavaUtil.chr(48));
 		

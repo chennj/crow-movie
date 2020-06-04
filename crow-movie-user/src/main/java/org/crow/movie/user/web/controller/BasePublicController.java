@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.crow.movie.user.common.db.entity.MemberInfo;
 import org.crow.movie.user.common.db.service.MemberInfoService;
+import org.crow.movie.user.common.plugin.qrcode.QRCodeService;
 import org.crow.movie.user.common.util.MapUtil;
 import org.crow.movie.user.common.util.Php2JavaUtil;
 import org.crow.movie.user.common.util.CommUtil;
@@ -26,6 +27,9 @@ public abstract class BasePublicController extends BaseController{
 
 	@Autowired
 	private MemberInfoService memberInfoService;
+	
+	@Autowired
+	protected QRCodeService qrCodeService;
 	
 	private JSONObject juser = null;
 	
@@ -98,5 +102,31 @@ public abstract class BasePublicController extends BaseController{
 
     }
 	
-
+	protected File genQrcodePng(){
+		
+		int width 	= 166;
+		int height 	= 166;
+		
+		String qrcodeDir = appProperties.getQrcodeDir();
+		String uploadDir = appProperties.getUploadDir();
+		String promo_url = CommUtil.getDomain()+"?code=";
+        
+		String data = promo_url+user.getPromoCode();
+		String imageName = String.format("%d_qr.png", user.getId());
+        File qrFile = new File(qrcodeDir, imageName);
+        qrCodeService.encode(data, width, height, qrFile);
+        
+        logger.info("生成的二维码文件:{}", qrFile.getAbsolutePath());
+        
+        File logoFile = new File(uploadDir, "logo.png");
+        imageName = String.format("%s_qr_logo.png", user.getId());
+        File logoQrFile = new File(qrcodeDir, imageName);
+        qrCodeService.encodeWithLogo(qrFile, logoFile, logoQrFile);
+        logger.info("生成的带logo二维码文件:{}", logoQrFile.getAbsolutePath());
+        
+        String promo_filename = logoQrFile.getName();
+        user.setPromoQrcode(promo_filename);
+        memberInfoService.modify(user);
+        return logoQrFile;
+	}
 }

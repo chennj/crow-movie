@@ -125,10 +125,17 @@ public abstract class BaseController {
 
 		String cache_mobile 	= deviceid+"_mobile";
 		String cache_sms_code 	= deviceid+"_sms_code";
-		redisService.set(cache_mobile, mobile, 600);
-		redisService.set(cache_sms_code, verifyCode, 600);
+		redisService.set(cache_mobile, mobile, 60);
+		redisService.set(cache_sms_code, verifyCode, 60);
 
 	}
+	
+	protected boolean checkSmsCodeIsValid(String mobile, String deviceid){
+		String cache_mobile 	= deviceid+"_mobile";
+		String cache_sms_code 	= deviceid+"_sms_code";
+		return 0<redisService.exists(cache_mobile,cache_sms_code);
+	}
+	
 	protected void setRandomCode(String deviceid,String verifyCode){
 		
 		String cache_random_code = deviceid+"_random_code";

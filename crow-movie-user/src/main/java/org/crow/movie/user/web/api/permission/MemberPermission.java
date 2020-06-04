@@ -24,6 +24,7 @@ import org.crow.movie.user.common.db.service.MemberInfoService;
 import org.crow.movie.user.common.db.service.MemberOpenService;
 import org.crow.movie.user.common.db.service.WebRegService;
 import org.crow.movie.user.common.plugin.qrcode.QRCodeService;
+import org.crow.movie.user.common.plugin.sms.Sms;
 import org.crow.movie.user.common.plugin.verifycode.VerifyCode;
 import org.crow.movie.user.common.util.CommUtil;
 import org.crow.movie.user.common.util.DigestUtils;
@@ -33,22 +34,25 @@ import org.crow.movie.user.common.util.StrUtil;
 import org.crow.movie.user.common.util.TokenUtil;
 import org.crow.movie.user.web.annotation.Permission;
 import org.crow.movie.user.web.controller.BaseController;
+import org.crow.movie.user.web.interceptor.InterceptorFunc;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
 @RequestMapping("/noAuth")
 @Permission(memberLimit=false,managerLimit=false)
-@Api(tags = "客户注册访问相关接口")
+@Api(tags = "客户注册访问相关接口",description="无需token访问接口")
 public class MemberPermission extends BaseController{
 
 	@Autowired
@@ -63,7 +67,8 @@ public class MemberPermission extends BaseController{
 	@Autowired
 	private MemberOpenService memberOpenService;
 
-	@RequestMapping("isAlive")
+	@ApiOperation(value = "系统存活检测接口", notes="可用于心跳检测")
+	@RequestMapping(value="isAlive",method={RequestMethod.POST,RequestMethod.GET})
     public String isAlive() {
 		return "isAlive";
     }
@@ -75,8 +80,15 @@ public class MemberPermission extends BaseController{
 	 * @param allParams
 	 * @return
 	 */
-	@ApiOperation(value = "客户手机注册接口")
-	@ApiImplicitParams({})
+	@ApiOperation(value = "客户手机注册接口",notes="手机号注册")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="deviceid",value="设备ID",required=true,paramType="header"),
+		@ApiImplicitParam(name="global_area_code",value="区号",required=true,paramType="query"),
+		@ApiImplicitParam(name="mobile",value="手机号",required=true,paramType="query"),
+		@ApiImplicitParam(name="password",value="密码",required=true,paramType="query"),
+		@ApiImplicitParam(name="verify_code",value="验证码",required=true,paramType="query"),
+		@ApiImplicitParam(name="promo_code",value="推广码",required=false,paramType="query")
+	})
 	@RequestMapping(value="register-mobile", method=RequestMethod.POST)
 	public ReturnT<?> registerMobile(HttpServletRequest request, 
 			HttpServletResponse response,
@@ -224,6 +236,14 @@ public class MemberPermission extends BaseController{
 	 * @param allParams
 	 * @return
 	 */
+	@ApiOperation(value = "客户手机注册接口", notes="普通账户注册")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="deviceid",value="设备ID",required=true,paramType="header"),
+		@ApiImplicitParam(name="account",value="用户名",required=true,paramType="query"),
+		@ApiImplicitParam(name="password",value="密码",required=true,paramType="query"),
+		@ApiImplicitParam(name="verify_code",value="验证码",required=true,paramType="query"),
+		@ApiImplicitParam(name="promo_code",value="推广码",required=false,paramType="query")
+		})
 	@RequestMapping(value="register-account", method=RequestMethod.POST)
 	public ReturnT<?> registerAccount(
 			HttpServletRequest request, 
@@ -367,6 +387,12 @@ public class MemberPermission extends BaseController{
 	 * @param password
 	 * @return
 	 */
+	@ApiOperation(value = "客户手机登录接口",notes="普通账户登录")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="deviceid",value="设备ID",required=true,paramType="header"),
+		@ApiImplicitParam(name="account",value="用户名",required=true,paramType="query"),
+		@ApiImplicitParam(name="password",value="密码",required=true,paramType="query")
+	})
 	@RequestMapping(value="login-account", method=RequestMethod.POST)
 	public ReturnT<?> loginAccount(
 			HttpServletRequest request, 
@@ -469,6 +495,11 @@ public class MemberPermission extends BaseController{
 	 * @param password
 	 * @return
 	 */
+	@ApiOperation(value = "游客手机登录注册接口", notes="普通账户登录注册")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="deviceid",value="设备ID",required=true,paramType="header"),
+		@ApiImplicitParam(name="password",value="密码",required=true,paramType="query"),
+	})
 	@RequestMapping(value="login-visitor", method=RequestMethod.POST)
 	public ReturnT<?> loginVisitor(
 			HttpServletRequest request, 
@@ -545,6 +576,13 @@ public class MemberPermission extends BaseController{
 	 * @param password
 	 * @return
 	 */
+	@ApiOperation(value = "客户手机登录接口", notes="手机号登录")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="deviceid",value="设备ID",required=true,paramType="header"),
+		@ApiImplicitParam(name="global_area_code",value="区号",required=true,paramType="query"),
+		@ApiImplicitParam(name="mobile",value="手机号",required=true,paramType="query"),
+		@ApiImplicitParam(name="password",value="密码",required=true,paramType="query")
+	})
 	@RequestMapping(value="login-mobile", method=RequestMethod.POST)
 	public ReturnT<?> loginMobile(HttpServletRequest request, 
 			HttpServletResponse response, 
@@ -636,10 +674,15 @@ public class MemberPermission extends BaseController{
 	 * @param request
 	 * @param response
 	 */
-    @RequestMapping("/getVerifyCode")
+	@ApiOperation(value = "客户手机验证码图片接口", notes="客户使用手机号登录/注册时请求改接口", produces="image/png")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="deviceid",value="设备ID",required=true,paramType="header")
+	})
+    @RequestMapping(value = "/getVerifyCode",  method={RequestMethod.POST,RequestMethod.GET})
     public void getCaptcha(HttpServletRequest request, HttpServletResponse response) {
         if (StrUtil.isEmpty(request.getHeader("deviceid"))){
         	logger.error("noAuth.getVerifyCode>>>没有deviceid");
+        	InterceptorFunc.FAIL(response, "noAuth.getVerifyCode>>>没有deviceid");
         	return;
         }
         try {
@@ -654,11 +697,12 @@ public class MemberPermission extends BaseController{
             // 直接返回图片
             BaseTypeWrapper<String> randomString = new BaseTypeWrapper<>();
             BufferedImage randomCodeImage = validateCode.getRandomCodeImage(request, response,randomString);
-            this.delRandomCode(request.getHeader("deviceid"));
+            this.setRandomCode(request.getHeader("deviceid"),randomString.getT());
             ImageIO.write(randomCodeImage, "PNG", response.getOutputStream());
             
         } catch (Exception e) {
             System.out.println(e);
+            InterceptorFunc.FAIL(response, e.getMessage());
         }
         
     }
@@ -671,6 +715,13 @@ public class MemberPermission extends BaseController{
      * @param verify_code
      * @return
      */
+	@ApiOperation(value = "客户手机忘记密码接口", notes="客户使用手机注册使用接口")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="deviceid",value="设备ID",required=true,paramType="header"),
+		@ApiImplicitParam(name="mobile",value="手机号",required=true,paramType="query"),
+		@ApiImplicitParam(name="password",value="新密码",required=true,paramType="query"),
+		@ApiImplicitParam(name="verify_code",value="验证码",required=true,paramType="query")
+	})
 	@RequestMapping(value="forget-password", method=RequestMethod.POST)
 	public ReturnT<?> forgetPassword(
 			HttpServletRequest request,
@@ -734,6 +785,12 @@ public class MemberPermission extends BaseController{
 		
 	}
 	
+	@ApiOperation(value = "PC登录接口", notes="PC端登录使用接口")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="deviceid",value="设备ID",required=false,paramType="header"),
+		@ApiImplicitParam(name="account",value="账号",required=true,paramType="query"),
+		@ApiImplicitParam(name="password",value="密码",required=true,paramType="query")
+	})
 	@RequestMapping(value="pc/login-account", method=RequestMethod.POST)
 	public ReturnT<?> loginPcAccount(
 			HttpServletRequest request, 
@@ -849,6 +906,13 @@ public class MemberPermission extends BaseController{
 		return success(jRet);
 	}
 	
+	@ApiOperation(value = "PC注册接口", notes="PC端注册使用接口")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="deviceid",value="设备ID",required=false,paramType="header"),
+		@ApiImplicitParam(name="account",value="账号",required=true,paramType="query"),
+		@ApiImplicitParam(name="password",value="密码",required=true,paramType="query"),
+		@ApiImplicitParam(name="promo_code",value="推广码",required=true,paramType="query")
+	})
 	@RequestMapping(value="pc/reg", method=RequestMethod.POST)
 	public ReturnT<?> reg(
 			HttpServletRequest request, 
@@ -1004,8 +1068,11 @@ public class MemberPermission extends BaseController{
 		return success(jRet);
 	}
 	
+	@ApiOperation(value = "游客信息", notes="返回游客限制信息")
+	@ApiImplicitParams({})
 	@RequestMapping(value="pc/visitor-info", method=RequestMethod.POST)
 	public ReturnT<?> visitorInfo(){
+
 		
 		AppConfig app_config = FixedCache.appConfigCache();
 		JSONObject jRet = new JSONObject();
@@ -1018,4 +1085,58 @@ public class MemberPermission extends BaseController{
 		
 		return success(jRet);
 	}
+	
+	@ApiOperation(value = "获取短信验证码", notes="需要先获取图形验证码")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="deviceid",value="设备ID",required=true,paramType="header"),
+		@ApiImplicitParam(name="mobile",value="手机号",required=true,paramType="query"),
+		@ApiImplicitParam(name="verify_code",value="验证码",required=true,paramType="query")
+	})
+	public ReturnT<?> smsCode(
+			HttpServletRequest request, 
+			HttpServletResponse response, 
+			@RequestParam(required=true)String mobile,
+			@RequestParam(required=true)String verify_code){
+		
+		String deviceid = request.getHeader("deviceid");
+		if (StrUtil.isEmpty(deviceid)){
+			return fail("需要设备号");
+		}
+		
+		if (StrUtil.isEmpty(verify_code) ){
+			return fail("验证码不能为空");
+		}
+		if (verify_code.length()<1 || verify_code.length()>10){
+			return fail("验证码长度有误");
+		}
+		if (RegexUtil.isNotNum(verify_code)){
+			return fail("验证码只能是数字");
+		}
+		
+		if (StrUtil.isEmpty(deviceid)){
+			return fail("请求头缺少设备ID");
+		}
+		
+		if (!this.checkSmsCode(mobile, deviceid, verify_code)){
+			return fail("短信验证码错误");
+		}
+		
+		if (this.checkSmsCodeIsValid(mobile,deviceid)){
+			return fail("60秒内只能发送一次验证码");
+		}
+		
+		String code = Sms.getRandomCode(4);
+		String content = "你本次的验证码为" + code;
+		String res = Sms.send(mobile, content);
+		JSONObject jres = JSON.parseObject(res);
+		if ("0".equals(jres.getString("code"))){
+			
+			this.setSmsCode(mobile, deviceid, code);
+			
+			return success("短信已发送");
+		}
+		
+		return fail(jres.getString("msg"));
+	}
+	
 }

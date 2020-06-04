@@ -1,5 +1,6 @@
 package org.crow.movie.user.web.api.member.outside;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -7,7 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.assertj.core.util.Arrays;
 import org.crow.movie.user.common.db.Page;
@@ -23,6 +26,7 @@ import org.crow.movie.user.common.util.CommUtil;
 import org.crow.movie.user.common.util.StrUtil;
 import org.crow.movie.user.web.annotation.Permission;
 import org.crow.movie.user.web.controller.BasePublicController;
+import org.crow.movie.user.web.interceptor.InterceptorFunc;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,6 +37,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+
 
 /**
  * 
@@ -42,6 +51,7 @@ import com.alibaba.fastjson.JSONObject;
 @RestController
 @RequestMapping("/public/some")
 @Permission(managerLimit=false)
+@Api(tags = "客户信息相关接口",description="需要token")
 public class SomePublicApi extends BasePublicController{
 	
 	@Autowired
@@ -59,6 +69,10 @@ public class SomePublicApi extends BasePublicController{
 	@Autowired
 	private MemberHistoryService memberHistoryService;
 	
+	@ApiOperation(value = "客户问题获取接口",notes="根据id获取某个问题")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="id",value="问题id",required=true,paramType="query",dataType="integer"),
+	})
 	@RequestMapping(value="question-show", method=RequestMethod.POST)
 	public ReturnT<?> questionShow(HttpServletRequest request,
 			@RequestParam(required=true) Integer id){
@@ -73,10 +87,19 @@ public class SomePublicApi extends BasePublicController{
 		}
 	}
 	
+	@ApiOperation(value = "客户问题接口", notes="客户问题接口（分页）")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header"),
+		@ApiImplicitParam(name="allParams",value="文档缺陷，不需要填写",required=false,paramType="query"),
+		@ApiImplicitParam(name="page",value="开始页",required=false,paramType="query"),
+		@ApiImplicitParam(name="pageSize",value="页尺寸",required=false,paramType="query")
+	})
 	@RequestMapping(value="question", method=RequestMethod.POST)
 	public ReturnT<?> question(HttpServletRequest request,
 			@RequestParam Map<String,Object> allParams){
 	
+		logger.info("public.some.question {}",allParams.entrySet());
+		
 		Map<String, Object> eq = new HashMap<>();
 		eq.put("status", 1);
 		Page<AppQuestions> page = appQuestionsService.page(
@@ -95,6 +118,10 @@ public class SomePublicApi extends BasePublicController{
 		return success(jRet);
 	}
 	
+	@ApiOperation(value = "客户消息接口", notes="根据客户id查询")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header")
+	})
 	@RequestMapping(value="message-show", method=RequestMethod.POST)
 	public ReturnT<?> messageShow(
 			@RequestParam(required=true) Integer id,
@@ -123,6 +150,10 @@ public class SomePublicApi extends BasePublicController{
 		return success(result);
 	}
 	
+	@ApiOperation(value = "客户通知接口", notes="根据客户id查询")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header")
+	})
 	@RequestMapping(value="notice-show", method=RequestMethod.POST)
 	public ReturnT<?> noticeShow(HttpServletRequest request,
 			@RequestParam(required=true) Integer id){
@@ -372,4 +403,66 @@ public class SomePublicApi extends BasePublicController{
 		return success(list);
 	}
 	
+	@ApiOperation(value = "二维码获取接口",notes="二维码", produces="image/png")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header")
+	})
+	@RequestMapping(value="qrcode", method={RequestMethod.POST, RequestMethod.GET})
+	public void qrcode(
+			HttpServletRequest request,
+			HttpServletResponse response){
+		
+		String qrcodeDir = appProperties.getQrcodeDir();
+		String imageName = this.getUser().getPromoQrcode();
+		try {
+	        File logoQrFile = new File(qrcodeDir, imageName);
+	        if (!logoQrFile.exists() || StrUtil.isEmpty(imageName)){
+	        	logoQrFile = this.genQrcodePng();
+	        }
+	        
+            response.setContentType("image/png");
+            response.setHeader("Cache-Control", "no-cache");
+            response.setHeader("Expire", "0");
+            response.setHeader("Pragma", "no-cache");
+
+            // 直接返回图片
+            BufferedImage qrcodeimg = ImageIO.read(logoQrFile);
+            ImageIO.write(qrcodeimg, "PNG", response.getOutputStream());
+		} catch (Exception e){
+			e.printStackTrace();
+			InterceptorFunc.FAIL(response, e.getMessage());
+		}
+	}
+	
+	@ApiOperation(value = "头像获取接口",notes="头像", produces="image/png")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header")
+	})
+	@RequestMapping(value="avatar", method={RequestMethod.POST, RequestMethod.GET})
+	public void avatar(
+			HttpServletRequest request,
+			HttpServletResponse response){
+		
+		String avatarDir = appProperties.getAvatarDir();
+		String imageName = this.getUser().getAvatar();
+		try {
+			
+	        File avatarFile = new File(avatarDir, imageName);
+	        if (!avatarFile.exists()){
+	        	InterceptorFunc.FAIL(response, "头像不存在");
+	        }
+	        
+            response.setContentType("image/png");
+            response.setHeader("Cache-Control", "no-cache");
+            response.setHeader("Expire", "0");
+            response.setHeader("Pragma", "no-cache");
+
+            // 直接返回图片
+            BufferedImage avatarimg = ImageIO.read(avatarFile);
+            ImageIO.write(avatarimg, "PNG", response.getOutputStream());
+		} catch (Exception e){
+			e.printStackTrace();
+			InterceptorFunc.FAIL(response, e.getMessage());
+		}
+	}
 }
