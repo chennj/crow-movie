@@ -16,8 +16,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSONObject;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+
 @RestController
 @RequestMapping("/mbrcommentup")
+@Api(tags = "User CommentUp Related Interface Of Management",description="后台用户评论点赞接口,需要token")
 public class MemberCommentUpApi extends BaseAdminController{
 
 	@Autowired
@@ -29,6 +35,14 @@ public class MemberCommentUpApi extends BaseAdminController{
 	 * @param allParams
 	 * @return
 	 */
+	@ApiOperation(value = "搜索统计",notes="搜索统计")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header"),
+		@ApiImplicitParam(name="allParams",value="文档缺陷，不需要填写",required=false,paramType="query"),
+		@ApiImplicitParam(name="page",value="开始页",required=false,paramType="query"),
+		@ApiImplicitParam(name="pageSize",value="页尺寸",required=false,paramType="query"),
+		@ApiImplicitParam(name="comment_id",value="评论id",required=false,paramType="query")
+	})
 	@RequestMapping(value="search-count", method=RequestMethod.POST)
 	public ReturnT<?> searchCount(HttpServletRequest request,
 			@RequestParam Map<String,Object> allParams){

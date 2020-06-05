@@ -41,7 +41,7 @@ public class MemberCommentUpService extends AbstractBaseService<MemberCommentUp>
 				Object 
 				o = allParams.get("comment_id");
 				if (StrUtil.notEmpty(o)){
-					where.append("and a.comment_id like '?"+paramidx+"' ");
+					where.append("and a.comment_id = ?"+paramidx+" ");
 					this.add(o);
 					paramidx++;
 				}

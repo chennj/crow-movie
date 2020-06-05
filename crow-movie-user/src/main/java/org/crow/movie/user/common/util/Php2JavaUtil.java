@@ -1,11 +1,20 @@
 package org.crow.movie.user.common.util;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
 public final class Php2JavaUtil {
 
 	public static int transTimeJ2P(long l){
 		
 		String ts = String.valueOf(l);
 		return Integer.valueOf(ts.substring(0,ts.length()-3)).intValue();
+	}
+	
+	public static int transTimeJ2P(String s) throws ParseException{
+		SimpleDateFormat sft = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		long l = sft.parse(s).getTime();
+		return transTimeJ2P(l);
 	}
 	
 	public static long transTimeP2J(int i){

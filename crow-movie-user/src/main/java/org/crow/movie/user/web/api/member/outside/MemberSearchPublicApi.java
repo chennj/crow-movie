@@ -18,6 +18,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+
 /**
  * 
  * @author chenn
@@ -26,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/public/mbrsearch")
 @Permission(managerLimit=false)
+@Api(tags = "Search-Key Related Interface Of Mobile/Pc",description="手机/PC搜索关键字相关接口,需要token")
 public class MemberSearchPublicApi extends BasePublicController{
 
 	@Autowired
@@ -37,6 +43,10 @@ public class MemberSearchPublicApi extends BasePublicController{
 	 * @param keywords
 	 * @return
 	 */
+	@ApiOperation(value = "新增搜索关键字",notes="新增搜索关键字")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header")
+	})
 	@RequestMapping(value="add-keyword", method=RequestMethod.POST)
 	public ReturnT<?> action(HttpServletRequest request,
 			@RequestParam(required=true) String keywords){
@@ -67,6 +77,10 @@ public class MemberSearchPublicApi extends BasePublicController{
 	 * @param request
 	 * @return
 	 */
+	@ApiOperation(value = "用户关键词表",notes="用户关键词表")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header")
+	})
 	@RequestMapping(value="keywords", method=RequestMethod.POST)
 	public ReturnT<?> keywords(HttpServletRequest request){
 		
@@ -85,6 +99,10 @@ public class MemberSearchPublicApi extends BasePublicController{
 	 * @param request
 	 * @return
 	 */
+	@ApiOperation(value = "删除用户关键词表",notes="删除用户关键词表")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header")
+	})
 	@RequestMapping(value="clear", method=RequestMethod.POST)
 	public ReturnT<?> clear(HttpServletRequest request){
 		

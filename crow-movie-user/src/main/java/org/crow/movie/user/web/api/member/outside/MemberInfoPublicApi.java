@@ -47,9 +47,15 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+
 @RestController
 @RequestMapping("/public/mbrinfo")
 @Permission(managerLimit=false)
+@Api(tags = "User Info Related Interface Of Mobile/Pc",description="手机/PC用户信息相关接口,需要token")
 public class MemberInfoPublicApi extends BasePublicController{
 	
 	@Autowired
@@ -75,16 +81,19 @@ public class MemberInfoPublicApi extends BasePublicController{
 	
 
 	/**
-	 * 保存二维码
+	 * 二维码访问次数更新
 	 * @param request
 	 * @param allParams
 	 * @return
 	 */
+	@ApiOperation(value = "二维码访问次数更新",notes="二维码访问次数更新")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header")
+	})
 	@RequestMapping(value="save-qrcode", method=RequestMethod.POST)
-	public ReturnT<?> saveQrcode(HttpServletRequest request,
-			@RequestParam Map<String,Object> allParams){
+	public ReturnT<?> saveQrcode(HttpServletRequest request){
 
-		logger.info("public.mbrinfo.save-qrcode>>>enter,recive data="+allParams.entrySet());
+		logger.info("public.mbrinfo.save-qrcode>>>enter");
 		
 		MemberInfo userInfo = this.getUser();
 		
@@ -113,11 +122,14 @@ public class MemberInfoPublicApi extends BasePublicController{
 		return success();
 	}
 	
+	@ApiOperation(value = "宣传推荐详情",notes="宣传推荐详情")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header")
+	})
 	@RequestMapping(value="promo-detail", method=RequestMethod.POST)
-	public ReturnT<?> promodDail(HttpServletRequest request,
-			@RequestParam Map<String,Object> allParams){
+	public ReturnT<?> promodDail(HttpServletRequest request){
 		
-		logger.info("public.mbrinfo.promo-detail>>>enter,recive data="+allParams.entrySet());
+		logger.info("public.mbrinfo.promo-detail>>>enter");
 		
 		MemberInfo mi = this.getUser();
 		if (null == mi){
@@ -198,6 +210,10 @@ public class MemberInfoPublicApi extends BasePublicController{
 		return success(userInfo);
 	}
 	
+	@ApiOperation(value = "改变性别",notes="改变性别")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header")
+	})
 	@RequestMapping(value="update-sex", method=RequestMethod.POST)
 	public ReturnT<?> updateSex(HttpServletRequest request,
 			@RequestParam(required=true) Integer sex){
@@ -222,6 +238,10 @@ public class MemberInfoPublicApi extends BasePublicController{
 		}
 	}
 	
+	@ApiOperation(value = "改变呢称",notes="改变呢称")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header")
+	})
 	@RequestMapping(value="update-nickname", method=RequestMethod.POST)
 	public ReturnT<?> updateNickname(HttpServletRequest request,
 			@RequestParam(required=true) String nickName){
@@ -255,6 +275,10 @@ public class MemberInfoPublicApi extends BasePublicController{
 	 * @param file
 	 * @return
 	 */
+	@ApiOperation(value = "改变头像",notes="改变头像")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header")
+	})
 	@RequestMapping(value="update-avatar", method=RequestMethod.POST)
 	public ReturnT<?> updateNickname(HttpServletRequest request,
 			@RequestParam("file") MultipartFile file){
@@ -297,6 +321,10 @@ public class MemberInfoPublicApi extends BasePublicController{
 	 * 用户信息
 	 * @return
 	 */
+	@ApiOperation(value = "用户信息",notes="用户信息")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header")
+	})
 	@RequestMapping(value="manage", method=RequestMethod.POST)
 	public ReturnT<?> manage(){
 		
@@ -307,6 +335,10 @@ public class MemberInfoPublicApi extends BasePublicController{
 	 * 二维码
 	 * @return
 	 */
+	@ApiOperation(value = "生成二维码",notes="生成二维码")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header")
+	})
 	@RequestMapping(value="promo-info", method=RequestMethod.POST)
 	public ReturnT<?> promoInfo(){
 				
@@ -358,6 +390,10 @@ public class MemberInfoPublicApi extends BasePublicController{
 	 * 用户主页
 	 * @return
 	 */
+	@ApiOperation(value = "注册用户主页信息",notes="注册用户主页信息")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header")
+	})
 	@RequestMapping(value="index", method=RequestMethod.POST)
 	public ReturnT<?> index(){
 		
@@ -503,15 +539,24 @@ public class MemberInfoPublicApi extends BasePublicController{
 		return success(juser);
 	}
 	
+	@ApiOperation(value = "注册用户个人基本信息",notes="注册用户个人基本信息")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header")
+	})
 	@RequestMapping(value="info", method=RequestMethod.POST)
 	public ReturnT<?> info(){
 		
 		return success(this.getJUser());
 	}
 	
+	@ApiOperation(value = "用户更改密码",notes="用户更改密码")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header")
+	})
 	@RequestMapping(value="change-password", method=RequestMethod.POST)
 	public ReturnT<?> changPassword(
-			@RequestParam(required = true) String password){
+			@RequestParam(required = true) String password,
+			@RequestParam(required = true) String verify_code){
 		
 		MemberInfo user = this.getUser();
 		if (StrUtil.isEmpty(user.getMobile()) || StrUtil.isEmpty(user.getGlobalAreaCode())){
@@ -526,6 +571,10 @@ public class MemberInfoPublicApi extends BasePublicController{
 		}
 		if (RegexUtil.isNotNumOrChar(password)){
 			return fail("密码只能是数字、字母");
+		}
+		
+		if (!this.checkSmsCode(user.getMobile(), user.getDeviceId(), verify_code)){
+			return fail("验证码错误");
 		}
 		
 		user.setPassword(DigestUtils.encryptPwd(password));
@@ -535,23 +584,16 @@ public class MemberInfoPublicApi extends BasePublicController{
 		return success();
 	}
 	
+	@ApiOperation(value = "手机号注册用户更改密码短信",notes="手机号注册用户更改密码短信")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header")
+	})
 	@RequestMapping(value="send-sms-code-by-change-password", method=RequestMethod.POST)
-	public ReturnT<?> smsChangePassword(
-			@RequestParam(required = true) String password){
+	public ReturnT<?> smsChangePassword(){
 		
 		MemberInfo user = this.getUser();
 		if (StrUtil.isEmpty(user.getMobile()) || StrUtil.isEmpty(user.getGlobalAreaCode())){
 			return fail("请先绑定手机号码");
-		}
-		// param
-		if (StrUtil.isEmpty(password)){
-			return fail("密码不能为空");
-		}
-		if (password.length() < 6 || password.length() > 20){
-			return fail("密码长度有误");
-		}
-		if (RegexUtil.isNotNumOrChar(password)){
-			return fail("密码只能是数字、字母");
 		}
 		
 		int now = now();
@@ -587,6 +629,11 @@ public class MemberInfoPublicApi extends BasePublicController{
 		
 	}
 
+	@ApiOperation(value = "绑定手机",notes="绑定手机")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header"),
+		@ApiImplicitParam(name="deviceid",value="设备ID",required=true,paramType="header")
+	})
 	@RequestMapping(value="bind-mobile", method=RequestMethod.POST)
 	public ReturnT<?> bindMobile(
 			HttpServletRequest request,

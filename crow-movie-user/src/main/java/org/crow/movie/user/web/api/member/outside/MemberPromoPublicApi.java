@@ -7,7 +7,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.crow.movie.user.common.db.entity.MemberInfo;
-import org.crow.movie.user.common.db.entity.MemberPromo;
 import org.crow.movie.user.common.db.model.ReturnT;
 import org.crow.movie.user.common.db.service.MemberPromoService;
 import org.crow.movie.user.common.util.Php2JavaUtil;
@@ -19,6 +18,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+
 /**
  * 
  * @author chenn
@@ -27,20 +31,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/public/mbrpromo")
 @Permission(managerLimit=false)
+@Api(tags = "Promo Related Interface Of Mobile/Pc",description="手机/PC用户推荐记录相关接口,需要token")
 public class MemberPromoPublicApi extends BasePublicController{
 
 	@Autowired
 	private MemberPromoService memberPromoService;
-	
-	@RequestMapping(value="action", method=RequestMethod.POST)
-	public ReturnT<?> action(HttpServletRequest request,
-			@RequestParam Map<String,Object> allParams){
-		logger.info("public.mbrpromo.action>>>enter,recive data="+allParams.entrySet());
-		
-		MemberPromo entity = new MemberPromo();
-		// 未完待续
-		return null;
-	}
 	
 	/**
 	 * 宣传片列表
@@ -48,6 +43,13 @@ public class MemberPromoPublicApi extends BasePublicController{
 	 * @param allParams
 	 * @return
 	 */
+	@ApiOperation(value = "宣传推荐列表",notes="宣传推荐列表")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header"),
+		@ApiImplicitParam(name="allParams",value="文档缺陷，不需要填写",required=false,paramType="query"),
+		@ApiImplicitParam(name="page",value="开始页",required=false,paramType="query"),
+		@ApiImplicitParam(name="pageSize",value="页尺寸",required=false,paramType="query")
+	})
 	@RequestMapping(value="list", method=RequestMethod.POST)
 	public ReturnT<?> list(HttpServletRequest request,
 			@RequestParam Map<String,Object> allParams){

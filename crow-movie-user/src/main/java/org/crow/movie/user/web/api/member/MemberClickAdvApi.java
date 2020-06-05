@@ -1,5 +1,6 @@
 package org.crow.movie.user.web.api.member;
 
+import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
@@ -17,8 +18,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSONObject;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+
 @RestController
 @RequestMapping("/mbrclkadv")
+@Api(tags = "User Click Related Interface Of Management",description="后台用户点击相关接口,需要token")
 public class MemberClickAdvApi extends BaseAdminController{
 
 	@Autowired
@@ -29,10 +36,24 @@ public class MemberClickAdvApi extends BaseAdminController{
 	 * @param request
 	 * @param allParams
 	 * @return
+	 * @throws ParseException 
+	 * @throws NumberFormatException 
 	 */
+	@ApiOperation(value = "搜索统计",notes="搜索统计")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header"),
+		@ApiImplicitParam(name="allParams",value="文档缺陷，不需要填写",required=false,paramType="query"),
+		@ApiImplicitParam(name="page",value="开始页",required=false,paramType="query"),
+		@ApiImplicitParam(name="pageSize",value="页尺寸",required=false,paramType="query"),
+		@ApiImplicitParam(name="account",value="用户账号",required=false,paramType="query"),
+		@ApiImplicitParam(name="title",value="影片标题",required=false,paramType="query"),
+		@ApiImplicitParam(name="is_visitor",value="是否游客",required=false,paramType="query"),
+		@ApiImplicitParam(name="begin_time",value="开始时间",required=false,paramType="query"),
+		@ApiImplicitParam(name="end_time",value="结束时间",required=false,paramType="query")
+	})
 	@RequestMapping(value="search-count", method=RequestMethod.POST)
 	public ReturnT<?> searchCount(HttpServletRequest request,
-			@RequestParam Map<String,Object> allParams){
+			@RequestParam Map<String,Object> allParams) throws NumberFormatException, ParseException{
 
 		logger.info("mbrclkadv.search>>>enter,recive data="+allParams.entrySet());
 		
@@ -58,6 +79,10 @@ public class MemberClickAdvApi extends BaseAdminController{
 		return success(jRet);
 	}
 	
+	@ApiOperation(value = "删除",notes="删除")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header")
+	})
 	@RequestMapping(value="del", method=RequestMethod.POST)
 	public ReturnT<?> del(@RequestParam(required = true) Integer id){
 		

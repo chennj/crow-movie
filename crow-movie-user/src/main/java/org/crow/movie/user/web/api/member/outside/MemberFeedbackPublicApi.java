@@ -31,14 +31,27 @@ import org.springframework.web.multipart.MultipartFile;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+
 @RestController
 @RequestMapping("/public/mbrfeedback")
 @Permission(managerLimit=false)
+@Api(tags = "Feedback Related Interface Of Mobile Endpoint User",description="手机端用户反馈留言相关接口,需要token")
 public class MemberFeedbackPublicApi extends BasePublicController{
 
 	@Autowired
 	private MemberFeedbackService memberFeedbackService;
 	
+	@ApiOperation(value = "用户新增反馈信息",notes="用户新增反馈信息")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header"),
+		@ApiImplicitParam(name="allParams",value="文档缺陷，不需要填写",required=false,paramType="query"),
+		@ApiImplicitParam(name="feedback_type",value="反馈类型",required=true,paramType="query"),
+		@ApiImplicitParam(name="content",value="反馈内容(10-100)",required=true,paramType="query")
+	})
 	@RequestMapping(value="feedback-add", method=RequestMethod.POST)
 	public ReturnT<?> add(HttpServletRequest request,
 			@RequestParam Map<String,Object> allParams,
@@ -93,6 +106,13 @@ public class MemberFeedbackPublicApi extends BasePublicController{
 		}
 	}
 	
+	@ApiOperation(value = "查询用户反馈信息",notes="查询用户反馈信息")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header"),
+		@ApiImplicitParam(name="allParams",value="文档缺陷，不需要填写",required=false,paramType="query"),
+		@ApiImplicitParam(name="page",value="开始页",required=true,paramType="query"),
+		@ApiImplicitParam(name="pageSize",value="页尺寸",required=true,paramType="query")
+	})
 	@RequestMapping(value="feedback", method=RequestMethod.POST)
 	public ReturnT<?> add(HttpServletRequest request,
 			@RequestParam Map<String,Object> allParams){
@@ -118,6 +138,10 @@ public class MemberFeedbackPublicApi extends BasePublicController{
 		return success(jRet);
 	}
 	
+	@ApiOperation(value = "用户反馈类型",notes="用户反馈类型")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header")
+	})
 	@RequestMapping(value="feedback-type", method=RequestMethod.POST)
 	public ReturnT<?> feedbackType(){
 		

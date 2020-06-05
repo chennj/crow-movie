@@ -52,7 +52,7 @@ import io.swagger.annotations.ApiOperation;
 @RestController
 @RequestMapping("/noAuth")
 @Permission(memberLimit=false,managerLimit=false)
-@Api(tags = "客户注册访问相关接口",description="无需token访问接口")
+@Api(tags = "Relative Interface Of User Registry/Access",description="用户注册访问相关接口，无需token")
 public class MemberPermission extends BaseController{
 
 	@Autowired
@@ -67,7 +67,7 @@ public class MemberPermission extends BaseController{
 	@Autowired
 	private MemberOpenService memberOpenService;
 
-	@ApiOperation(value = "系统存活检测接口", notes="可用于心跳检测")
+	@ApiOperation(value = "系统存活检测接口,可用于NGINX心跳检测", notes="系统存活检测接口,可用于NGINX心跳检测")
 	@RequestMapping(value="isAlive",method={RequestMethod.POST,RequestMethod.GET})
     public String isAlive() {
 		return "isAlive";
@@ -80,7 +80,7 @@ public class MemberPermission extends BaseController{
 	 * @param allParams
 	 * @return
 	 */
-	@ApiOperation(value = "客户手机注册接口",notes="手机号注册")
+	@ApiOperation(value = "手机号注册",notes="手机号注册")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name="deviceid",value="设备ID",required=true,paramType="header"),
 		@ApiImplicitParam(name="global_area_code",value="区号",required=true,paramType="query"),
@@ -236,7 +236,7 @@ public class MemberPermission extends BaseController{
 	 * @param allParams
 	 * @return
 	 */
-	@ApiOperation(value = "客户手机注册接口", notes="普通账户注册")
+	@ApiOperation(value = "手机普通账户注册", notes="普通账户注册")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name="deviceid",value="设备ID",required=true,paramType="header"),
 		@ApiImplicitParam(name="account",value="用户名",required=true,paramType="query"),
@@ -387,7 +387,7 @@ public class MemberPermission extends BaseController{
 	 * @param password
 	 * @return
 	 */
-	@ApiOperation(value = "客户手机登录接口",notes="普通账户登录")
+	@ApiOperation(value = "手机普通账户登录",notes="手机普通账户登录")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name="deviceid",value="设备ID",required=true,paramType="header"),
 		@ApiImplicitParam(name="account",value="用户名",required=true,paramType="query"),
@@ -495,7 +495,7 @@ public class MemberPermission extends BaseController{
 	 * @param password
 	 * @return
 	 */
-	@ApiOperation(value = "游客手机登录注册接口", notes="普通账户登录注册")
+	@ApiOperation(value = "游客手机登录注册", notes="游客手机登录注册")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name="deviceid",value="设备ID",required=true,paramType="header"),
 		@ApiImplicitParam(name="password",value="密码",required=true,paramType="query"),
@@ -576,7 +576,7 @@ public class MemberPermission extends BaseController{
 	 * @param password
 	 * @return
 	 */
-	@ApiOperation(value = "客户手机登录接口", notes="手机号登录")
+	@ApiOperation(value = "注册用户手机号登录", notes="注册用户手机号登录")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name="deviceid",value="设备ID",required=true,paramType="header"),
 		@ApiImplicitParam(name="global_area_code",value="区号",required=true,paramType="query"),
@@ -617,7 +617,7 @@ public class MemberPermission extends BaseController{
 			return fail("密码长度有误");
 		}
 		if (RegexUtil.isNotNumOrChar(password)){
-			return fail("密码只能是数字");
+			return fail("密码只能是数字，字母");
 		}
 		
 		Map<String,Object> eq = new HashMap<>();
@@ -674,7 +674,7 @@ public class MemberPermission extends BaseController{
 	 * @param request
 	 * @param response
 	 */
-	@ApiOperation(value = "客户手机验证码图片接口", notes="客户使用手机号登录/注册时请求改接口", produces="image/png")
+	@ApiOperation(value = "验证码图片接口", notes="验证码图片接口", produces="image/png")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name="deviceid",value="设备ID",required=true,paramType="header")
 	})
@@ -715,12 +715,12 @@ public class MemberPermission extends BaseController{
      * @param verify_code
      * @return
      */
-	@ApiOperation(value = "客户手机忘记密码接口", notes="客户使用手机注册使用接口")
+	@ApiOperation(value = "注册用户忘记密码", notes="注册用户忘记密码")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name="deviceid",value="设备ID",required=true,paramType="header"),
 		@ApiImplicitParam(name="mobile",value="手机号",required=true,paramType="query"),
 		@ApiImplicitParam(name="password",value="新密码",required=true,paramType="query"),
-		@ApiImplicitParam(name="verify_code",value="验证码",required=true,paramType="query")
+		@ApiImplicitParam(name="verify_code",value="短信验证码",required=true,paramType="query")
 	})
 	@RequestMapping(value="forget-password", method=RequestMethod.POST)
 	public ReturnT<?> forgetPassword(

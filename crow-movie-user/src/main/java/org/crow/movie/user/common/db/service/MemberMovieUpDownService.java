@@ -1,5 +1,6 @@
 package org.crow.movie.user.common.db.service;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Map;
 import org.crow.movie.user.common.db.AbstractBaseService;
 import org.crow.movie.user.common.db.dao.MemberMovieUpDownDao;
 import org.crow.movie.user.common.db.entity.MemberMovieUpDown;
+import org.crow.movie.user.common.util.Php2JavaUtil;
 import org.crow.movie.user.common.util.StrUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,7 +27,7 @@ public class MemberMovieUpDownService extends AbstractBaseService<MemberMovieUpD
 
 	@Transactional(propagation = Propagation.NOT_SUPPORTED)
 	public Map<String, List<Map<String, Object>>> search(Integer page, Integer pageSize,
-			Map<String, Object> allParams , Object...returnObj) {
+			Map<String, Object> allParams , Object...returnObj) throws ParseException {
 
 		final StringBuilder where = new StringBuilder("where 1=1 ");
 		
@@ -76,15 +78,17 @@ public class MemberMovieUpDownService extends AbstractBaseService<MemberMovieUpD
 				
 				o = allParams.get("begin_time");
 				if (StrUtil.notEmpty(o)){
+					int oi = Php2JavaUtil.transTimeJ2P(String.valueOf(o));
 					where.append("and a.create_time >= UNIX_TIMESTAMP(?"+paramidx+") ");
-					this.add(o);
+					this.add(oi);
 					paramidx++;
 				}
 				
 				o = allParams.get("end_time");
 				if (StrUtil.notEmpty(o)){
+					int oi = Php2JavaUtil.transTimeJ2P(String.valueOf(o));
 					where.append("and a.create_time < UNIX_TIMESTAMP(?"+paramidx+") ");
-					this.add(o);
+					this.add(oi);
 					paramidx++;
 				}
 				

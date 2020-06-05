@@ -105,6 +105,12 @@ public abstract class BaseController {
 		redisService.del(cache_mobile,cache_sms_code);
 	}
 	
+	protected void setRandomCode(String deviceid,String verifyCode){
+		
+		String cache_random_code = deviceid+"_random_code";
+		redisService.set(cache_random_code, cache_random_code, 600);
+	}
+
 	protected boolean checkRandomCode(String deviceid, String verifyCode){
 		
 		String cache_random_code = deviceid+"_random_code";
@@ -136,12 +142,6 @@ public abstract class BaseController {
 		return 0<redisService.exists(cache_mobile,cache_sms_code);
 	}
 	
-	protected void setRandomCode(String deviceid,String verifyCode){
-		
-		String cache_random_code = deviceid+"_random_code";
-		redisService.set(cache_random_code, cache_random_code, 600);
-	}
-
 	protected int now(){
 		return Php2JavaUtil.transTimeJ2P(System.currentTimeMillis());
 	}

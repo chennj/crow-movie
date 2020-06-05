@@ -1,5 +1,6 @@
 package org.crow.movie.user.common.db.service;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -24,6 +25,7 @@ import org.crow.movie.user.common.db.dao.MemberSearchDao;
 import org.crow.movie.user.common.db.dao.MemberSmsDao;
 import org.crow.movie.user.common.db.entity.MemberInfo;
 import org.crow.movie.user.common.db.model.BaseTypeWrapper;
+import org.crow.movie.user.common.util.Php2JavaUtil;
 import org.crow.movie.user.common.util.StrUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -101,7 +103,7 @@ public class MemberInfoService extends AbstractBaseService<MemberInfo> {
 	}
 
 	@Transactional(propagation = Propagation.NOT_SUPPORTED)
-	public Map<String, List<Map<String, Object>>> search(Integer page, Integer pageSize, Map<String, Object> allParams, Object...returnObj) {
+	public Map<String, List<Map<String, Object>>> search(Integer page, Integer pageSize, Map<String, Object> allParams, Object...returnObj) throws ParseException {
 
 		final StringBuilder where 	= new StringBuilder("where 1=1 ");
 		final StringBuilder having 	= new StringBuilder();
@@ -112,22 +114,20 @@ public class MemberInfoService extends AbstractBaseService<MemberInfo> {
 			 */
 			private static final long serialVersionUID = 1L;
 
-			{
-				SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-				
+			{				
 				int paramidx = 1;
 				
 				Object 
 				o = allParams.get("id");
 				if (StrUtil.notEmpty(o)){
-					where.append("and a.id = '?"+paramidx+"' ");
+					where.append("and a.id = ?"+paramidx+" ");
 					this.add(o);
 					paramidx++;
 				}
 				
 				o = allParams.get("account");
 				if (StrUtil.notEmpty(o)){
-					where.append("and a.account = '?"+paramidx+"' ");
+					where.append("and a.account like '%?"+paramidx+"%' ");
 					this.add(o);
 					paramidx++;
 				}
@@ -141,54 +141,32 @@ public class MemberInfoService extends AbstractBaseService<MemberInfo> {
 				
 				o = allParams.get("level");
 				if (StrUtil.notEmpty(o)){
-					where.append("and a.level_id like '%?"+paramidx+"%' ");
+					where.append("and a.level_id = ?"+paramidx+" ");
 					this.add(o);
 					paramidx++;
 				}
 				
 				o = allParams.get("is_visitor");
 				if (StrUtil.notEmpty(o)){
-					where.append("and a.is_visitor = '?"+paramidx+"' ");
+					where.append("and a.is_visitor = ?"+paramidx+" ");
 					this.add(o);
 					paramidx++;
 				}
 				
 				o = allParams.get("sex");
 				if (StrUtil.notEmpty(o)){
-					where.append("and a.sex = '?"+paramidx+"' ");
+					where.append("and a.sex = ?"+paramidx+" ");
 					this.add(o);
 					paramidx++;
 				}
 				
 				o = allParams.get("status");
 				if (StrUtil.notEmpty(o)){
-					where.append("and a.status = '?"+paramidx+"' ");
+					where.append("and a.status = ?"+paramidx+" ");
 					this.add(o);
 					paramidx++;
 				}
-				
-				o = allParams.get("begin_time");
-				if (StrUtil.notEmpty(o)){
-					try {
-						this.add(fmt.parse(String.valueOf(o)));
-						where.append("and a.create_time >= '?"+paramidx+"'  ");
-						paramidx++;
-					} catch (Exception e){
-						logger.error("member info service.search>>>begin_time 转换失败"+e.getMessage());
-					}
-				}
-				
-				o = allParams.get("end_time");
-				if (StrUtil.notEmpty(o)){
-					try {
-						this.add(fmt.parse(String.valueOf(o)));
-						where.append("and a.create_time < '?"+paramidx+"'  ");
-						paramidx++;
-					} catch (Exception e){
-						logger.error("member info service.search>>>end_time 转换失败"+e.getMessage());
-					}
-				}
-				
+								
 				o = allParams.get("reg_promo_code");
 				if (StrUtil.notEmpty(o)){
 					where.append("and a.reg_promo_code like '%?"+paramidx+"%' ");
@@ -228,10 +206,27 @@ public class MemberInfoService extends AbstractBaseService<MemberInfo> {
 				
 				o = allParams.get("promo_num");
 				if (StrUtil.notEmpty(o)){
-					having.append("count(b.member_id) >= '?"+paramidx+"' ");
+					having.append("count(b.member_id) >= ?"+paramidx+" ");
 					this.add(Integer.valueOf(String.valueOf(o)));
 					paramidx++;
 				}
+				
+				o = allParams.get("begin_time");
+				if (StrUtil.notEmpty(o)){
+					int oi = Php2JavaUtil.transTimeJ2P(String.valueOf(o));
+					where.append("and a.create_time >= ?"+paramidx+"  ");
+					this.add(oi);
+					paramidx++;
+				}
+				
+				o = allParams.get("end_time");
+				if (StrUtil.notEmpty(o)){
+					int oi = Php2JavaUtil.transTimeJ2P(String.valueOf(o));
+					where.append("and a.create_time < ?"+paramidx+"  ");
+					this.add(oi);
+					paramidx++;
+				}
+
 			}
 		};
 		
@@ -307,7 +302,7 @@ public class MemberInfoService extends AbstractBaseService<MemberInfo> {
 	
 	@Transactional(propagation = Propagation.NOT_SUPPORTED)
 	public Map<String, List<Map<String, Object>>> getSave(Integer page, Integer pageSize,
-			Map<String, Object> allParams , Object...returnObj) {
+			Map<String, Object> allParams , Object...returnObj) throws ParseException {
 
 		final StringBuilder where = new StringBuilder("where 1=1 ");
 		
@@ -337,15 +332,17 @@ public class MemberInfoService extends AbstractBaseService<MemberInfo> {
 				
 				o = allParams.get("begin_time");
 				if (StrUtil.notEmpty(o)){
-					where.append("and a.save_qrcode_time >= UNIX_TIMESTAMP(?"+paramidx+") ");
-					this.add(o);
+					int oi = Php2JavaUtil.transTimeJ2P(String.valueOf(o));
+					where.append("and a.save_qrcode_time >= ?"+paramidx+" ");
+					this.add(oi);
 					paramidx++;
 				}
 				
 				o = allParams.get("end_time");
 				if (StrUtil.notEmpty(o)){
-					where.append("and a.save_qrcode_time < UNIX_TIMESTAMP(?"+paramidx+") ");
-					this.add(o);
+					int oi = Php2JavaUtil.transTimeJ2P(String.valueOf(o));
+					where.append("and a.save_qrcode_time < ?"+paramidx+" ");
+					this.add(oi);
 					paramidx++;
 				}
 				

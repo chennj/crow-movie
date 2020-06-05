@@ -1,5 +1,6 @@
 package org.crow.movie.user.common.db.service;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,7 +55,7 @@ public class MemberExchangeService extends AbstractBaseService<MemberExchange> {
 
 	@Transactional(propagation=Propagation.NOT_SUPPORTED)
 	public Map<String, List<Map<String, Object>>> search(Integer page, Integer pageSize,
-			Map<String, Object> allParams, Object...returnObj) {
+			Map<String, Object> allParams, Object...returnObj) throws ParseException {
 
 		final StringBuilder where 	= new StringBuilder("where 1=1 ");
 		
@@ -91,15 +92,17 @@ public class MemberExchangeService extends AbstractBaseService<MemberExchange> {
 				
 				o = allParams.get("begin_time");
 				if (StrUtil.notEmpty(o)){
-					where.append("and a.create_time >= UNIX_TIMESTAMP(?"+paramidx+") ");
-					this.add(o);
+					int oi = Php2JavaUtil.transTimeJ2P(String.valueOf(o));
+					where.append("and a.create_time >= ?"+paramidx+" ");
+					this.add(oi);
 					paramidx++;
 				}
 				
 				o = allParams.get("end_time");
 				if (StrUtil.notEmpty(o)){
-					where.append("and a.create_time < UNIX_TIMESTAMP(?"+paramidx+") ");
-					this.add(o);
+					int oi = Php2JavaUtil.transTimeJ2P(String.valueOf(o));
+					where.append("and a.create_time < ?"+paramidx+" ");
+					this.add(oi);
 					paramidx++;
 				}
 				

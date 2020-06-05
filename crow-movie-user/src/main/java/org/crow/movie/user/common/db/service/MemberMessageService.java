@@ -168,4 +168,5 @@ public class MemberMessageService extends AbstractBaseService<MemberMessage> {
 		result.put("list", list);
 		return result;
 	}
+
 }

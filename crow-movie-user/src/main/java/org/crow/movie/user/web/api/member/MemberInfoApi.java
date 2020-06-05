@@ -1,5 +1,6 @@
 package org.crow.movie.user.web.api.member;
 
+import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +30,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+
 /**
  * 用户信息
  * @author chenn
@@ -36,6 +42,7 @@ import com.alibaba.fastjson.TypeReference;
  */
 @RestController
 @RequestMapping("/mbrinfo")
+@Api(tags = "User Info Related Interface Of Management",description="后台用户信息相关接口,需要token")
 public class MemberInfoApi  extends BaseAdminController{
 
 	@Autowired
@@ -49,10 +56,33 @@ public class MemberInfoApi  extends BaseAdminController{
 	 * @param request
 	 * @param allParams
 	 * @return
+	 * @throws ParseException 
+	 * @throws NumberFormatException 
 	 */
+	@ApiOperation(value = "搜索统计",notes="搜索统计")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header"),
+		@ApiImplicitParam(name="allParams",value="文档缺陷，不需要填写",required=false,paramType="query"),
+		@ApiImplicitParam(name="page",value="开始页",required=false,paramType="query"),
+		@ApiImplicitParam(name="pageSize",value="页尺寸",required=false,paramType="query"),
+		@ApiImplicitParam(name="id",value="用户id",required=false,paramType="query"),
+		@ApiImplicitParam(name="account",value="用户账号",required=false,paramType="query"),
+		@ApiImplicitParam(name="mobile",value="手机号",required=false,paramType="query"),
+		@ApiImplicitParam(name="level",value="级别",required=false,paramType="query"),
+		@ApiImplicitParam(name="is_visitor",value="是否游客",required=false,paramType="query"),
+		@ApiImplicitParam(name="sex",value="性别",required=false,paramType="query"),
+		@ApiImplicitParam(name="status",value="状态",required=false,paramType="query"),
+		@ApiImplicitParam(name="reg_promo_code",value="推广吗",required=false,paramType="query"),
+		@ApiImplicitParam(name="promo_code",value="推广吗",required=false,paramType="query"),
+		@ApiImplicitParam(name="is_vip",value="是否vip",required=false,paramType="query"),
+		@ApiImplicitParam(name="device_id_isnull",value="设备号是否是空",required=false,paramType="query"),
+		@ApiImplicitParam(name="promo_num",value="推广数量",required=false,paramType="query"),
+		@ApiImplicitParam(name="begin_time",value="开始时间",required=false,paramType="query"),
+		@ApiImplicitParam(name="end_time",value="结束时间",required=false,paramType="query")
+	})
 	@RequestMapping(value="search-count", method=RequestMethod.POST)
 	public ReturnT<?> searchCount(HttpServletRequest request,
-			@RequestParam Map<String,Object> allParams){
+			@RequestParam Map<String,Object> allParams) throws NumberFormatException, ParseException{
 		
 		logger.info("mbrinfo.search>>>enter,recive data="+allParams.entrySet());
 		
@@ -136,24 +166,25 @@ public class MemberInfoApi  extends BaseAdminController{
 	 * @param password2
 	 * @return
 	 */
+	@ApiOperation(value = "修改用户密码",notes="修改用户密码")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header")
+	})
 	@RequestMapping(value="change-password", method=RequestMethod.POST)
 	public ReturnT<?> changPwd(
 			HttpServletRequest request,
-			@RequestParam(required = true) String memberid,
-			@RequestParam(required = true) String password,
-			@RequestParam(required = true) String password2){
+			@RequestParam(required = true) Integer memberid,
+			@RequestParam(required = true) String password){
 		
 		// param
-		if (StrUtil.isEmpty(password) || StrUtil.isEmpty(password2)){
-			return fail("account or pwd is empty");
+		if (StrUtil.isEmpty(password) || StrUtil.isEmpty(memberid)){
+			return fail("用户和密码不能为空");
 		}
-		if (!password.equals(password2)){
-			return fail("twice password is not same");
-		}
+
 		
 		MemberInfo mbr = memberInfoService.getById(memberid);
 		if (null == mbr){
-			return fail("user is not exists");
+			return fail("用户不存在");
 		}
 		
 		String pwd = DigestUtils.encryptMd5(password);
@@ -170,6 +201,13 @@ public class MemberInfoApi  extends BaseAdminController{
 	 * @param data
 	 * @return
 	 */
+	@ApiOperation(value = "编辑用户信息",notes="编辑用户信息")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header"),
+		@ApiImplicitParam(name="allParams",value="文档缺陷，不需要填写",required=false,paramType="query"),
+		@ApiImplicitParam(name="memberid",value="用户id",required=true,paramType="query"),
+		@ApiImplicitParam(name="isNickName",value="其他需要修改得字段使用驼峰格式(eg:is_nick_name=>isNickName)",required=false,paramType="query")
+	})
 	@RequestMapping(value="edit", method=RequestMethod.POST)
 	public ReturnT<?> edit(
 			HttpServletRequest request,
@@ -196,10 +234,11 @@ public class MemberInfoApi  extends BaseAdminController{
 			CommUtil.updateBean(entity, jo, Const.MEMBERINFO_FIELD_EDIT_IGNORE);
 		} catch (Exception e) {
 			logger.error("mbrinfo.edit>>>updateBean failed,"+e.getMessage());
-			return fail("modify user info failed");
+			return fail("修改失败");
 		}
 		
 		entity.setUpdateTime(Php2JavaUtil.transTimeJ2P(System.currentTimeMillis()));
+		entity.setUpdateUser(this.getAdminId(request));
 		memberInfoService.modify(entity);
 		
 		return success();
@@ -211,6 +250,12 @@ public class MemberInfoApi  extends BaseAdminController{
 	 * @param data
 	 * @return
 	 */
+	@ApiOperation(value = "新增用户",notes="新增用户")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header"),
+		@ApiImplicitParam(name="allParams",value="文档缺陷，不需要填写",required=false,paramType="query"),
+		@ApiImplicitParam(name="isNickName",value="其他需要修改得字段使用驼峰格式(eg:is_nick_name=>isNickName)",required=false,paramType="query")
+	})
 	@RequestMapping(value="add", method=RequestMethod.POST)
 	public ReturnT<?> add(
 			HttpServletRequest request,
@@ -269,9 +314,13 @@ public class MemberInfoApi  extends BaseAdminController{
 		
 	}
 	
-	/*
+	/**
 	 * 删除用户
 	 */
+	@ApiOperation(value = "删除用户",notes="删除用户")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header")
+	})
 	@RequestMapping(value="del", method=RequestMethod.POST)
 	public ReturnT<?> del(
 			HttpServletRequest request,
@@ -288,7 +337,7 @@ public class MemberInfoApi  extends BaseAdminController{
 
 		memberInfoService.delete(id);
 		
-		return success("delete complete");
+		return success("删除完成");
 	}
 	
 	/**
@@ -298,6 +347,10 @@ public class MemberInfoApi  extends BaseAdminController{
 	 * @param id
 	 * @return
 	 */
+	@ApiOperation(value = "变更用户状态",notes="变更用户状态")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header")
+	})
 	@RequestMapping(value="status", method=RequestMethod.POST)
 	public ReturnT<?> status(
 			HttpServletRequest request,
@@ -323,6 +376,10 @@ public class MemberInfoApi  extends BaseAdminController{
 	 * @param id
 	 * @return
 	 */
+	@ApiOperation(value = "用户详细信",notes="用户详细信")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header")
+	})
 	@RequestMapping(value="details", method=RequestMethod.POST)
 	public ReturnT<?> details(
 			HttpServletRequest request,

@@ -14,20 +14,34 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+
 @RestController
 @RequestMapping(value="all")
 @Permission(managerLimit=false)
+@Api(tags = "Interface Of PC Endpoint User",description="PC端客户信息相关接口；需要token")
 public class MemberPcApi extends BasePcController{
 
 	@Autowired
 	private MemberLikeService memberLikeService;
 	
+	@ApiOperation(value = "获取客户基本信息",notes="获取客户基本信息")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header")
+	})
 	@RequestMapping(value="info", method=RequestMethod.POST)
 	public ReturnT<?> info(){
 		
 		return success(this.getJUser());
 	}
 	
+	@ApiOperation(value = "获取客户爱好",notes="获取客户爱好")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header")
+	})
 	@RequestMapping(value="like", method=RequestMethod.POST)
 	public ReturnT<?> like(
 			@RequestParam(defaultValue="1") String page,

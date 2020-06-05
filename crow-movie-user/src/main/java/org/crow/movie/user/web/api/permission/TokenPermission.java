@@ -32,7 +32,7 @@ import io.swagger.annotations.ApiOperation;
 @RestController
 @RequestMapping("/token")
 @Permission(memberLimit=false,managerLimit=false)
-@Api(tags = "token获取接口",description="其他接口的前置接口")
+@Api(tags = "Token Getted Interface",description="token获取接口，是其他接口的前置接口")
 public class TokenPermission extends BaseAdminController{
 
 	/**
@@ -47,11 +47,11 @@ public class TokenPermission extends BaseAdminController{
 	@Autowired
 	private AdminInfoService adminInfoService;
 	
-	@ApiOperation(value = "管理员token获取接口",notes="后台管理员获取token的接口")
+	@ApiOperation(value = "后台管理员token获取接口",notes="后台管理员token获取接口")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name="username",value="管理员账号",required=true,paramType="query"),
 		@ApiImplicitParam(name="password",value="密码",required=true,paramType="query")
-		})
+	})
 	@RequestMapping(value="/private", method=RequestMethod.POST)
 	public ReturnT<?> getToken(
 			HttpServletRequest request, 
@@ -83,11 +83,11 @@ public class TokenPermission extends BaseAdminController{
 		return success(jRet);
 	}
 
-	@ApiOperation(value = "客户token获取接口",notes="后台管理员获取token的接口")
+	@ApiOperation(value = "客户token获取接口",notes="客户token获取接口")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name="account",value="账号",defaultValue="Km1688",required=true,paramType="query"),
 		@ApiImplicitParam(name="password",value="密码",defaultValue="qqqqqq",required=true,paramType="query")
-		})
+	})
 	@RequestMapping(value="/public", method=RequestMethod.POST)
 	public ReturnT<?> getPublicToken(
 			HttpServletRequest request,

@@ -1,5 +1,6 @@
 package org.crow.movie.user.common.db.service;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Map;
 import org.crow.movie.user.common.db.AbstractBaseService;
 import org.crow.movie.user.common.db.dao.MemberCacheDao;
 import org.crow.movie.user.common.db.entity.MemberCache;
+import org.crow.movie.user.common.util.Php2JavaUtil;
 import org.crow.movie.user.common.util.StrUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,7 +27,7 @@ public class MemberCacheService extends AbstractBaseService<MemberCache> {
 
 	@Transactional(propagation = Propagation.NOT_SUPPORTED)
 	public Map<String, List<Map<String, Object>>> search(Integer page, Integer pageSize,
-			Map<String, Object> allParams, Object...returnObj) {
+			Map<String, Object> allParams, Object...returnObj) throws ParseException {
 		
 		final StringBuilder where 	= new StringBuilder("where 1=1 ");
 		
@@ -55,22 +57,24 @@ public class MemberCacheService extends AbstractBaseService<MemberCache> {
 				
 				o = allParams.get("is_visitor");
 				if (StrUtil.notEmpty(o)){
-					where.append("and b.is_visitor = '?"+paramidx+"' ");
+					where.append("and b.is_visitor = ?"+paramidx+" ");
 					this.add(o);
 					paramidx++;
 				}
 				
 				o = allParams.get("begin_time");
 				if (StrUtil.notEmpty(o)){
-					where.append("and a.create_time >= UNIX_TIMESTAMP(?4) ");
-					this.add(o);
+					int oi = Php2JavaUtil.transTimeJ2P(String.valueOf(o));
+					where.append("and a.create_time >= ?"+paramidx+" ");
+					this.add(oi);
 					paramidx++;
 				}
 				
 				o = allParams.get("end_time");
 				if (StrUtil.notEmpty(o)){
-					where.append("and a.create_time < UNIX_TIMESTAMP(?5) ");
-					this.add(o);
+					int oi = Php2JavaUtil.transTimeJ2P(String.valueOf(o));
+					where.append("and a.create_time < ?"+paramidx+" ");
+					this.add(oi);
 					paramidx++;
 				}
 			}
@@ -108,17 +112,21 @@ public class MemberCacheService extends AbstractBaseService<MemberCache> {
 			private static final long serialVersionUID = 1L;
 
 			{
+				int paramidx = 1;
+				
 				Object 
 				o = allParams.get("member_id");
 				if (StrUtil.notEmpty(o)){
-					where.append("and member_id = ?1 ");
+					where.append("and member_id = ?"+paramidx+" ");
 					this.add(o);
+					paramidx++;
 				}
 				
 				o = allParams.get("device_id");
 				if (StrUtil.notEmpty(o)){
-					where.append("and device_id = ?2 ");
+					where.append("and device_id = ?"+paramidx+" ");
 					this.add(o);
+					paramidx++;
 				}
 				
 			}

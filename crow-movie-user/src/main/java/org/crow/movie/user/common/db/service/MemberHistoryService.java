@@ -30,7 +30,7 @@ public class MemberHistoryService extends AbstractBaseService<MemberHistory> {
 
 	@Transactional(propagation = Propagation.NOT_SUPPORTED)
 	public Map<String, List<Map<String, Object>>> search(Integer page, Integer pageSize,
-			Map<String, Object> allParams , Object...returnObj) {
+			Map<String, Object> allParams , Object...returnObj) throws ParseException {
 
 		final StringBuilder where = new StringBuilder("where 1=1 ");
 		
@@ -74,15 +74,17 @@ public class MemberHistoryService extends AbstractBaseService<MemberHistory> {
 				
 				o = allParams.get("begin_time");
 				if (StrUtil.notEmpty(o)){
-					where.append("and a.create_time >= UNIX_TIMESTAMP(?"+paramidx+") ");
-					this.add(o);
+					int oi = Php2JavaUtil.transTimeJ2P(String.valueOf(o));
+					where.append("and a.create_time >= ?"+paramidx+" ");
+					this.add(oi);
 					paramidx++;
 				}
 				
 				o = allParams.get("end_time");
 				if (StrUtil.notEmpty(o)){
-					where.append("and a.create_time < UNIX_TIMESTAMP(?"+paramidx+") ");
-					this.add(o);
+					int oi = Php2JavaUtil.transTimeJ2P(String.valueOf(o));
+					where.append("and a.create_time < ?"+paramidx+" ");
+					this.add(oi);
 					paramidx++;
 				}
 				

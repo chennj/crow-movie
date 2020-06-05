@@ -51,7 +51,7 @@ import io.swagger.annotations.ApiOperation;
 @RestController
 @RequestMapping("/public/some")
 @Permission(managerLimit=false)
-@Api(tags = "客户信息相关接口",description="需要token")
+@Api(tags = "Other Info Related Interface Of Mobile/Pc",description="其他公共接口，大部分都需要先获取token")
 public class SomePublicApi extends BasePublicController{
 	
 	@Autowired
@@ -69,9 +69,10 @@ public class SomePublicApi extends BasePublicController{
 	@Autowired
 	private MemberHistoryService memberHistoryService;
 	
-	@ApiOperation(value = "客户问题获取接口",notes="根据id获取某个问题")
+	@ApiOperation(value = "用户问题获取",notes="根据id获取某个问题")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name="id",value="问题id",required=true,paramType="query",dataType="integer"),
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header"),
+		@ApiImplicitParam(name="id",value="问题id",required=true,paramType="query",dataType="integer")
 	})
 	@RequestMapping(value="question-show", method=RequestMethod.POST)
 	public ReturnT<?> questionShow(HttpServletRequest request,
@@ -87,7 +88,7 @@ public class SomePublicApi extends BasePublicController{
 		}
 	}
 	
-	@ApiOperation(value = "客户问题接口", notes="客户问题接口（分页）")
+	@ApiOperation(value = "用户问题", notes="用户问题（分页）")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header"),
 		@ApiImplicitParam(name="allParams",value="文档缺陷，不需要填写",required=false,paramType="query"),
@@ -118,7 +119,7 @@ public class SomePublicApi extends BasePublicController{
 		return success(jRet);
 	}
 	
-	@ApiOperation(value = "客户消息接口", notes="根据客户id查询")
+	@ApiOperation(value = "用户消息", notes="根据用户id查询")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header")
 	})
@@ -150,7 +151,7 @@ public class SomePublicApi extends BasePublicController{
 		return success(result);
 	}
 	
-	@ApiOperation(value = "客户通知接口", notes="根据客户id查询")
+	@ApiOperation(value = "用户通知", notes="根据用户id查询")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header")
 	})
@@ -161,7 +162,7 @@ public class SomePublicApi extends BasePublicController{
 		return messageShow(id, 2);
 	}
 	
-	@ApiOperation(value = "客户消息接口", notes="分页查询")
+	@ApiOperation(value = "用户消息", notes="分页查询")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header"),
 		@ApiImplicitParam(name="allParams",value="文档缺陷，不需要填写",required=false,paramType="query"),
@@ -192,7 +193,7 @@ public class SomePublicApi extends BasePublicController{
 		return success(jRet);
 	}
 	
-	@ApiOperation(value = "客户通知接口", notes="分页查询")
+	@ApiOperation(value = "用户通知", notes="分页查询")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header"),
 		@ApiImplicitParam(name="allParams",value="文档缺陷，不需要填写",required=false,paramType="query"),
@@ -223,7 +224,7 @@ public class SomePublicApi extends BasePublicController{
 		return success(jRet);
 	}
 	
-	@ApiOperation(value = "客户通知接口", notes="分页查询")
+	@ApiOperation(value = "用户通知", notes="分页查询")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header"),
 		@ApiImplicitParam(name="ids",value="删除多个用‘，’分隔",required=true,paramType="query")
@@ -266,7 +267,7 @@ public class SomePublicApi extends BasePublicController{
 		}
 	}
 	
-	@ApiOperation(value = "客户爱好接口", notes="分页查询")
+	@ApiOperation(value = "用户爱好", notes="分页查询")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header")
 	})
@@ -293,7 +294,7 @@ public class SomePublicApi extends BasePublicController{
 		return success(jRet);
 	}
 	
-	@ApiOperation(value = "客户缓存删除接口", notes="可删除多条")
+	@ApiOperation(value = "用户缓存删除", notes="可删除多条")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header"),
 		@ApiImplicitParam(name="ids",value="删除多个用‘，’分隔",required=true,paramType="query")
@@ -338,10 +339,12 @@ public class SomePublicApi extends BasePublicController{
 		}
 	}
 	
-	@ApiOperation(value = "客户缓存查询接口", notes="分页查询")
+	@ApiOperation(value = "用户缓存查询", notes="分页查询")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header"),
-		@ApiImplicitParam(name="allParams",value="文档缺陷，不需要填写",required=false,paramType="query")
+		@ApiImplicitParam(name="allParams",value="文档缺陷，不需要填写",required=false,paramType="query"),
+		@ApiImplicitParam(name="page",value="开始页",required=false,paramType="query"),
+		@ApiImplicitParam(name="pageSize",value="页尺寸",required=false,paramType="query")
 	})
 	@RequestMapping(value="cache", method=RequestMethod.POST)
 	public ReturnT<?> cache(HttpServletRequest request,
@@ -376,7 +379,7 @@ public class SomePublicApi extends BasePublicController{
 		return success(jRet);
 	}
 	
-	@ApiOperation(value = "客户历史删除接口", notes="可删除多条")
+	@ApiOperation(value = "用户用户播放记录删除", notes="可删除多条")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header"),
 		@ApiImplicitParam(name="ids",value="删除多个用‘，’分隔",required=true,paramType="query")
@@ -417,10 +420,12 @@ public class SomePublicApi extends BasePublicController{
 		}
 	}
 	
-	@ApiOperation(value = "客户历史查询接口", notes="分页查询")
+	@ApiOperation(value = "用户用户播放记录查询", notes="分页查询")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header"),
-		@ApiImplicitParam(name="allParams",value="文档缺陷，不需要填写",required=false,paramType="query")
+		@ApiImplicitParam(name="allParams",value="文档缺陷，不需要填写",required=false,paramType="query"),
+		@ApiImplicitParam(name="page",value="开始页",required=false,paramType="query"),
+		@ApiImplicitParam(name="pageSize",value="页尺寸",required=false,paramType="query")
 	})
 	@RequestMapping(value="history", method=RequestMethod.POST)
 	public ReturnT<?> history(HttpServletRequest request,
@@ -446,7 +451,7 @@ public class SomePublicApi extends BasePublicController{
 		return success(list);
 	}
 	
-	@ApiOperation(value = "二维码获取接口",notes="二维码", produces="image/png")
+	@ApiOperation(value = "二维码获取",notes="二维码", produces="image/png")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header")
 	})
@@ -477,7 +482,7 @@ public class SomePublicApi extends BasePublicController{
 		}
 	}
 	
-	@ApiOperation(value = "头像获取接口",notes="头像", produces="image/png")
+	@ApiOperation(value = "头像获取",notes="头像", produces="image/png")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header")
 	})

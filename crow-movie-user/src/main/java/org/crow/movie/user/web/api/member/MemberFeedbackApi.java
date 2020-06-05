@@ -1,5 +1,6 @@
 package org.crow.movie.user.web.api.member;
 
+import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
@@ -20,8 +21,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSONObject;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+
 @RestController
 @RequestMapping("/mbrfeedback")
+@Api(tags = "User Feedback Related Interface Of Management",description="后台用户反馈相关接口,需要token")
 public class MemberFeedbackApi extends BaseAdminController{
 
 	@Autowired
@@ -32,10 +39,25 @@ public class MemberFeedbackApi extends BaseAdminController{
 	 * @param request
 	 * @param allParams
 	 * @return
+	 * @throws ParseException 
+	 * @throws NumberFormatException 
 	 */
+	@ApiOperation(value = "搜索统计",notes="搜索统计")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header"),
+		@ApiImplicitParam(name="allParams",value="文档缺陷，不需要填写",required=false,paramType="query"),
+		@ApiImplicitParam(name="page",value="开始页",required=false,paramType="query"),
+		@ApiImplicitParam(name="pageSize",value="页尺寸",required=false,paramType="query"),
+		@ApiImplicitParam(name="is_read",value="用户阅读",required=false,paramType="query"),
+		@ApiImplicitParam(name="admin_is_read",value="管理员阅读",required=false,paramType="query"),
+		@ApiImplicitParam(name="is_visitor",value="是否游客",required=false,paramType="query"),
+		@ApiImplicitParam(name="feedback_type",value="反馈类型",required=false,paramType="query"),
+		@ApiImplicitParam(name="begin_time",value="开始时间",required=false,paramType="query"),
+		@ApiImplicitParam(name="end_time",value="结束时间",required=false,paramType="query")
+	})
 	@RequestMapping(value="search-count", method=RequestMethod.POST)
 	public ReturnT<?> searchCount(HttpServletRequest request,
-			@RequestParam Map<String,Object> allParams){
+			@RequestParam Map<String,Object> allParams) throws NumberFormatException, ParseException{
 
 		logger.info("mbrfeedback.search>>>enter,recive data="+allParams.entrySet());
 		
@@ -62,6 +84,10 @@ public class MemberFeedbackApi extends BaseAdminController{
 		return success(jRet);
 	}
 	
+	@ApiOperation(value = "反馈状态变更",notes="反馈状态变更")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header")
+	})
 	@RequestMapping(value="status", method=RequestMethod.POST)
 	public ReturnT<?> status(HttpServletRequest request,@RequestParam(required = true) Integer id){
 		
