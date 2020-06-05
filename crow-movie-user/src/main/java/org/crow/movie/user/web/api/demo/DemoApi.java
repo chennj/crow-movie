@@ -9,6 +9,7 @@ import org.crow.movie.user.common.db.model.ReturnT;
 import org.crow.movie.user.web.controller.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSONObject;
@@ -20,7 +21,7 @@ public class DemoApi extends BaseController{
 	@Autowired
     private ApplicationProperties properties;
 
-	@RequestMapping(value="uploads")
+	@RequestMapping(value="uploads",method=RequestMethod.POST)
 	public String getUpload(){
 		
 		JSONObject jo = new JSONObject();
@@ -29,7 +30,7 @@ public class DemoApi extends BaseController{
 		return jo.toJSONString();
 	}
 	
-	@RequestMapping(value="bean")
+	@RequestMapping(value="bean",method=RequestMethod.POST)
 	public ReturnT<?> beanTest(){
 		
 		MemberPromo entity = new MemberPromo();
@@ -40,7 +41,7 @@ public class DemoApi extends BaseController{
 
 	}
 	
-	@RequestMapping(value="beanlist")
+	@RequestMapping(value="beanlist",method=RequestMethod.POST)
 	public ReturnT<?> beanlistTest(){
 		
 		MemberPromo entity = new MemberPromo();

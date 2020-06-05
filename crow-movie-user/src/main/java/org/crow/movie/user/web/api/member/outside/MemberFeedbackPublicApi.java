@@ -78,13 +78,13 @@ public class MemberFeedbackPublicApi extends BasePublicController{
 			//check file
 			String[] fileExts = {"jpg","jpeg","png"};
 			String filename = file.getOriginalFilename();
-			if (!Arrays.asList(fileExts).contains(filename.substring(filename.lastIndexOf(".")))){
+			if (!Arrays.asList(fileExts).contains(filename.substring(filename.lastIndexOf(".")+1).toLowerCase())){
 				return fail("文件格式不正确");
 			}
 			try {
 	            // Get the file and save it somewhere
 	            byte[] bytes = file.getBytes();
-	            Path path = Paths.get(appProperties.getFeedback()+ File.separator + file.getOriginalFilename());
+	            Path path = Paths.get(appProperties.getFeedbackDir() + File.separator + file.getOriginalFilename());
 	            Files.write(path, bytes);
 	            entity.setPic(file.getOriginalFilename());
 	        } catch (IOException e) {

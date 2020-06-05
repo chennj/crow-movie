@@ -135,8 +135,11 @@ public class SomePublicApi extends BasePublicController{
 		eq.put("messageType", type);
 		try {
 			message = memberMessageService.getUnique(eq);
+			if (null == message){
+				return success("未找到相关数据");
+			}
 		} catch (Exception e){
-			return fail("未找到相关数据");
+			return fail("异常："+e.getMessage());
 		}
 		
 		MemberMessage result = new MemberMessage();
@@ -464,7 +467,7 @@ public class SomePublicApi extends BasePublicController{
 		String imageName = this.getUser().getPromoQrcode();
 		try {
 	        File logoQrFile = new File(qrcodeDir, imageName);
-	        if (!logoQrFile.exists() || StrUtil.isEmpty(imageName)){
+	        if (!logoQrFile.isFile() || StrUtil.isEmpty(imageName)){
 	        	logoQrFile = this.genQrcodePng();
 	        }
 	        
@@ -496,7 +499,7 @@ public class SomePublicApi extends BasePublicController{
 		try {
 			
 	        File avatarFile = new File(avatarDir, imageName);
-	        if (!avatarFile.exists()){
+	        if (!avatarFile.isFile() || StrUtil.isEmpty(imageName)){
 	        	InterceptorFunc.FAIL(response, "头像不存在");
 	        }
 	        

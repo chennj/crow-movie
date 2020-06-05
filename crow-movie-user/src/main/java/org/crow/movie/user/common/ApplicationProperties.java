@@ -18,7 +18,7 @@ public class ApplicationProperties {
     
     private String avatarDir;
     
-    private String feedback;
+    private String feedbackDir;
     
 	public List<String> getRefererDomain() {
 		return refererDomain;
@@ -52,12 +52,12 @@ public class ApplicationProperties {
 		this.avatarDir = avatarDir;
 	}
 
-	public String getFeedback() {
-		return feedback;
+	public String getFeedbackDir() {
+		return feedbackDir;
 	}
 
-	public void setFeedback(String feedback) {
-		this.feedback = feedback;
+	public void setFeedbackDir(String feedbackDir) {
+		this.feedbackDir = feedbackDir;
 	}
 	
 }

@@ -123,7 +123,7 @@ public class MemberHistoryService extends AbstractBaseService<MemberHistory> {
 		int now7before = now - 7*24*60*60;
 		
 		StringBuilder where = new StringBuilder("where member_id = ");
-		where.append(memberId);
+		where.append(memberId).append(" ");
 		
 		switch (history_type) {
         case 2:
@@ -144,7 +144,7 @@ public class MemberHistoryService extends AbstractBaseService<MemberHistory> {
 			+ "from hg_member_history history "
 			+ "join hg_app_movie movie on history.movie_id=movie.id "
 			+ where 
-			+ "history.create_time desc";
+			+ "order by history.create_time desc";
 		
 		List<Map<String,Object>> list = super.getPageListMap(sql, page, pageSize, new Object[]{});
 		

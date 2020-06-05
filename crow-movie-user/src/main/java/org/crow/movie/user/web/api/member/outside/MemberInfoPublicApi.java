@@ -301,7 +301,7 @@ public class MemberInfoPublicApi extends BasePublicController{
 		try {
             // Get the file and save it somewhere
             byte[] bytes = file.getBytes();
-            Path path = Paths.get(appProperties.getFeedback()+ File.separator + file.getOriginalFilename());
+            Path path = Paths.get(appProperties.getFeedbackDir() + File.separator + file.getOriginalFilename());
             Files.write(path, bytes);
             user.setAvatar(file.getOriginalFilename());
             user.setIsAvatar(1);

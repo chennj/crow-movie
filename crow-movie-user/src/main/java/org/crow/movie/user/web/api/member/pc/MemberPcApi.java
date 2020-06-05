@@ -57,7 +57,7 @@ public class MemberPcApi extends BasePcController{
 			+ "from hg_member_like mlike "
 			+ "join hg_app_movie movie on mlike.movie_id=movie.id "
 			+ "where movie.status = 1 and member_id="+this.getUser().getId()+" "
-			+ "mlike.create_time desc";
+			+ "order by mlike.create_time desc";
 		
 		List<Map<String, Object>> list = memberLikeService.getPageListMap(sql, 
 				Integer.valueOf(page), 

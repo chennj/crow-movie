@@ -83,6 +83,7 @@ public class MemberPermission extends BaseController{
 	@ApiOperation(value = "手机号注册",notes="手机号注册")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name="deviceid",value="设备ID",required=true,paramType="header"),
+		@ApiImplicitParam(name="allParams",value="文档缺陷，不需要填写",required=false,paramType="query"),
 		@ApiImplicitParam(name="global_area_code",value="区号",required=true,paramType="query"),
 		@ApiImplicitParam(name="mobile",value="手机号",required=true,paramType="query"),
 		@ApiImplicitParam(name="password",value="密码",required=true,paramType="query"),
@@ -239,6 +240,7 @@ public class MemberPermission extends BaseController{
 	@ApiOperation(value = "手机普通账户注册", notes="普通账户注册")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name="deviceid",value="设备ID",required=true,paramType="header"),
+		@ApiImplicitParam(name="allParams",value="文档缺陷，不需要填写",required=false,paramType="query"),
 		@ApiImplicitParam(name="account",value="用户名",required=true,paramType="query"),
 		@ApiImplicitParam(name="password",value="密码",required=true,paramType="query"),
 		@ApiImplicitParam(name="verify_code",value="验证码",required=true,paramType="query"),
@@ -513,7 +515,7 @@ public class MemberPermission extends BaseController{
 		}
 		
 		Map<String, Object> eq = new HashMap<>();
-		eq.put("deviceid", deviceid);
+		eq.put("deviceId", deviceid);
 		eq.put("isVisitor", 1);
 		MemberInfo member = memberInfoService.getUnique(eq);
 		if (null == member){

@@ -143,6 +143,9 @@ public final class CommUtil {
 	
 	public static String getExt(String url){
 		
+		if (url.lastIndexOf(".") == -1){
+			return null;
+		}
 		return url.substring(url.lastIndexOf("."));
 	}
 	
