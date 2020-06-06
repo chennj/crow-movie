@@ -348,7 +348,7 @@ public class MemberInfoService extends AbstractBaseService<MemberInfo> {
 		
 		String 
 		sql = 
-			"select * from hg_member_save a "
+			"select * from hg_member_info a "
 			+ where 
 			+ "order by id desc ";
 		
