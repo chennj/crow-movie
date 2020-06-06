@@ -187,7 +187,7 @@ public class MemberInfoApi  extends BaseAdminController{
 			return fail("用户不存在");
 		}
 		
-		String pwd = DigestUtils.encryptMd5(password);
+		String pwd = DigestUtils.encryptPwd(password);
 		mbr.setPassword(pwd);
 		mbr.setCreateIp(getIp(request));
 		mbr = memberInfoService.modify(mbr);
@@ -254,7 +254,9 @@ public class MemberInfoApi  extends BaseAdminController{
 	@ApiImplicitParams({
 		@ApiImplicitParam(name="accessToken",value="访问token",required=true,paramType="header"),
 		@ApiImplicitParam(name="allParams",value="文档缺陷，不需要填写",required=false,paramType="query"),
-		@ApiImplicitParam(name="isNickName",value="其他需要修改得字段使用驼峰格式(eg:is_nick_name=>isNickName)",required=false,paramType="query")
+		@ApiImplicitParam(name="isNickName",value="需要修改得字段使用驼峰格式(eg:is_nick_name=>isNickName)",required=false,paramType="query"),
+		@ApiImplicitParam(name="account",value="账户",required=true,paramType="query"),
+		@ApiImplicitParam(name="password",value="密码",required=true,paramType="query")
 	})
 	@RequestMapping(value="add", method=RequestMethod.POST)
 	public ReturnT<?> add(
@@ -271,17 +273,13 @@ public class MemberInfoApi  extends BaseAdminController{
 		JSONObject jdata = null;
 		MemberInfo mbr = null;
 		String account;
-		String password,password2;
+		String password;
 		try {
 			jdata 		= new JSONObject(allParams);
 			account 	= jdata.getString("account");
 			password 	= jdata.getString("password");
-			password2 	= jdata.getString("password2");
-			if (StrUtil.isEmpty(account) || StrUtil.isEmpty(password) || StrUtil.isEmpty(password2)){
+			if (StrUtil.isEmpty(account) || StrUtil.isEmpty(password)){
 				return fail("请输入名称，密码");
-			}
-			if (!password2.endsWith(password)){
-				return fail("两次密码不一致");
 			}
 		} catch (Exception e){
 			logger.error("mbrinfo.add>>>"+e.getMessage());

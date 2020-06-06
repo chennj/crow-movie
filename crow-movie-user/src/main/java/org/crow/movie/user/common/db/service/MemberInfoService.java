@@ -304,7 +304,7 @@ public class MemberInfoService extends AbstractBaseService<MemberInfo> {
 	public Map<String, List<Map<String, Object>>> getSave(Integer page, Integer pageSize,
 			Map<String, Object> allParams , Object...returnObj) throws ParseException {
 
-		final StringBuilder where = new StringBuilder("where 1=1 ");
+		final StringBuilder where = new StringBuilder("where a.is_save_qrcode = 1 ");
 		
 		List<Object> params = new ArrayList<Object>(){
 			/**
@@ -319,13 +319,6 @@ public class MemberInfoService extends AbstractBaseService<MemberInfo> {
 				o = allParams.get("account");
 				if (StrUtil.notEmpty(o)){
 					where.append("and a.account like '%?"+paramidx+"%' ");
-					this.add(o);
-					paramidx++;
-				}
-				
-				o = allParams.get("is_save_qrcode");
-				if (StrUtil.notEmpty(o)){
-					where.append("and a.is_save_qrcode = 1 ");
 					this.add(o);
 					paramidx++;
 				}
@@ -355,7 +348,7 @@ public class MemberInfoService extends AbstractBaseService<MemberInfo> {
 		
 		String 
 		sql = 
-			"select a.*,b.account,b.is_visitor,c.title from hg_member_info a "
+			"select * from hg_member_save a "
 			+ where 
 			+ "order by id desc ";
 		

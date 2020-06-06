@@ -96,7 +96,7 @@ public class MemberMessageService extends AbstractBaseService<MemberMessage> {
 		sql = 
 			"select a.*,b.account,b.is_visitor,c.title from hg_member_history a "
 			+ "left join hg_member_info b on a.member_id=b.id "
-			+ "left join ht_app_movie c on a.movie_id=c.id "
+			+ "left join hg_app_movie c on a.movie_id=c.id "
 			+ where 
 			+ "order by id desc ";
 		

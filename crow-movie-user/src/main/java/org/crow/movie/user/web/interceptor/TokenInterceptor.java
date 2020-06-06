@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.crow.movie.user.common.constant.Const;
+import org.crow.movie.user.common.util.IPUtil;
 import org.crow.movie.user.common.util.TokenUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +20,7 @@ public class TokenInterceptor extends HandlerInterceptorAdapter implements Initi
 
 	protected static final Logger logger = LoggerFactory.getLogger(TokenInterceptor.class.getClass());
 	
-	private static String[] excludeUrls;
+	public static String[] excludeUrls;
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -43,6 +44,8 @@ public class TokenInterceptor extends HandlerInterceptorAdapter implements Initi
 		response.setCharacterEncoding("utf-8");
 		request.setCharacterEncoding("UTF-8");
 				
+		logger.debug("访问IP：{}",IPUtil.getClientIp(request));
+		
 		if (InterceptorFunc.IsUrlWhiteList(request, response, excludeUrls)){
 			return true;
 		}

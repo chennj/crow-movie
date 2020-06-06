@@ -89,7 +89,7 @@ public class MemberClickAdvService extends AbstractBaseService<MemberClickAdv> {
 		sql = 
 			"select a.*,b.account,b.is_visitor,c.title,c.url from hg_member_click_adv a "
 			+ "left join hg_member_info b on a.member_id=b.id "
-			+ "left join ht_app_adv c on a.adv_id=c.id "
+			+ "left join hg_app_adv c on a.adv_id=c.id "
 			+ where 
 			+ "order by id desc ";
 		

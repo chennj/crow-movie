@@ -117,7 +117,7 @@ public class MemberExchangeService extends AbstractBaseService<MemberExchange> {
 		sql = 
 			"select a.*,b.account,b.is_visitor,c.title from hg_member_exchange a "
 			+ "left join hg_member_info b on a.member_id=b.id "
-			+ "left join ht_app_exchange c on a.exchange_id=c.id "
+			+ "left join hg_app_exchange c on a.exchange_id=c.id "
 			+ where 
 			+ "order by id desc ";
 		
