@@ -9,14 +9,18 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.crow.movie.user.common.db.entity.MemberInfo;
 import org.crow.movie.user.common.db.service.MemberInfoService;
 import org.crow.movie.user.common.plugin.qrcode.QRCodeService;
 import org.crow.movie.user.common.util.MapUtil;
 import org.crow.movie.user.common.util.Php2JavaUtil;
+import org.crow.movie.user.common.util.StrUtil;
 import org.crow.movie.user.common.util.CommUtil;
 import org.crow.movie.user.common.util.TokenUtil;
+import org.crow.movie.user.web.interceptor.InterceptorFunc;
+import org.crow.movie.user.web.interceptor.TokenInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,9 +40,17 @@ public abstract class BasePublicController extends BaseController{
 	private MemberInfo user = null;
 	
 	@ModelAttribute
-	private void init(HttpServletRequest request){
+	private void init(HttpServletRequest request, HttpServletResponse response) throws IOException{
 		
 		String token = request.getHeader("accessToken");
+		if (StrUtil.isEmpty(token)){
+			if (InterceptorFunc.IsUrlWhiteList(request, response, TokenInterceptor.excludeUrls)){
+				return;
+			} else {
+				response.sendError(HttpServletResponse.SC_FORBIDDEN,"非法访问");
+				return;
+			}
+		}
 		Integer id = TokenUtil.getUserID(token);
 		user = memberInfoService.getById(id);
 		if (null != user){

@@ -14,7 +14,7 @@ import com.auth0.jwt.interfaces.JWTVerifier;
 public final class TokenUtil {
 
 	//过期时间
-    private static final long overdeuTime = 2*60*60*1000;
+    private static final long overdeuTime = 4*60*60*1000;
     //私钥uuid生成，确定唯一性
     private static final String tokenSecRet="6f67b401-910e-11ea-b22b-54e1ad0a1f62";
     
