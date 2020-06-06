@@ -6,8 +6,8 @@ import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
-import com.sun.image.codec.jpeg.JPEGCodec;
-import com.sun.image.codec.jpeg.JPEGImageEncoder;
+//import com.sun.image.codec.jpeg.JPEGCodec;
+//import com.sun.image.codec.jpeg.JPEGImageEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
@@ -18,7 +18,6 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
-@SuppressWarnings("restriction")
 @Service
 public class QRCodeService {
 
@@ -79,10 +78,15 @@ public class QRCodeService {
 
             g2.dispose();
 
-            bufferImage.flush() ;
+            //bufferImage.flush() ;
+            //os = new FileOutputStream(newQrFile) ;
+            //JPEGImageEncoder en = JPEGCodec.createJPEGEncoder(os) ;
+            //en.encode(bufferImage) ;
+            
             os = new FileOutputStream(newQrFile) ;
-            JPEGImageEncoder en = JPEGCodec.createJPEGEncoder(os) ;
-            en.encode(bufferImage) ;
+            ImageIO.write(bufferImage, "png", os);
+            bufferImage.flush() ;
+            bufferImage = null;
 
         } catch (Exception e) {
             e.printStackTrace();

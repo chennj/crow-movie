@@ -497,9 +497,14 @@ public class SomePublicApi extends BasePublicController{
 		String avatarDir = appProperties.getAvatarDir();
 		String imageName = this.getUser().getAvatar();
 		try {
-			
+			if (StrUtil.isEmpty(avatarDir)){
+				InterceptorFunc.FAIL(response, "没找到头像目录");
+			}
+	        if (StrUtil.isEmpty(imageName)){
+	        	InterceptorFunc.FAIL(response, "头像不存在");
+	        }
 	        File avatarFile = new File(avatarDir, imageName);
-	        if (!avatarFile.isFile() || StrUtil.isEmpty(imageName)){
+	        if (null == avatarFile || StrUtil.isEmpty(imageName) || !avatarFile.isFile()){
 	        	InterceptorFunc.FAIL(response, "头像不存在");
 	        }
 	        
@@ -512,7 +517,7 @@ public class SomePublicApi extends BasePublicController{
             BufferedImage avatarimg = ImageIO.read(avatarFile);
             ImageIO.write(avatarimg, "PNG", response.getOutputStream());
 		} catch (Exception e){
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			InterceptorFunc.FAIL(response, e.getMessage());
 		}
 	}

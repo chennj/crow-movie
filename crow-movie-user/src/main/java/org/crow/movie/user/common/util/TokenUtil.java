@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.auth0.jwt.JWT;
+//import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.DecodedJWT;
@@ -16,6 +17,8 @@ public final class TokenUtil {
     private static final long overdeuTime = 2*60*60*1000;
     //私钥uuid生成，确定唯一性
     private static final String tokenSecRet="6f67b401-910e-11ea-b22b-54e1ad0a1f62";
+    
+    //private static JWTCreator.Builder jwt = JWT.create();
     
     /**
      * 生成token，用户退出后消失
@@ -42,6 +45,7 @@ public final class TokenUtil {
 		        .withClaim("Time",date1)
 		        .withExpiresAt(date)
 		        .sign(algorithm);
+
     }
  
     /**
