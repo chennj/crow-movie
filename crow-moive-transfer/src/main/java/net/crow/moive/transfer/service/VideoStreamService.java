@@ -107,7 +107,6 @@ public class VideoStreamService {
 		//URL url = this.getClass().getResource(VIDEO);
         //String filePath = new File(url.getFile()).getAbsolutePath();
 		String dir = System.getProperty("user.dir");
-		//dir = dir.substring(0,dir.lastIndexOf(File.separator));
 		String filePath = null;
 		try {
 			filePath = dir + File.separator + PropertyUtil.instance()
@@ -127,11 +126,4 @@ public class VideoStreamService {
         }
         return 0L;
     }
-	
-//	public static void main(String[] args){
-//		
-//		String s = "D:\\eclipse_springboot\\crow-movie\\crow-moive-transfer\\target\\file:\\D:\\eclipse_springboot\\crow-movie\\crow-moive-transfer\\target\\crow-moive-transfer-1.0-snapshot.jar!\\BOOT-INF\\classes!\\video\\toystory.mp4";
-//		int index = s.indexOf("file:");
-//		System.out.println(s.substring(index));
-//	}
 }
