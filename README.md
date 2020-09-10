@@ -3,5 +3,6 @@
   crow-movie-user<br>
 <h3>2.视频流服务器</h3>
   crow-moive-transfer<br>
-  使用http stream
+  使用http stream<br>
+  访问示例：http://localhost:8080/video/stream/mp4/toystory
   
