@@ -42,7 +42,7 @@ public class PrimaryDbConfig {
     public LocalContainerEntityManagerFactoryBean entityManagerFactoryPrimary (EntityManagerFactoryBuilder builder) {
         return builder
                 .dataSource(primaryDataSource)
-                .properties(getVendorProperties())
+                .properties(jpaProperties.getProperties())
                 .packages("org.crow.movie.user.common.db.entity") //设置实体类所在位置
                 .persistenceUnit("primaryPersistenceUnit")
                 .build();
@@ -50,11 +50,6 @@ public class PrimaryDbConfig {
 
     @Autowired(required=false)
     private JpaProperties jpaProperties;
-
-    private Map<String, Object> getVendorProperties() {
-    	HibernateSettings hibernateSettings = new HibernateSettings();
-    	return jpaProperties.getHibernateProperties(hibernateSettings);
-    }
 
     @Primary
     @Bean(name = "transactionManagerPrimary")

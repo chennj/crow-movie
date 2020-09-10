@@ -39,18 +39,13 @@ public class SecondDbConfig {
     public LocalContainerEntityManagerFactoryBean entityManagerFactorySecond (EntityManagerFactoryBuilder builder) {
         return builder
                 .dataSource(secondaryDataSource)
-                .properties(getVendorProperties())
+                .properties(jpaProperties.getProperties())
                 .packages("org.crow.movie.user.common.db.second.entity") //设置实体类所在位置
                 .build();
     }
 
     @Autowired(required=false)
     private JpaProperties jpaProperties;
-
-    private Map<String, Object> getVendorProperties() {
-    	HibernateSettings hibernateSettings = new HibernateSettings();
-    	return jpaProperties.getHibernateProperties(hibernateSettings);
-    }
 
     @Bean(name = "transactionManagerSecond")
     public PlatformTransactionManager transactionManagerSecond(EntityManagerFactoryBuilder builder) {
