@@ -32,7 +32,7 @@ public class VideoStreamService {
 		Long fileSize;
 		String fullFileName = fileName + "." + fileType;
 		StringBuilder sb = new StringBuilder();
-		sb.append("-----------------------------------------------------\n");
+		sb.append("\n-----------------------------------------------------\n");
 		sb.append("客户端传入的文件获取区间：").append(range).append("\n");
 		sb.append("客户端传入的文件名：").append(fullFileName).append("\n");
 		try {
